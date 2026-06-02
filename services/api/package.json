@@ -1,0 +1,27 @@
+{
+  "name": "@goodpath/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@goodpath/shared": "workspace:*",
+    "@goodsdks/citizen-sdk": "^1.2.5",
+    "@hono/node-server": "^1.14.1",
+    "better-sqlite3": "^11.9.1",
+    "hono": "^4.7.4",
+    "viem": "^2.23.5",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^20",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

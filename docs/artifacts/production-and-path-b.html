@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>G$ Path — Production + Path B</title>
+  <style>
+    :root {
+      --bg: #f7f6f2;
+      --surface: #fff;
+      --ink: #111;
+      --muted: #5c5b57;
+      --accent: #007a55;
+      --accent-soft: #e6f4ef;
+      --warn: #b45309;
+      --warn-soft: #fff7ed;
+      --border: #e3e2de;
+      --radius: 12px;
+      --font: "Segoe UI", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--ink); line-height: 1.55; }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    h1 { font-size: 1.75rem; margin: 0 0 0.5rem; }
+    .lede { color: var(--muted); font-size: 1.05rem; margin-bottom: 2rem; }
+    nav.toc { background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 2rem; }
+    nav.toc a { color: var(--accent); text-decoration: none; }
+    nav.toc li { margin: 0.35rem 0; }
+    section { margin-bottom: 2.5rem; }
+    h2 { font-size: 1.25rem; border-bottom: 2px solid var(--ink); padding-bottom: 0.35rem; margin: 0 0 1rem; }
+    h3 { font-size: 1rem; margin: 1.25rem 0 0.5rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    th, td { padding: 0.6rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: var(--accent-soft); font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 4px; text-transform: uppercase; }
+    .p0 { background: #fecaca; color: #7f1d1d; }
+    .p1 { background: #fed7aa; color: #9a3412; }
+    .p2 { background: #fef08a; color: #713f12; }
+    .done { background: var(--accent-soft); color: var(--accent); }
+    .callout { border-radius: var(--radius); padding: 1rem 1.1rem; margin: 1rem 0; border: 2px solid var(--border); }
+    .callout.ok { background: var(--accent-soft); border-color: var(--accent); }
+    .callout.warn { background: var(--warn-soft); border-color: #fed7aa; }
+    .pitch { background: var(--surface); border: 2px solid var(--ink); border-radius: var(--radius); padding: 1.25rem; font-size: 1.05rem; }
+    code { font-family: ui-monospace, monospace; font-size: 0.85em; background: #eee; padding: 0.1em 0.35em; border-radius: 4px; }
+    ul { padding-left: 1.2rem; }
+    li { margin: 0.35rem 0; }
+    .phase-grid { display: grid; gap: 1rem; }
+    @media (min-width: 640px) { .phase-grid { grid-template-columns: 1fr 1fr; } }
+    .phase-card { background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius); padding: 1rem; }
+    .phase-card h4 { margin: 0 0 0.5rem; font-size: 0.95rem; }
+    .copy-box { margin-top: 2rem; }
+    button.copy { background: var(--ink); color: #fff; border: none; border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer; font-weight: 600; }
+    textarea { width: 100%; min-height: 120px; margin-top: 0.75rem; font-family: ui-monospace, monospace; font-size: 0.8rem; padding: 0.75rem; border: 2px solid var(--border); border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>G$ Path — Production readiness &amp; Path B</h1>
+    <p class="lede">Goal: win selection by proving <strong>protocol depth</strong>, not a SQLite quest checklist. Path A = trustworthy onboarding. Path B = G$ velocity after the path.</p>
+
+    <nav class="toc" aria-label="Contents">
+      <strong>On this page</strong>
+      <ol>
+        <li><a href="#judge">Judge narrative (30s)</a></li>
+        <li><a href="#today">Where we are</a></li>
+        <li><a href="#path-a">Path A — production finish</a></li>
+        <li><a href="#path-b">Path B — deep G$ integration</a></li>
+        <li><a href="#order">Build order</a></li>
+        <li><a href="#env">Production env</a></li>
+      </ol>
+    </nav>
+
+    <section id="judge">
+      <h2>Judge narrative (say this on stage)</h2>
+      <div class="pitch">
+        <strong>G$ Path</strong> is not “another claim button.” We onboard humans with GoodDollar identity + gas-sponsored <code>topWallet</code>, then <em>force productive G$ movement</em>: tip, real GoodCollective support, and post-path deploy via savings or Superfluid streams — ranked on a velocity league. We use official GoodSDKs (citizen, savings, engagement), not a fake off-chain badge.
+      </div>
+    </section>
+
+    <section id="today">
+      <h2>Where we are today</h2>
+      <table>
+        <thead><tr><th>Area</th><th>Status</th><th>Gap for selection</th></tr></thead>
+        <tbody>
+          <tr><td>5-quest path + on-chain verify (FV, claim, tip)</td><td><span class="badge done">Built</span></td><td>Support is visit-ack only — weak depth story</td></tr>
+          <tr><td>Privy social + MetaMask + auto gas</td><td><span class="badge done">Built</span></td><td>Production env + one full mainnet/staging run</td></tr>
+          <tr><td>Path Receipt + league (SQLite)</td><td><span class="badge done">Built</span></td><td>League should cite chain G$ moved, not only API points</td></tr>
+          <tr><td>Tab shell (fast nav)</td><td><span class="badge done">Built</span></td><td>—</td></tr>
+          <tr><td>Wallet session UX</td><td><span class="badge done">In progress</span></td><td><code>useWalletSession</code> linking vs ready</td></tr>
+          <tr><td>Savings / Superfluid / Engagement</td><td><span class="badge p1">Path B</span></td><td>Not started — required for “deep G$”</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="path-a">
+      <h2>Path A — production finish (ship first)</h2>
+      <p>Path A is “demo-stable + honest.” Judges forgive SQLite; they won’t forgive broken social login or fake on-chain claims.</p>
+      <table>
+        <thead><tr><th>Task</th><th>Priority</th><th>Done when</th></tr></thead>
+        <tbody>
+          <tr><td>Unified <code>useWalletSession</code> (disconnected / linking / ready) on Home, Quests, Done</td><td><span class="badge p0">P0</span></td><td>No “connect wallet” flash while address visible</td></tr>
+          <tr><td>One recorded E2E on target env (staging or production GoodDollar)</td><td><span class="badge p0">P0</span></td><td>Screen recording + Celoscan links saved</td></tr>
+          <tr><td><code>GOODDOLLAR_ENV=production</code> + Privy allowed origins for deploy URL</td><td><span class="badge p0">P0</span></td><td>Deployed web + API with CORS</td></tr>
+          <tr><td>Smoke script passes against deploy</td><td><span class="badge p0">P0</span></td><td><code>pnpm smoke</code> green</td></tr>
+          <tr><td>Submission copy matches product (<code>/?tab=celebrate</code>, gas copy)</td><td><span class="badge p1">P1</span></td><td>README + SUBMISSION.md updated</td></tr>
+          <tr><td>Error copy for topWallet failure → manual CELO fallback</td><td><span class="badge p1">P1</span></td><td>Claim/tip never dead-end</td></tr>
+        </tbody>
+      </table>
+      <div class="callout ok"><strong>Path A complete</strong> = you can hand a judge a phone, they complete the path once on production config without you explaining hidden steps.</div>
+    </section>
+
+    <section id="path-b">
+      <h2>Path B — deep G$ integration (selection differentiator)</h2>
+      <p>Path B answers: <em>“What do users do with G$ after UBI?”</em> Minimum viable depth = <strong>two protocol primitives beyond claim/tip</strong>.</p>
+
+      <div class="phase-grid">
+        <div class="phase-card">
+          <h4>B1 — Real support (P0 depth)</h4>
+          <ul>
+            <li>Upgrade support quest: optional on-chain G$ to GoodCollective pool (or <code>transferAndCall</code> when wired)</li>
+            <li>Server verifies G$ transfer like tip quest</li>
+            <li>Keep visit-ack as fallback if tx fails</li>
+          </ul>
+          <p><span class="badge p0">Highest ROI</span> Replaces weakest quest in current story.</p>
+        </div>
+        <div class="phase-card">
+          <h4>B2 — Deploy G$ quest (post-path)</h4>
+          <ul>
+            <li>Quest 6 after 100%: user picks <strong>Save</strong> or <strong>Stream</strong></li>
+            <li>Copy: “Put idle G$ to work” — official grow narrative</li>
+            <li>Unlocks Today’s Habit league points only if deploy done in ISO week</li>
+          </ul>
+        </div>
+        <div class="phase-card">
+          <h4>B3 — Savings SDK</h4>
+          <ul>
+            <li><code>@goodsdks/savings-sdk</code> + widget or viem flow on Celo</li>
+            <li>Deposit min G$ → API verifies tx / pool event</li>
+          </ul>
+          <p><span class="badge p1">Official grow path</span></p>
+        </div>
+        <div class="phase-card">
+          <h4>B4 — Superfluid G$ stream (wow)</h4>
+          <ul>
+            <li>G$ SuperToken on Celo — micro-stream to league jar or creator tip jar</li>
+            <li>Start/stop flow in UI; show flow rate on receipt</li>
+          </ul>
+          <p><span class="badge p2">Stage wow</span> Best 10s demo after receipt.</p>
+        </div>
+        <div class="phase-card">
+          <h4>B5 — Engagement SDK</h4>
+          <ul>
+            <li><code>@goodsdks/engagement-sdk</code> — reward for verified onboardings you refer</li>
+            <li>Share line on Path Receipt with referral deep link</li>
+          </ul>
+        </div>
+        <div class="phase-card">
+          <h4>B6 — Chain-backed league</h4>
+          <ul>
+            <li>Weekly points += G$ outbound volume (tip + support + stream + save)</li>
+            <li>SQLite caches indexer reads; UI shows “provable on Celoscan”</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>Do not</strong> lead with a custom registry contract as the product — judges want GoodDollar protocol usage. Registry = optional epoch ID glue later.
+      </div>
+    </section>
+
+    <section id="order">
+      <h2>Recommended build order</h2>
+      <ol>
+        <li><strong>Finish Path A</strong> (wallet session, deploy env, one clean E2E recording)</li>
+        <li><strong>B1</strong> real GoodCollective / G$ support tx</li>
+        <li><strong>B2 + B3</strong> deploy quest + savings-sdk (one “grow” path is enough for depth)</li>
+        <li><strong>B4</strong> Superfluid if time — otherwise demo savings + narrate stream on roadmap slide</li>
+        <li><strong>B5–B6</strong> engagement + chain league if hours remain</li>
+      </ol>
+      <p><strong>Time-box:</strong> If &lt; 2 days left, ship B1 + B3 only. If &gt; 4 days, add B4.</p>
+    </section>
+
+    <section id="env">
+      <h2>Production env checklist</h2>
+      <table>
+        <thead><tr><th>Variable</th><th>Web</th><th>API</th></tr></thead>
+        <tbody>
+          <tr><td><code>GOODDOLLAR_ENV</code> / <code>NEXT_PUBLIC_GOODDOLLAR_ENV</code></td><td>production</td><td>production</td></tr>
+          <tr><td><code>NEXT_PUBLIC_PRIVY_APP_ID</code></td><td>set + origins</td><td>—</td></tr>
+          <tr><td><code>NEXT_PUBLIC_API_URL</code></td><td>deployed API</td><td>—</td></tr>
+          <tr><td><code>CORS_ORIGINS</code></td><td>—</td><td>web origin</td></tr>
+          <tr><td><code>TIP_RECIPIENT</code></td><td>mirror</td><td>real address</td></tr>
+          <tr><td><code>CELO_RPC_URL</code></td><td>optional</td><td>reliable RPC</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="copy-box">
+      <h2>Copy for next agent session</h2>
+      <button type="button" class="copy" id="copyBtn">Copy prompt</button>
+      <textarea id="prompt" readonly>Continue G$ Path: Path A production (wallet session done, E2E on production env, deploy). Then Path B in order: B1 real GoodCollective G$ support tx verification, B2 post-path Deploy quest, B3 @goodsdks/savings-sdk, B4 Superfluid stream if time. Update SUBMISSION.md judge narrative. Do not expand scope into custom registry-first product.</textarea>
+    </div>
+  </div>
+  <script>
+    document.getElementById("copyBtn").onclick = () => {
+      const t = document.getElementById("prompt");
+      t.select();
+      navigator.clipboard.writeText(t.value);
+      document.getElementById("copyBtn").textContent = "Copied!";
+    };
+  </script>
+</body>
+</html>

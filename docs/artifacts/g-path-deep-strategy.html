@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>G$ Path — Deep Strategy &amp; Gas Architecture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --canvas: #f7f6f3;
+      --paper: #fffef9;
+      --ink: #111111;
+      --muted: #5c5b57;
+      --border: #e3e2de;
+      --accent: #007a55;
+      --accent-soft: #e6f4ef;
+      --warn: #b45309;
+      --warn-bg: #fff7ed;
+      --danger: #b91c1c;
+      --danger-bg: #fef2f2;
+      --p0: #007a55;
+      --p1: #1d4ed8;
+      --p2: #7c3aed;
+      --p3: #6b7280;
+      --radius: 12px;
+      --shadow: 0 1px 2px rgba(17,17,17,.06), 0 8px 24px rgba(17,17,17,.04);
+      --font: "Plus Jakarta Sans", system-ui, sans-serif;
+      --display: "Instrument Serif", Georgia, serif;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--ink);
+      background: var(--canvas);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .toc { position: static; border-right: none; border-bottom: 1px solid var(--border); }
+    }
+    .toc {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 1.25rem 1rem;
+      border-right: 1px solid var(--border);
+      background: var(--paper);
+    }
+    .toc h2 {
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin: 0 0 .75rem;
+      font-weight: 600;
+    }
+    .toc a {
+      display: block;
+      padding: .35rem .5rem;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .85rem;
+      border-radius: 6px;
+    }
+    .toc a:hover, .toc a.active { color: var(--ink); background: var(--accent-soft); }
+    main { padding: 2rem 2rem 4rem; }
+    h1 {
+      font-family: var(--display);
+      font-size: clamp(2rem, 4vw, 2.75rem);
+      font-weight: 400;
+      line-height: 1.15;
+      margin: 0 0 .5rem;
+    }
+    .tagline {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 42rem;
+      margin-bottom: 1.5rem;
+    }
+    .exec {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+    }
+    .exec strong { color: var(--accent); }
+    section { margin-bottom: 2.5rem; scroll-margin-top: 1rem; }
+    h2 {
+      font-family: var(--display);
+      font-size: 1.65rem;
+      font-weight: 400;
+      margin: 0 0 1rem;
+      padding-bottom: .35rem;
+      border-bottom: 1px solid var(--border);
+    }
+    h3 { font-size: 1rem; font-weight: 600; margin: 1.25rem 0 .5rem; }
+    p { margin: 0 0 .75rem; }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem;
+      margin-bottom: 1rem;
+    }
+    .tab-btn {
+      font: inherit;
+      font-size: .8rem;
+      font-weight: 600;
+      padding: .4rem .75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--paper);
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .tab-btn[aria-selected="true"] {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.15rem;
+      margin-bottom: .75rem;
+    }
+    .grid-2 { display: grid; gap: .75rem; }
+    @media (min-width: 640px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin: .75rem 0;
+    }
+    th, td {
+      padding: .55rem .65rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th { background: var(--canvas); font-weight: 600; font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    tr:last-child td { border-bottom: none; }
+    .badge {
+      display: inline-block;
+      font-size: .68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: .15rem .45rem;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .badge-p0 { background: var(--accent-soft); color: var(--p0); }
+    .badge-p1 { background: #dbeafe; color: var(--p1); }
+    .badge-p2 { background: #ede9fe; color: var(--p2); }
+    .badge-p3 { background: #f3f4f6; color: var(--p3); }
+    .badge-done { background: #dcfce7; color: #166534; }
+    .badge-gap { background: var(--warn-bg); color: var(--warn); }
+    pre, code {
+      font-family: var(--mono);
+      font-size: .8rem;
+    }
+    pre {
+      background: #1a1a1a;
+      color: #e8e6e3;
+      padding: .85rem 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: .5rem 0;
+    }
+    .file-path {
+      font-size: .72rem;
+      color: var(--muted);
+      margin-bottom: .25rem;
+    }
+    .diagram-wrap {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      overflow-x: auto;
+      margin: .75rem 0;
+    }
+    svg text { font-family: var(--font); }
+    .compare {
+      display: grid;
+      gap: .75rem;
+    }
+    @media (min-width: 700px) { .compare { grid-template-columns: 1fr 1fr; } }
+    .compare h4 { margin: 0 0 .5rem; font-size: .95rem; }
+    .delulu { border-left: 3px solid var(--danger); }
+    .gpath { border-left: 3px solid var(--accent); }
+    .priority-row {
+      display: flex;
+      align-items: flex-start;
+      gap: .65rem;
+      padding: .65rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .priority-row:last-child { border-bottom: none; }
+    .priority-row input { margin-top: .35rem; accent-color: var(--accent); }
+    .priority-row label { flex: 1; cursor: pointer; }
+    .priority-row .meta { font-size: .8rem; color: var(--muted); }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin: 1rem 0;
+    }
+    button.primary, button.secondary {
+      font: inherit;
+      font-size: .85rem;
+      font-weight: 600;
+      padding: .5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+    }
+    button.primary { background: var(--ink); color: #fff; }
+    button.secondary { background: var(--paper); border: 1px solid var(--border); color: var(--ink); }
+    button.primary:hover { opacity: .9; }
+    textarea.export {
+      width: 100%;
+      min-height: 120px;
+      font-family: var(--mono);
+      font-size: .75rem;
+      padding: .75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-top: .5rem;
+      resize: vertical;
+    }
+    .callout-warn {
+      background: var(--warn-bg);
+      border: 1px solid #fed7aa;
+      border-radius: 8px;
+      padding: .75rem 1rem;
+      font-size: .9rem;
+      margin: .75rem 0;
+    }
+    .callout-ok {
+      background: var(--accent-soft);
+      border: 1px solid #a7d7c5;
+      border-radius: 8px;
+      padding: .75rem 1rem;
+      font-size: .9rem;
+      margin: .75rem 0;
+    }
+    ul { margin: 0 0 .75rem; padding-left: 1.25rem; }
+    li { margin-bottom: .35rem; }
+    .metric-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin: .75rem 0;
+    }
+    .pill {
+      font-size: .78rem;
+      padding: .3rem .6rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--paper);
+    }
+    footer.meta {
+      font-size: .75rem;
+      color: var(--muted);
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    @media print {
+      .toc, .toolbar, textarea.export { display: none; }
+      .layout { display: block; }
+      main { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav class="toc" aria-label="Table of contents">
+      <h2>G$ Path</h2>
+      <a href="#summary">Executive summary</a>
+      <a href="#today">Built today</a>
+      <a href="#gas">Gas &amp; wallets</a>
+      <a href="#depth">What “deep” means</a>
+      <a href="#mechanics">Beyond stake-on-goals</a>
+      <a href="#roadmap">Roadmap matrix</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#s4">Season 4 fit</a>
+      <a href="#decisions">Decision board</a>
+    </nav>
+
+    <main>
+      <header id="summary">
+        <h1>G$ Path — Deep Strategy</h1>
+        <p class="tagline">Project artifact for <strong>goodpath</strong> · Celo mainnet · MetaMask + social · GoodBuilders S4 · May 2026</p>
+
+        <div class="exec">
+          <p><strong>Thesis:</strong> Delulu stakes goals. <strong>G$ Path streams velocity</strong> — claim, move G$, rank on proof. A registry contract is <em>glue</em>, not the product.</p>
+          <p><strong>Tagline:</strong> <em>Play the path. Move the money.</em></p>
+          <p><strong>Blocker solved:</strong> Users without MetaMask or CELO claim via <strong>GoodDollar <code>topWallet</code></strong> (same as GoodWallet) before <code>claim()</code> / tip — not manual faucets.</p>
+        </div>
+
+        <div class="metric-pills">
+          <span class="pill">Repo: <code>/home/bills/code/goodpath</code></span>
+          <span class="pill">5 quests · passport UI</span>
+          <span class="pill">League + bests (API)</span>
+          <span class="pill">S4 launch ~Jun 9, 2026</span>
+        </div>
+      </header>
+
+      <section id="today">
+        <h2>Built today</h2>
+        <div class="tabs" role="tablist">
+          <button class="tab-btn" role="tab" aria-selected="true" data-tab="quests">Quests</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-tab="stack">Stack</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-tab="gaps">Gaps</button>
+        </div>
+
+        <div class="tab-panel active" id="panel-quests">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Quest</th><th>Kind</th><th>On-chain?</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>Connect wallet</td><td>auto</td><td>—</td><td><span class="badge badge-done">Live</span></td></tr>
+              <tr><td>2</td><td>Verify identity (FV)</td><td>identity</td><td>Identity contract</td><td><span class="badge badge-done">Live</span></td></tr>
+              <tr><td>3</td><td>Claim daily G$</td><td>claim</td><td>UBI <code>claim()</code></td><td><span class="badge badge-done">Live</span> · gas UX partial</td></tr>
+              <tr><td>4</td><td>Send G$ tip</td><td>transfer</td><td>ERC-20 transfer</td><td><span class="badge badge-done">Live</span></td></tr>
+              <tr><td>5</td><td>Support community</td><td>external</td><td>Visit + ack</td><td><span class="badge badge-gap">Shallow</span> → real G$ support</td></tr>
+            </tbody>
+          </table>
+          <p class="file-path">Source: <code>packages/shared/src/quests.ts</code></p>
+        </div>
+
+        <div class="tab-panel" id="panel-stack">
+          <table>
+            <thead><tr><th>Layer</th><th>Tech</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>Web</td><td>Next.js 15 · wagmi · Celo</td><td>Passport / sticker UI, Path Receipt</td></tr>
+              <tr><td>API</td><td>Hono · SQLite</td><td>Progress, weekly league, personal bests</td></tr>
+              <tr><td>GoodDollar</td><td>citizen-sdk · Identity · claim</td><td><code>NEXT_PUBLIC_GOODDOLLAR_ENV</code></td></tr>
+              <tr><td>Gas helper</td><td><code>POST …/verify/topWallet</code></td><td>Implemented, not auto-pipelined</td></tr>
+            </tbody>
+          </table>
+          <div class="file-path">Gas: <code>apps/web/src/lib/gooddollar-gas.ts</code></div>
+          <pre>await fetch(`${backend}/verify/topWallet`, {
+  method: "POST",
+  body: JSON.stringify({ chainId: 42220, account }),
+});</pre>
+        </div>
+
+        <div class="tab-panel" id="panel-gaps">
+          <ul>
+            <li><strong>Social login</strong> — embedded Celo wallet (Privy / Web3Auth / Dynamic)</li>
+            <li><strong>Auto gas</strong> — topWallet before claim/tip when CELO low</li>
+            <li><strong>Deploy quest</strong> — post-path: must move G$ (tip / support / stream / save)</li>
+            <li><strong>Public board</strong> — provable from chain txs, not only SQLite</li>
+            <li><strong>Superfluid / savings-sdk</strong> — protocol-native “idle G$” paths</li>
+            <li><strong>Engagement SDK</strong> — 0.50 G$ per verified onboarding (S4)</li>
+            <li><strong>Mainnet production</strong> — env + demo off for judging</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="gas">
+        <h2>Gas &amp; dual wallet rails</h2>
+
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 720 280" width="100%" aria-label="User flow: MetaMask vs social login">
+            <defs>
+              <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L6,3 L0,6 Z" fill="#111"/>
+              </marker>
+            </defs>
+            <rect x="20" y="20" width="140" height="44" rx="8" fill="#fff" stroke="#e3e2de"/>
+            <text x="90" y="47" text-anchor="middle" font-size="13" font-weight="600">User lands</text>
+
+            <rect x="200" y="10" width="200" height="64" rx="8" fill="#e6f4ef" stroke="#007a55"/>
+            <text x="300" y="38" text-anchor="middle" font-size="12" font-weight="600">Rail A: MetaMask</text>
+            <text x="300" y="58" text-anchor="middle" font-size="11" fill="#5c5b57">injected · WalletConnect</text>
+
+            <rect x="200" y="90" width="200" height="64" rx="8" fill="#e6f4ef" stroke="#007a55"/>
+            <text x="300" y="118" text-anchor="middle" font-size="12" font-weight="600">Rail B: Social</text>
+            <text x="300" y="138" text-anchor="middle" font-size="11" fill="#5c5b57">embedded EOA on Celo</text>
+
+            <rect x="440" y="50" width="260" height="64" rx="8" fill="#fff" stroke="#e3e2de"/>
+            <text x="570" y="78" text-anchor="middle" font-size="12" font-weight="600">Same 5 quests + receipt</text>
+            <text x="570" y="98" text-anchor="middle" font-size="11" fill="#5c5b57">FV still required for claim</text>
+
+            <line x1="160" y1="42" x2="200" y2="42" stroke="#111" marker-end="url(#arrow)"/>
+            <line x1="160" y1="42" x2="180" y2="122" stroke="#111"/>
+            <line x1="180" y1="122" x2="200" y2="122" stroke="#111" marker-end="url(#arrow)"/>
+            <line x1="400" y1="42" x2="440" y2="82" stroke="#111" marker-end="url(#arrow)"/>
+            <line x1="400" y1="122" x2="440" y2="82" stroke="#111" marker-end="url(#arrow)"/>
+
+            <rect x="440" y="140" width="260" height="50" rx="8" fill="#fff7ed" stroke="#fed7aa"/>
+            <text x="570" y="162" text-anchor="middle" font-size="11" font-weight="600">CELO check</text>
+            <text x="570" y="178" text-anchor="middle" font-size="10" fill="#5c5b57">if low → topWallet → tx</text>
+
+            <rect x="440" y="210" width="260" height="50" rx="8" fill="#e6f4ef" stroke="#007a55"/>
+            <text x="570" y="232" text-anchor="middle" font-size="11" font-weight="600">claim() · transfer() · support</text>
+            <text x="570" y="248" text-anchor="middle" font-size="10" fill="#5c5b57">GoodDollar contracts on Celo</text>
+
+            <line x1="570" y1="114" x2="570" y2="140" stroke="#111" marker-end="url(#arrow)"/>
+            <line x1="570" y1="190" x2="570" y2="210" stroke="#111" marker-end="url(#arrow)"/>
+          </svg>
+        </div>
+
+        <div class="callout-ok">
+          <strong>Deep integration (P0):</strong> Call <code>requestGoodDollarGasTopUp(address)</code> automatically before claim, tip, and on-chain support. Copy: <em>“GoodDollar is covering gas for this step.”</em> Do not send social users to celo.org faucet first.
+        </div>
+
+        <table>
+          <thead><tr><th>Approach</th><th>Who</th><th>Depth</th><th>Use when</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>GoodDollar topWallet</strong></td>
+              <td>All users</td>
+              <td><span class="badge badge-p0">Protocol</span></td>
+              <td>First claim, low CELO, social onboarding</td>
+            </tr>
+            <tr>
+              <td><strong>Celo fee abstraction</strong></td>
+              <td>Users with cUSD/USDC</td>
+              <td><span class="badge badge-p2">Celo native</span></td>
+              <td>Later txs after they hold stables</td>
+            </tr>
+            <tr>
+              <td><strong>Manual CELO faucet</strong></td>
+              <td>Fallback</td>
+              <td><span class="badge badge-p3">UX escape</span></td>
+              <td>topWallet failure only</td>
+            </tr>
+            <tr>
+              <td><strong>ERC-4337 paymaster</strong></td>
+              <td>Custom</td>
+              <td><span class="badge badge-p3">Defer</span></td>
+              <td>Not GoodDollar-native; heavy for v1</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="depth">
+        <h2>What “deep” means (honest bar)</h2>
+
+        <table>
+          <thead>
+            <tr><th>Tier</th><th>Primitive</th><th>G$ Path use</th><th>Effort</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-p0">S</span></td>
+              <td>Identity + <code>claim()</code></td>
+              <td>Quests 2–3</td>
+              <td>Done</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-p0">S</span></td>
+              <td>Gas <code>topWallet</code> API</td>
+              <td>Auto before txs</td>
+              <td>Low</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-p0">S</span></td>
+              <td>G$ SuperToken (Superfluid)</td>
+              <td>League prize stream · tip-jar stream · habit reward</td>
+              <td>Med–high</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-p1">S</span></td>
+              <td>Engagement SDK</td>
+              <td>0.50 G$ / verified user you onboard (S4)</td>
+              <td>Medium</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-p1">S</span></td>
+              <td>Savings SDK / HaloFi</td>
+              <td>“Deploy G$” = save, not fake APY</td>
+              <td>Medium</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-p1">S</span></td>
+              <td>GoodCollective + <code>transferAndCall</code></td>
+              <td>Real support tx, not visit-ack</td>
+              <td>Medium</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-p2">B</span></td>
+              <td>Your upgradable registry</td>
+              <td>Epoch ID, path events, tip jar — <em>glue only</em></td>
+              <td>Medium</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-p3">C</span></td>
+              <td>SQLite league alone</td>
+              <td>Demo / fast iteration — not the S4 story</td>
+              <td>Done</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout-warn">
+          <strong>Not deep:</strong> Supporter staking (Aave yield → donate) is for <em>supporters</em>, not claimer “invest.” Claimer grow path = savings-sdk / HaloFi / streams.
+        </div>
+      </section>
+
+      <section id="mechanics">
+        <h2>Beyond “stake on goals”</h2>
+        <div class="compare">
+          <div class="card delulu">
+            <h4>Delulu-style stake</h4>
+            <ul>
+              <li>Lump stake + market on discipline</li>
+              <li>Financial loss = motivation</li>
+              <li>Wrong for small daily UBI amounts</li>
+              <li>Ethically awkward for UBI narrative</li>
+            </ul>
+          </div>
+          <div class="card gpath">
+            <h4>G$ Path velocity</h4>
+            <ul>
+              <li><strong>Streams</strong> — Superfluid; stop = delete flow</li>
+              <li><strong>Velocity league</strong> — rank by G$ moved + claimed</li>
+              <li><strong>Hard streak</strong> — tied to claim tx (+ optional deploy)</li>
+              <li><strong>Speedrun</strong> — <code>durationSeconds</code> on completion</li>
+              <li><strong>Deploy quest</strong> — must tip / support / stream / save</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>Utility &amp; gamification ideas (ranked)</h3>
+        <table>
+          <thead><tr><th>Idea</th><th>G$ depth</th><th>Priority</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Auto gas topWallet pipeline</td><td>Protocol gas sponsorship</td><td><span class="badge badge-p0">P0</span></td><td>Unblocks social + no-CELO</td></tr>
+            <tr><td>Deploy quest (claim → must move G$)</td><td>Every user pushes G$ on-chain</td><td><span class="badge badge-p0">P0</span></td><td>Extends current tip quest</td></tr>
+            <tr><td>On-chain PathCompleted + weekly events</td><td>Registry as game server</td><td><span class="badge badge-p1">P1</span></td><td>Pair with txs, not alone</td></tr>
+            <tr><td>Public board from chain + txs</td><td>Provable competition</td><td><span class="badge badge-p1">P1</span></td><td>API board today = partial</td></tr>
+            <tr><td>Hard streak on claim tx</td><td>Habit = protocol</td><td><span class="badge badge-p1">P1</span></td><td>12:00 UTC window in UI</td></tr>
+            <tr><td>Superfluid stream (league / jar / reward)</td><td>Native G$ streaming</td><td><span class="badge badge-p2">P2</span></td><td>Wow demo candidate</td></tr>
+            <tr><td>HaloFi / savings-sdk path</td><td>Productive G$ balance</td><td><span class="badge badge-p2">P2</span></td><td>Official grow path</td></tr>
+            <tr><td>Payment link / tip jar contract</td><td>Recurring micro-tips</td><td><span class="badge badge-p2">P2</span></td><td>Medium effort</td></tr>
+            <tr><td>Engagement rewards loop</td><td>Protocol pays growth</td><td><span class="badge badge-p2">P2</span></td><td>S4 metric friendly</td></tr>
+            <tr><td>Cashback-style (S4 pilots)</td><td>Pay G$ → get G$</td><td><span class="badge badge-p3">P3</span></td><td>Partner-dependent</td></tr>
+          </tbody>
+        </table>
+        <p><em>Dropped (agreed):</em> relegation zone copy, gated receipt share.</p>
+      </section>
+
+      <section id="roadmap">
+        <h2>Interactive roadmap</h2>
+        <p>Check items you commit to for the next build slice. Export for the agent or PRD.</p>
+
+        <div class="card" id="priority-board">
+          <div class="priority-row">
+            <input type="checkbox" id="p-gas" data-id="gas-auto" data-label="Auto topWallet before claim/tip/support" checked />
+            <label for="p-gas"><strong>Gas pipeline</strong><div class="meta">P0 · apps/web claim-action + tip-action</div></label>
+          </div>
+          <div class="priority-row">
+            <input type="checkbox" id="p-social" data-id="social-login" data-label="Social login + keep MetaMask" />
+            <label for="p-social"><strong>Dual wallet</strong><div class="meta">P0 · providers.tsx · wallet-modal.tsx</div></label>
+          </div>
+          <div class="priority-row">
+            <input type="checkbox" id="p-deploy" data-id="deploy-quest" data-label="Deploy quest: mandatory G$ movement post-claim" checked />
+            <label for="p-deploy"><strong>Deploy quest</strong><div class="meta">P0 · quests.ts + verify rules</div></label>
+          </div>
+          <div class="priority-row">
+            <input type="checkbox" id="p-board" data-id="public-board" data-label="Public weekly board from chain txs" />
+            <label for="p-board"><strong>On-chain board</strong><div class="meta">P1 · indexer or contract events</div></label>
+          </div>
+          <div class="priority-row">
+            <input type="checkbox" id="p-stream" data-id="superfluid" data-label="Superfluid G$ stream (demo wow)" />
+            <label for="p-stream"><strong>Superfluid</strong><div class="meta">P2 · G$ SuperToken on Celo</div></label>
+          </div>
+          <div class="priority-row">
+            <input type="checkbox" id="p-save" data-id="savings-sdk" data-label="Savings-sdk / HaloFi deploy path" />
+            <label for="p-save"><strong>Savings path</strong><div class="meta">P2 · idle G$ → save</div></label>
+          </div>
+          <div class="priority-row">
+            <input type="checkbox" id="p-gc" data-id="goodcollective-tx" data-label="GoodCollective real G$ support tx" checked />
+            <label for="p-gc"><strong>Real support</strong><div class="meta">P1 · replace visit-ack only</div></label>
+          </div>
+          <div class="priority-row">
+            <input type="checkbox" id="p-registry" data-id="registry-glue" data-label="UUPS registry as glue (epochs, events)" />
+            <label for="p-registry"><strong>Registry glue</strong><div class="meta">P2 · optional · Celo mainnet</div></label>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button type="button" class="primary" id="copy-md">Copy as markdown</button>
+          <button type="button" class="secondary" id="copy-json">Copy as JSON</button>
+          <button type="button" class="secondary" id="copy-prompt">Copy agent prompt</button>
+        </div>
+        <textarea class="export" id="export-out" readonly aria-label="Export output"></textarea>
+      </section>
+
+      <section id="architecture">
+        <h2>Target architecture</h2>
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 700 320" width="100%" aria-label="System architecture">
+            <rect x="30" y="30" width="120" height="50" rx="8" fill="#fff" stroke="#e3e2de"/>
+            <text x="90" y="60" text-anchor="middle" font-size="12" font-weight="600">Browser</text>
+
+            <rect x="190" y="20" width="150" height="70" rx="8" fill="#e6f4ef" stroke="#007a55"/>
+            <text x="265" y="48" text-anchor="middle" font-size="11" font-weight="600">Next.js web</text>
+            <text x="265" y="68" text-anchor="middle" font-size="10" fill="#5c5b57">wagmi · GoodSDKs</text>
+            <text x="265" y="82" text-anchor="middle" font-size="10" fill="#5c5b57">gas.ts · quests UI</text>
+
+            <rect x="190" y="110" width="150" height="50" rx="8" fill="#fff" stroke="#e3e2de"/>
+            <text x="265" y="140" text-anchor="middle" font-size="11" font-weight="600">Hono API</text>
+
+            <rect x="380" y="20" width="140" height="45" rx="8" fill="#fff7ed" stroke="#fed7aa"/>
+            <text x="450" y="48" text-anchor="middle" font-size="10" font-weight="600">GoodServer</text>
+            <text x="450" y="58" text-anchor="middle" font-size="9" fill="#5c5b57">topWallet · FV</text>
+
+            <rect x="380" y="80" width="140" height="45" rx="8" fill="#e6f4ef" stroke="#007a55"/>
+            <text x="450" y="108" text-anchor="middle" font-size="10" font-weight="600">Celo mainnet</text>
+
+            <rect x="540" y="20" width="130" height="35" rx="6" fill="#fff" stroke="#e3e2de"/>
+            <text x="605" y="42" text-anchor="middle" font-size="9">Identity</text>
+            <rect x="540" y="62" width="130" height="35" rx="6" fill="#fff" stroke="#e3e2de"/>
+            <text x="605" y="84" text-anchor="middle" font-size="9">UBI claim</text>
+            <rect x="540" y="104" width="130" height="35" rx="6" fill="#fff" stroke="#e3e2de"/>
+            <text x="605" y="126" text-anchor="middle" font-size="9">G$ ERC-20</text>
+            <rect x="540" y="146" width="130" height="35" rx="6" fill="#fff" stroke="#007a55"/>
+            <text x="605" y="168" text-anchor="middle" font-size="9">Superfluid</text>
+            <rect x="540" y="188" width="130" height="35" rx="6" fill="#fff" stroke="#007a55"/>
+            <text x="605" y="210" text-anchor="middle" font-size="9">GoodCollective</text>
+
+            <rect x="380" y="150" width="140" height="45" rx="8" fill="#ede9fe" stroke="#7c3aed"/>
+            <text x="450" y="178" text-anchor="middle" font-size="10" font-weight="600">Registry (opt)</text>
+
+            <line x1="150" y1="55" x2="190" y2="55" stroke="#111" stroke-width="1.5"/>
+            <line x1="340" y1="55" x2="380" y2="42" stroke="#111" stroke-width="1.5"/>
+            <line x1="340" y1="65" x2="380" y2="100" stroke="#111" stroke-width="1.5"/>
+            <line x1="520" y1="100" x2="540" y2="100" stroke="#111" stroke-width="1.5"/>
+            <line x1="265" y1="90" x2="265" y2="110" stroke="#111" stroke-width="1.5"/>
+            <line x1="450" y1="125" x2="450" y2="150" stroke="#111" stroke-width="1.5" stroke-dasharray="4"/>
+
+            <text x="350" y="260" text-anchor="middle" font-size="11" fill="#5c5b57">Truth for competition: chain txs + optional registry · SQLite = fast cache</text>
+          </svg>
+        </div>
+      </section>
+
+      <section id="s4">
+        <h2>GoodBuilders Season 4 fit</h2>
+        <table>
+          <thead><tr><th>Track</th><th>G$ Path angle</th><th>Metric</th></tr></thead>
+          <tbody>
+            <tr><td>🎮 Gamified</td><td>League, streak, speedrun, passport receipt</td><td>DAU claims · weekly active</td></tr>
+            <tr><td>💸 Utility</td><td>Tip · support · stream · save</td><td>G$ tx volume · unique senders</td></tr>
+            <tr><td>🎨 Creator</td><td>Tip jar streams to creators</td><td>Light flavor v1</td></tr>
+            <tr><td>🤖 AI</td><td>Defer v1</td><td>—</td></tr>
+          </tbody>
+        </table>
+        <h3>Demo script (90s)</h3>
+        <ol>
+          <li>Social OR MetaMask connect on Celo</li>
+          <li>FV on phone QR → verified</li>
+          <li>Gas sponsored → claim G$ (show tx)</li>
+          <li>Tip or support with real G$</li>
+          <li>Path Receipt + league rank · optional: open a micro-stream</li>
+        </ol>
+        <h3>Stakeholder one-liner</h3>
+        <p class="card" style="font-family: var(--display); font-size: 1.15rem; font-style: italic;">
+          G$ Path: social or MetaMask on Celo, GoodDollar-sponsored gas, verified claim, then compulsory G$ velocity — tip, support, or stream — ranked on-chain. We use G$ as a SuperToken and the official savings/engagement stack, not a side quest app.
+        </p>
+      </section>
+
+      <section id="decisions">
+        <h2>Decision board</h2>
+        <p>Pick one wow demo for the next spec (drives architecture):</p>
+        <div class="grid-2">
+          <label class="card" style="cursor:pointer">
+            <input type="radio" name="wow" value="A" checked /> <strong>A — Gasless social claim E2E</strong>
+            <p class="meta" style="margin:.5rem 0 0;font-size:.85rem;color:var(--muted)">Social login → auto topWallet → claim → receipt. Best for “anyone can onboard.”</p>
+          </label>
+          <label class="card" style="cursor:pointer">
+            <input type="radio" name="wow" value="B" /> <strong>B — G$ Superfluid stream</strong>
+            <p class="meta" style="margin:.5rem 0 0;font-size:.85rem;color:var(--muted)">After path: create stream to jar / league prize. Best for “protocol depth” on stage.</p>
+          </label>
+        </div>
+
+        <h3>Velocity league rule (proposed)</h3>
+        <div class="callout-ok">
+          Weekly points count only if user <strong>claimed</strong> and made <strong>≥1 outbound G$</strong> (tip, support, stream deposit, or save) in the same ISO week.
+        </div>
+      </section>
+
+      <footer class="meta">
+        Generated for G$ Path · <code>docs/artifacts/g-path-deep-strategy.html</code> ·
+        Open: <code>xdg-open docs/artifacts/g-path-deep-strategy.html</code> from repo root ·
+        Not versioned as product source unless you choose to commit.
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const tabBtns = document.querySelectorAll(".tab-btn");
+      const panels = {
+        quests: document.getElementById("panel-quests"),
+        stack: document.getElementById("panel-stack"),
+        gaps: document.getElementById("panel-gaps"),
+      };
+      tabBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.tab;
+          tabBtns.forEach((b) => b.setAttribute("aria-selected", b === btn ? "true" : "false"));
+          Object.values(panels).forEach((p) => p.classList.remove("active"));
+          panels[id].classList.add("active");
+        });
+      });
+
+      const tocLinks = document.querySelectorAll(".toc a");
+      const sections = [...tocLinks].map((a) => document.querySelector(a.getAttribute("href")));
+      const obs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              tocLinks.forEach((a) => a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id));
+            }
+          });
+        },
+        { rootMargin: "-20% 0px -70% 0px" }
+      );
+      sections.forEach((s) => s && obs.observe(s));
+
+      function getChecked() {
+        return [...document.querySelectorAll("#priority-board input:checked")].map((el) => ({
+          id: el.dataset.id,
+          label: el.dataset.label,
+        }));
+      }
+
+      function getWow() {
+        const r = document.querySelector('input[name="wow"]:checked');
+        return r ? r.value : "A";
+      }
+
+      function buildMarkdown() {
+        const items = getChecked();
+        const wow = getWow();
+        const lines = [
+          "# G$ Path — build slice (from artifact)",
+          "",
+          "## Committed items",
+          ...items.map((i) => `- [x] ${i.label}`),
+          "",
+          "## Wow demo",
+          wow === "A"
+            ? "**A** — Gasless social claim end-to-end (topWallet → claim → receipt)"
+            : "**B** — G$ Superfluid stream after path complete",
+          "",
+          "## Depth bar",
+          "Protocol primitives (Superfluid, savings-sdk, engagement, topWallet) > optional registry glue.",
+          "",
+          "## Velocity league",
+          "Points require claim + ≥1 outbound G$ in the same ISO week.",
+        ];
+        return lines.join("\n");
+      }
+
+      function buildJson() {
+        return JSON.stringify(
+          {
+            project: "goodpath",
+            artifact: "g-path-deep-strategy.html",
+            generated: new Date().toISOString(),
+            wowDemo: getWow(),
+            committed: getChecked(),
+            dropped: ["relegation-zone-copy", "gated-receipt-share"],
+          },
+          null,
+          2
+        );
+      }
+
+      function buildPrompt() {
+        const items = getChecked().map((i) => i.label).join("; ");
+        const wow =
+          getWow() === "A"
+            ? "Implement gasless social onboarding: social login + auto requestGoodDollarGasTopUp before claim/tip."
+            : "Implement Superfluid G$ stream quest after path completion (league prize or user tip jar).";
+        return `Implement the next G$ Path slice in /home/bills/code/goodpath.
+
+Committed: ${items || "(none selected)"}.
+
+Primary demo: ${wow}
+
+Constraints:
+- Keep MetaMask / WalletConnect rail.
+- Celo mainnet production env for judging.
+- Deep = GoodDollar protocol (topWallet, claim, Superfluid/savings/engagement) not registry-only.
+- Do not add relegation zone or gated receipt share.
+
+Reference: docs/artifacts/g-path-deep-strategy.html`;
+      }
+
+      const out = document.getElementById("export-out");
+      function refreshExport() {
+        out.value = buildMarkdown();
+      }
+      document.querySelectorAll("#priority-board input, input[name=wow]").forEach((el) => {
+        el.addEventListener("change", refreshExport);
+      });
+      refreshExport();
+
+      async function copyText(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          out.value = text;
+        } catch {
+          out.value = text;
+          out.select();
+        }
+      }
+
+      document.getElementById("copy-md").addEventListener("click", () => copyText(buildMarkdown()));
+      document.getElementById("copy-json").addEventListener("click", () => copyText(buildJson()));
+      document.getElementById("copy-prompt").addEventListener("click", () => copyText(buildPrompt()));
+    })();
+  </script>
+</body>
+</html>

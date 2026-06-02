@@ -1,0 +1,24 @@
+{
+  "name": "goodpath",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/start-dev.mjs",
+    "dev:demo": "NEXT_PUBLIC_DEMO_MODE=true node scripts/start-dev.mjs",
+    "dev:kill": "node scripts/kill-dev.mjs",
+    "dev:lan": "node scripts/dev-lan.mjs",
+    "dev:tunnel": "node scripts/dev-tunnel.mjs",
+    "dev:tunnel:app": "node scripts/dev-tunnel.mjs --only",
+    "dev:web": "pnpm --filter @goodpath/web dev",
+    "dev:api": "pnpm --filter @goodpath/api dev",
+    "dev:reset": "pnpm --filter @goodpath/web dev:reset",
+    "dev:smoke": "pnpm --filter @goodpath/web smoke",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "react-doctor": "^0.2.15",
+    "typescript": "^5.8.2"
+  },
+  "packageManager": "pnpm@9.15.4"
+}

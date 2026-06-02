@@ -1,0 +1,28 @@
+# Dependencies & build
+node_modules/
+.pnp
+.pnp.*
+dist/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+
+# Local data (API SQLite)
+data/
+*.db
+*.db-journal
+
+# Secrets — never commit (examples are ok: .env.example)
+.env
+.env.*
+!.env.example
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE / local
+.vercel
+coverage/
