@@ -3,7 +3,8 @@ import path from "node:path";
 import fs from "node:fs";
 import {
   QUESTS,
-  QUEST_IDS,
+  CORE_PATH_QUEST_IDS,
+  CHAIN_PROOF_QUEST_IDS,
   computeProgress,
   prerequisitesMet,
   completionsFromIds,
@@ -148,21 +149,32 @@ export function getProfile(address: string): ProfileRow {
 
 export function getCompletions(
   address: string,
-): Record<string, { completedAt: string; txHash: string | null }> {
+): Record<
+  string,
+  { completedAt: string; txHash: string | null; meta: string | null }
+> {
   const lower = normalizeAddress(address);
   const rows = db
     .prepare(
-      "SELECT quest_id, completed_at, tx_hash FROM quest_completions WHERE address = ?",
+      "SELECT quest_id, completed_at, tx_hash, meta FROM quest_completions WHERE address = ?",
     )
     .all(lower) as {
     quest_id: string;
     completed_at: string;
     tx_hash: string | null;
+    meta: string | null;
   }[];
 
-  const out: Record<string, { completedAt: string; txHash: string | null }> = {};
+  const out: Record<
+    string,
+    { completedAt: string; txHash: string | null; meta: string | null }
+  > = {};
   for (const r of rows) {
-    out[r.quest_id] = { completedAt: r.completed_at, txHash: r.tx_hash };
+    out[r.quest_id] = {
+      completedAt: r.completed_at,
+      txHash: r.tx_hash,
+      meta: r.meta,
+    };
   }
   return out;
 }
@@ -192,7 +204,10 @@ export function buildProfilePayload(address: string) {
   const lower = normalizeAddress(address);
   const completions = getCompletions(address);
   const completedIds = Object.keys(completions);
-  const progress = computeProgress(completedIds.length);
+  const coreCompleted = CORE_PATH_QUEST_IDS.filter((id) =>
+    Boolean(completions[id]),
+  ).length;
+  const progress = computeProgress(coreCompleted);
   const completionMap = completionsFromIds(completedIds);
   const league = getLeagueStanding(
     lower,
@@ -200,12 +215,24 @@ export function buildProfilePayload(address: string) {
     profile.path_completed_at,
   );
 
+  const chainProofs = CHAIN_PROOF_QUEST_IDS.filter((id) =>
+    Boolean(completions[id]?.txHash),
+  ).map((id) => {
+    const row = completions[id]!;
+    return {
+      questId: id,
+      txHash: row.txHash as string,
+      ...(row.meta ? { meta: row.meta } : {}),
+    };
+  });
+
   return {
     address: profile.address,
     streak: profile.streak,
     lastActiveDate: profile.last_active_date,
     pathCompletedAt: profile.path_completed_at,
     progress,
+    chainProofs,
     completions,
     personalBests: {
       fastestPathSeconds: profile.fastest_path_seconds,
@@ -271,16 +298,17 @@ export function completeQuest(
 
     const streak = touchStreakLocked(lower);
 
-    const count = (
+    const coreCount = (
       db
         .prepare(
-          "SELECT COUNT(*) as c FROM quest_completions WHERE address = ?",
+          `SELECT COUNT(*) as c FROM quest_completions
+           WHERE address = ? AND quest_id IN (${CORE_PATH_QUEST_IDS.map(() => "?").join(",")})`,
         )
-        .get(lower) as { c: number }
+        .get(lower, ...CORE_PATH_QUEST_IDS) as { c: number }
     ).c;
 
     let pathComplete = false;
-    if (count >= QUEST_IDS.length) {
+    if (coreCount >= CORE_PATH_QUEST_IDS.length) {
       const row = db
         .prepare(
           "SELECT path_started_at, fastest_path_seconds FROM profiles WHERE address = ?",
@@ -339,6 +367,15 @@ export function getImpactStats() {
       .get() as { c: number }
   ).c;
 
+  const chainProofCount = (
+    db
+      .prepare(
+        `SELECT COUNT(*) as c FROM quest_completions
+         WHERE quest_id IN ('tip','support','deploy') AND tx_hash IS NOT NULL`,
+      )
+      .get() as { c: number }
+  ).c;
+
   const walletsOnPath = (
     db.prepare("SELECT COUNT(*) as c FROM profiles").get() as { c: number }
   ).c;
@@ -347,6 +384,7 @@ export function getImpactStats() {
     pathsCompleted,
     questCompletions,
     tipsSent,
+    chainProofCount,
     walletsOnPath,
   };
 }

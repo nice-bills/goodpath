@@ -1,7 +1,7 @@
 "use client";
 
-import { useAccount } from "wagmi";
 import { useMarkQuestComplete } from "@/hooks/use-quest-actions";
+import { useWalletSession } from "@/hooks/use-wallet-session";
 import { useFvVerification } from "@/hooks/use-fv-verification";
 import type { QuestStatus } from "@/lib/api";
 import { QuestPanel } from "../quest-panel";
@@ -16,7 +16,7 @@ export function VerifyAction({
   onUpdated: () => void;
   variant?: "standalone" | "embedded";
 }) {
-  const { address } = useAccount();
+  const { address } = useWalletSession();
   const markComplete = useMarkQuestComplete();
 
   const flow = useFvVerification({

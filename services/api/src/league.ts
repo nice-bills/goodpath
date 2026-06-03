@@ -1,3 +1,4 @@
+import { QUEST_LEAGUE_POINTS, type QuestId } from "@goodpath/shared";
 import { db } from "./db.js";
 
 /** ISO week id, e.g. 2026-W22 */
@@ -24,14 +25,6 @@ export function getWeekStartUtc(date = new Date()): string {
   return d.toISOString().slice(0, 10);
 }
 
-const QUEST_POINTS: Record<string, number> = {
-  connect: 2,
-  verify: 8,
-  claim: 10,
-  tip: 6,
-  support: 6,
-};
-
 export function computeWeeklyPoints(
   address: string,
   streak: number,
@@ -49,7 +42,8 @@ export function computeWeeklyPoints(
 
   let points = 0;
   for (const r of rows) {
-    points += QUEST_POINTS[r.quest_id] ?? 3;
+    const questId = r.quest_id as QuestId;
+    points += QUEST_LEAGUE_POINTS[questId] ?? 3;
   }
 
   points += Math.min(streak, 14) * 5;

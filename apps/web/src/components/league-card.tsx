@@ -32,6 +32,13 @@ export function LeagueCard({ profile }: { profile: ProfileResponse }) {
           Streak shield earned — one missed claim forgiven this week.
         </p>
       )}
+      {(profile.chainProofs?.length ?? 0) > 0 && (
+        <p className="mt-2 text-[10px] text-muted">
+          {profile.chainProofs!.length} on-chain proof
+          {profile.chainProofs!.length === 1 ? "" : "s"} this path —{" "}
+          <span className="font-semibold text-foreground">provable on Celoscan</span>
+        </p>
+      )}
     </section>
   );
 }

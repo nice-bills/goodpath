@@ -50,7 +50,8 @@ Defined in `packages/shared/src/quests.ts`:
 | 2 | verify | identity | `getWhitelistedRoot` on Celo |
 | 3 | claim | claim | UBI claim tx / event |
 | 4 | tip | transfer | G$ `Transfer` to `TIP_RECIPIENT` ≥ `MIN_TIP_G` |
-| 5 | support | external | **Weak:** client sends `meta: "goodcollective_visit_ack"` only |
+| 5 | support | external | G$ transfer to `SUPPORT_RECIPIENT` **or** visit ack fallback |
+| 6 | deploy | deploy | Post-path: savings-sdk **stake** or Superfluid **createFlow** |
 
 **Quest UI dispatcher:** `apps/web/src/components/quest/quest-action.tsx` (dynamic imports per action).
 
@@ -306,14 +307,12 @@ pnpm --filter @goodpath/web privy:check
 - [ ] SUBMISSION.md accurate
 
 ### Path B minimum viable (selection story)
-- [ ] B1: Support quest verifies real G$ tx (ack fallback)
-- [ ] B2 + B3: Post-path deploy quest with savings-sdk save path
-- [ ] README / submission updated with “deep integration” bullets
-
-### Path B stretch
-- [ ] B4 Superfluid stream demo
-- [ ] B5 Engagement referral
-- [ ] B6 Chain-backed league points
+- [x] B1: Support quest verifies real G$ tx (ack fallback)
+- [x] B2 + B3: Post-path deploy quest with savings-sdk save path
+- [x] B4: Superfluid stream tab on deploy quest
+- [x] B5: Referral link on Path Receipt (`?ref=`)
+- [x] B6: `chainProofs` on profile + league Celoscan copy
+- [ ] README / submission updated for deploy env vars (see `docs/SUBMISSION.md`)
 
 ---
 

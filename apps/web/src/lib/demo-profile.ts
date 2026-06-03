@@ -17,7 +17,10 @@ export function buildDemoProfile(): ProfileResponse {
       completedAt: now,
       txHash: "0x0000000000000000000000000000000000000000000000000000000000000002",
     },
-    support: { completedAt: now, txHash: null },
+    support: {
+      completedAt: now,
+      txHash: "0x0000000000000000000000000000000000000000000000000000000000000003",
+    },
   };
 
   return {
@@ -26,6 +29,10 @@ export function buildDemoProfile(): ProfileResponse {
     lastActiveDate: now.slice(0, 10),
     pathCompletedAt: now,
     progress: 100,
+    chainProofs: [
+      { questId: "tip", txHash: completions.tip!.txHash! },
+      { questId: "support", txHash: completions.support!.txHash! },
+    ],
     personalBests: {
       fastestPathSeconds: 252,
       longestStreak: 7,
@@ -40,13 +47,16 @@ export function buildDemoProfile(): ProfileResponse {
       streakShield: true,
     },
     completions,
-    quests: QUESTS.map((q) => ({
-      ...q,
-      completed: true,
-      completedAt: completions[q.id]?.completedAt ?? now,
-      txHash: completions[q.id]?.txHash ?? null,
-      unlocked: true,
-    })),
+    quests: QUESTS.map((q) => {
+      const done = q.id !== "deploy";
+      return {
+        ...q,
+        completed: done,
+        completedAt: done ? (completions[q.id]?.completedAt ?? now) : null,
+        txHash: completions[q.id]?.txHash ?? null,
+        unlocked: done || q.id === "deploy",
+      };
+    }),
   };
 }
 

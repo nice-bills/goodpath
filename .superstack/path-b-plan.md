@@ -11,12 +11,12 @@
 
 ## Path B (build in order)
 
-1. **B1** — Support quest: verify on-chain G$ transfer (not ack-only); ack fallback
-2. **B2** — Post-path quest `deploy`: choose save OR stream
-3. **B3** — `@goodsdks/savings-sdk` deposit flow + API verify
-4. **B4** — Superfluid G$ stream (optional wow)
-5. **B5** — `@goodsdks/engagement-sdk` referral on receipt
-6. **B6** — League points from indexed G$ outbound txs
+1. **B1** — Support quest: verify on-chain G$ transfer (not ack-only); ack fallback ✅
+2. **B2** — Post-path quest `deploy`: choose save OR stream ✅
+3. **B3** — `@goodsdks/savings-sdk` deposit flow + API verify ✅
+4. **B4** — Superfluid G$ stream via CFA forwarder ✅
+5. **B5** — Referral deep link on Path Receipt (`?ref=`) ✅ (engagement-sdk optional later)
+6. **B6** — `chainProofs` on profile + league Celoscan copy ✅
 
 ## Packages to add
 

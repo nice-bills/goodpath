@@ -23,6 +23,11 @@ const SupportAction = dynamic(
   { loading: () => <p className="mt-3 text-xs text-muted">Loading…</p> },
 );
 
+const DeployAction = dynamic(
+  () => import("./actions/deploy-action").then((m) => ({ default: m.DeployAction })),
+  { loading: () => <p className="mt-3 text-xs text-muted">Loading deploy…</p> },
+);
+
 export function QuestAction({
   quest,
   onUpdated,
@@ -42,6 +47,8 @@ export function QuestAction({
       return <TipAction quest={quest} onUpdated={onUpdated} variant={variant} />;
     case "external":
       return <SupportAction quest={quest} onUpdated={onUpdated} variant={variant} />;
+    case "deploy":
+      return <DeployAction quest={quest} onUpdated={onUpdated} variant={variant} />;
     case "auto":
       return null;
     default:

@@ -8,6 +8,7 @@ import {
   Gift,
   HandHeart,
   Lock,
+  Plant,
   Wallet,
 } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
@@ -20,6 +21,7 @@ const questIcons = {
   claim: Gift,
   tip: Coins,
   support: HandHeart,
+  deploy: Plant,
 } as const;
 
 export function QuestCard({

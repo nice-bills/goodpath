@@ -7,6 +7,7 @@ import {
   Gift,
   HandHeart,
   Lock,
+  Plant,
   Wallet,
 } from "@phosphor-icons/react";
 import type { QuestStatus } from "@/lib/api";
@@ -19,6 +20,7 @@ const questIcons = {
   claim: Gift,
   tip: Coins,
   support: HandHeart,
+  deploy: Plant,
 } as const;
 
 export function QuestStickerGrid({

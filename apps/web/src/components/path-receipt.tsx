@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Check, ShareNetwork } from "@phosphor-icons/react";
 import { useMemo } from "react";
-import { QUESTS } from "@goodpath/shared";
+import { CORE_PATH_QUEST_IDS, QUESTS } from "@goodpath/shared";
+import { referralUrl } from "@/lib/referral";
 import type { ProfileResponse } from "@/lib/api";
 import { formatPathReceipt, receiptShareLine } from "@/lib/path-receipt";
 import { formatPathDuration } from "@/lib/format";
@@ -19,14 +20,24 @@ export function PathReceipt({
   profile: ProfileResponse;
   demo?: boolean;
 }) {
-  const [copied, setCopied] = useState<"receipt" | "share" | null>(null);
+  const [copied, setCopied] = useState<"receipt" | "share" | "referral" | null>(
+    null,
+  );
   const questById = useMemo(
     () => new Map(profile.quests.map((q) => [q.id, q])),
     [profile.quests],
   );
+  const coreDone = CORE_PATH_QUEST_IDS.filter((id) =>
+    Boolean(questById.get(id)?.completed),
+  ).length;
 
-  const copy = async (kind: "receipt" | "share") => {
-    const text = kind === "receipt" ? formatPathReceipt(profile) : receiptShareLine(profile);
+  const copy = async (kind: "receipt" | "share" | "referral") => {
+    const text =
+      kind === "receipt"
+        ? formatPathReceipt(profile)
+        : kind === "share"
+          ? receiptShareLine(profile)
+          : referralUrl(profile.address);
     await navigator.clipboard.writeText(text);
     setCopied(kind);
     setTimeout(() => setCopied(null), 2000);
@@ -133,9 +144,19 @@ export function PathReceipt({
       <div className="receipt-footer-bar">
         <div>
           <span>Receipt unlocked</span>
-          <strong>5 / 5 stickers</strong>
+          <strong>
+            {coreDone} / {CORE_PATH_QUEST_IDS.length} path stickers
+          </strong>
         </div>
         <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => copy("referral")}
+            className="receipt-footer-share text-[10px] font-semibold"
+            title="Copy referral link"
+          >
+            {copied === "referral" ? "✓" : "Ref"}
+          </button>
           <button
             type="button"
             onClick={() => copy("share")}

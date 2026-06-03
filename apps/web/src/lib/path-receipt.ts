@@ -39,5 +39,10 @@ export function receiptShareLine(profile: ProfileResponse): string {
   const time = profile.personalBests?.fastestPathSeconds
     ? ` Path time: ${Math.floor(profile.personalBests.fastestPathSeconds / 60)}m.`
     : "";
-  return `I completed my G$ Path — verified, claimed UBI, tipped, supported GoodCollective.${time}${rank} ${profile.streak}-day streak. #GoodDollar #UBI`;
+  const deployMeta = profile.completions.deploy?.txHash;
+  const deployNote = deployMeta ? " + deployed G$ (save/stream)," : "";
+  const proofCount = profile.chainProofs?.length ?? 0;
+  const proofNote =
+    proofCount > 0 ? ` ${proofCount} Celoscan proof${proofCount === 1 ? "" : "s"},` : "";
+  return `I completed my G$ Path — verified, claimed UBI, tipped, supported the ecosystem${deployNote}${proofNote} on-chain.${time}${rank} ${profile.streak}-day streak. #GoodDollar #UBI`;
 }

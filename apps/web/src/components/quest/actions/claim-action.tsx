@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { useAccount } from "wagmi";
+import { useChainId } from "wagmi";
+import { useWalletSession } from "@/hooks/use-wallet-session";
 import { isSupportedChain, chainConfigs } from "@goodsdks/citizen-sdk";
 import { SDK_ENV } from "@/lib/env";
 import {
@@ -34,7 +35,8 @@ export function ClaimAction({
   onUpdated: () => void;
   variant?: "standalone" | "embedded";
 }) {
-  const { address, chainId, isConnected } = useAccount();
+  const { address, status } = useWalletSession();
+  const chainId = useChainId();
   const markComplete = useMarkQuestComplete();
   const { sdk: claimSDK, loading, error: sdkError } = useGoodClaimSDK(SDK_ENV);
   const {
@@ -69,7 +71,8 @@ export function ClaimAction({
     },
   });
 
-  const onWrongChain = isConnected && chainId !== undefined && chainId !== celo.id;
+  const onWrongChain =
+    status === "ready" && chainId !== undefined && chainId !== celo.id;
   const needsFv =
     forceFv || fvFlow.needsVerification || (fvFlow.whitelisted === null && fvFlow.checking);
 
@@ -224,6 +227,7 @@ export function ClaimAction({
           busy ||
           loading ||
           entitlement.isLoading ||
+          status !== "ready" ||
           !address ||
           claimAmount === 0 ||
           claimAmount === null ||

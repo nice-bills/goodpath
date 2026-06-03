@@ -23,12 +23,19 @@ export interface LeagueStanding {
   streakShield: boolean;
 }
 
+export interface ChainProof {
+  questId: string;
+  txHash: string;
+  meta?: string;
+}
+
 export interface ProfileResponse {
   address: string;
   streak: number;
   lastActiveDate: string | null;
   pathCompletedAt: string | null;
   progress: number;
+  chainProofs?: ChainProof[];
   completions: Record<string, { completedAt: string; txHash: string | null }>;
   personalBests?: PersonalBests;
   league?: LeagueStanding;
@@ -56,6 +63,7 @@ export interface ImpactStats {
   pathsCompleted: number;
   questCompletions: number;
   tipsSent: number;
+  chainProofCount?: number;
   walletsOnPath: number;
 }
 

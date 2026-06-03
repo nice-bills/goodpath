@@ -15,7 +15,7 @@ import {
   getImpactStats,
   QuestPrerequisiteError,
 } from "./db.js";
-import { validateQuestProof } from "./verify.js";
+import { validateQuestProof } from "./verify/index.js";
 
 const app = new Hono();
 

@@ -11,6 +11,19 @@ export const SDK_ENV = (process.env.NEXT_PUBLIC_GOODDOLLAR_ENV ?? "development")
 export const TIP_RECIPIENT = (process.env.NEXT_PUBLIC_TIP_RECIPIENT ??
   "0x0000000000000000000000000000000000000001") as `0x${string}`;
 export const MIN_TIP_G = process.env.NEXT_PUBLIC_MIN_TIP_G ?? "0.01";
+export const SUPPORT_RECIPIENT = (process.env.NEXT_PUBLIC_SUPPORT_RECIPIENT ??
+  process.env.NEXT_PUBLIC_TIP_RECIPIENT ??
+  "0x0000000000000000000000000000000000000001") as `0x${string}`;
+export const MIN_SUPPORT_G =
+  process.env.NEXT_PUBLIC_MIN_SUPPORT_G ??
+  process.env.NEXT_PUBLIC_MIN_TIP_G ??
+  "0.01";
+export const MIN_DEPLOY_G = process.env.NEXT_PUBLIC_MIN_DEPLOY_G ?? "0.01";
+export const STREAM_RECIPIENT = (process.env.NEXT_PUBLIC_STREAM_RECIPIENT ??
+  process.env.NEXT_PUBLIC_TIP_RECIPIENT ??
+  "0x0000000000000000000000000000000000000001") as `0x${string}`;
+export const MIN_STREAM_G_PER_MONTH =
+  process.env.NEXT_PUBLIC_MIN_STREAM_G_PER_MONTH ?? "0.01";
 
 /** LAN / tunnel URL for phone QR and FV callbacks (see `pnpm dev:lan`). */
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "";

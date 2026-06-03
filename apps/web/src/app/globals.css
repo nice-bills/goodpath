@@ -468,6 +468,22 @@ button,
   background: #ffe66d;
 }
 
+.quest-page-sticker-6,
+.receipt-sticker-6 {
+  --stamp-rotate: 1deg;
+  background: #dbeafe;
+}
+
+.quest-active-panel {
+  margin-bottom: 5.5rem;
+  scroll-margin-bottom: 6.5rem;
+}
+
+.quest-active-panel .quest-active-panel.card,
+.quest-active-panel .card.quest-active-panel {
+  margin-bottom: 0;
+}
+
 .passport-stamp-5 {
   grid-column: 1 / -1;
 }
