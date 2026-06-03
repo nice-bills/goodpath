@@ -1,0 +1,13 @@
+{
+  "runs": [
+    {
+      "date": "2026-06-03",
+      "verb": "redesign",
+      "target": "apps/web home shell + dashboard",
+      "genre": "modern-minimal",
+      "macrostructure": "Workbench",
+      "theme": "brand-locked",
+      "stamp": "Hallmark · genre: modern-minimal · macrostructure: Workbench · theme: brand-locked · nav: N3-side-rail"
+    }
+  ]
+}
