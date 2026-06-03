@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { TabLink } from "@/components/tab-link";
 import {
   ArrowRight,
@@ -23,40 +24,77 @@ import { useProfile } from "@/hooks/use-profile";
 import { useDemoMode } from "@/hooks/use-demo-mode";
 import { useWalletSession } from "@/hooks/use-wallet-session";
 
-const previewStickers = [
-  { title: "Connect wallet", label: "Step 1", icon: Wallet },
-  { title: "Verify identity", label: "+1 step", icon: Fingerprint },
-  { title: "Claim daily G$", label: "Daily UBI", icon: Gift },
-  { title: "Send a G$ tip", label: "Utility unlocked", icon: Coins },
-  { title: "Support the community", label: "Community badge", icon: HandHeart },
+const pathPreviewSteps = [
+  {
+    step: 1,
+    title: "Your wallet",
+    hint: "Connect on Celo to unlock the path",
+    icon: Wallet,
+  },
+  { step: 2, title: "Verify identity", hint: "Face verification", icon: Fingerprint },
+  { step: 3, title: "Claim daily G$", hint: "Gas-sponsored UBI", icon: Gift },
+  { step: 4, title: "Send a G$ tip", hint: "Move G$ on-chain", icon: Coins },
+  { step: 5, title: "Support community", hint: "GoodCollective", icon: HandHeart },
 ] as const;
 
 function StickerStartPreview() {
-  return (
-    <section className="start-passport animate-fade-in">
-      <div className="passport-paper">
-        <div className="passport-head">
-          <div>
-            <span>Week 1</span>
-            <strong>My G$ passport</strong>
-          </div>
-        </div>
+  const [hero, ...upcoming] = pathPreviewSteps;
+  const HeroIcon = hero.icon;
 
-        <div className="start-sticker-stack" aria-label="G$ Path preview stickers">
-          {previewStickers.map(({ title, label, icon: Icon }, index) => (
-            <div key={title} className={`start-sticker start-sticker-${index + 1}`}>
-              <span className="sticker-tape" aria-hidden />
-              <Icon className="h-4 w-4" weight="duotone" aria-hidden />
-              <strong>{title}</strong>
-              <small>{label}</small>
+  return (
+    <section className="start-passport animate-fade-in" aria-labelledby="start-passport-title">
+      <div className="passport-paper start-passport-paper">
+        <header className="start-passport-head">
+          <p className="section-label">Week 1</p>
+          <h2 id="start-passport-title" className="start-passport-title">
+            My G$ passport
+          </h2>
+          <p className="start-passport-meta">5 stickers · one receipt · ~5 minutes</p>
+        </header>
+
+        <div className="start-path-board" aria-label="Path preview">
+          <article className="start-path-step start-path-step-hero">
+            <div className="start-path-step-icon" aria-hidden>
+              <HeroIcon className="h-5 w-5" weight="bold" />
             </div>
-          ))}
+            <div className="start-path-step-copy">
+              <span className="start-path-step-num">Step {hero.step}</span>
+              <strong>{hero.title}</strong>
+              <p>{hero.hint}</p>
+            </div>
+          </article>
+
+          <ol className="start-path-upcoming">
+            {upcoming.map(({ step, title, hint, icon: Icon }, index) => (
+              <li
+                key={step}
+                className="start-path-step start-path-step-locked"
+                style={
+                  {
+                    "--stamp-rotate": `${(index % 2 === 0 ? -1 : 1) * 1.25}deg`,
+                  } as CSSProperties
+                }
+              >
+                <div
+                  className="start-path-step-icon start-path-step-icon--muted"
+                  aria-hidden
+                >
+                  <Icon className="h-4 w-4" weight="bold" />
+                </div>
+                <div className="start-path-step-copy">
+                  <span className="start-path-step-num">Step {step}</span>
+                  <strong>{title}</strong>
+                  <p>{hint}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
 
         <div className="start-receipt-stub">
           <div>
-            <span>Receipt locked</span>
-            <strong>0 / 5 stickers</strong>
+            <span className="start-receipt-label">Receipt locked</span>
+            <strong className="start-receipt-count">0 / 5</strong>
           </div>
           <ConnectButton variant="pill" />
         </div>
@@ -78,11 +116,14 @@ export function HomeTab() {
   const showPath = demoActive || (hasWallet && !isError);
 
   return (
-    <main className="flex flex-1 flex-col">
-      <PageHeader
-        title="G$ Path"
-        subtitle="Five steps. Five minutes. Real GoodDollar onboarding."
-      />
+    <main className={showPath ? "flex flex-1 flex-col" : "main-start flex flex-1 flex-col"}>
+      {showPath ? (
+        <PageHeader
+          title="G$ Path"
+          subtitle="Five steps. Five minutes. Real GoodDollar onboarding."
+          showConnect={hasWallet}
+        />
+      ) : null}
 
       {hasWallet ? <ImpactStrip /> : null}
       <DemoModeBanner />
@@ -100,23 +141,27 @@ export function HomeTab() {
         <HomeSkeleton />
       ) : showPath && profile ? (
         <>
-          <LeagueCard profile={profile} />
-          {(pathDone || progress > 0) && <PersonalBestsCard profile={profile} />}
-          {pathDone && <TodaysHabit streak={streak} />}
+          <div className="home-dashboard-grid">
+            <LeagueCard profile={profile} />
+            {(pathDone || progress > 0) && <PersonalBestsCard profile={profile} />}
+            {pathDone && <TodaysHabit streak={streak} />}
+          </div>
 
-          <HeroPath
-            progress={progress}
-            streak={streak}
-            quests={profile.quests}
-            headline={pathDone ? "Path complete" : nextQuest ? "Next quest" : "Continue"}
-            subline={
-              pathDone
-                ? "Receipt ready on Celebrate — claim again tomorrow."
-                : nextQuest
-                  ? nextQuest.title
-                  : "Open quests to pick up where you left off."
-            }
-          />
+          <div className="home-dashboard-span">
+            <HeroPath
+              progress={progress}
+              streak={streak}
+              quests={profile.quests}
+              headline={pathDone ? "Path complete" : nextQuest ? "Next quest" : "Continue"}
+              subline={
+                pathDone
+                  ? "Receipt ready on Celebrate — claim again tomorrow."
+                  : nextQuest
+                    ? nextQuest.title
+                    : "Open quests to pick up where you left off."
+              }
+            />
+          </div>
 
           <TabLink
             tab={pathDone ? "celebrate" : "quests"}
@@ -156,6 +201,14 @@ export function HomeTab() {
         </>
       ) : (
         <div className="start-landing">
+          <header className="start-landing-intro">
+            <span className="eyebrow">GoodDollar</span>
+            <h1 className="font-display start-landing-title">G$ Path</h1>
+            <p className="start-landing-lead">
+              Five steps. Five minutes. Real onboarding on Celo — verify, claim, move G$,
+              earn your receipt.
+            </p>
+          </header>
           <StickerStartPreview />
         </div>
       )}

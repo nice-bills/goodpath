@@ -2,7 +2,7 @@
 
 ## Path A definition of done
 
-- [ ] `pnpm build` passes
+- [x] `pnpm build` passes (re-run before each release)
 - [ ] Web + API deployed with matching env
 - [ ] Privy dashboard: Google + Email + Wallet; **all deploy origins** listed
 - [ ] One full E2E on `GOODDOLLAR_ENV=production` (or staging) — see [`E2E_PRODUCTION.md`](E2E_PRODUCTION.md)

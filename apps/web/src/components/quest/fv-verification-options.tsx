@@ -1,6 +1,7 @@
 "use client";
 
 import { phoneAccessHint } from "@/lib/app-origin";
+import { PlatformGuide } from "@/components/platform-guide";
 import { FvQrPanel } from "@/components/quest/fv-qr-panel";
 import type { useFvVerification } from "@/hooks/use-fv-verification";
 
@@ -52,6 +53,9 @@ export function FvVerificationOptions({
               ? "Face verification is required. On a laptop, scan the QR to finish on your phone — often easier than this browser."
               : "Face verification is required before you can continue.")}
       </p>
+      <div className="mt-3">
+        <PlatformGuide variant="compact" />
+      </div>
 
       {onWrongChain && (
         <button

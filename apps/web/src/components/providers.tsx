@@ -47,7 +47,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const shell = <div className="app-shell">{children}</div>;
+  const shell = (
+    <div className="app-shell flex min-h-dvh flex-col">{children}</div>
+  );
 
   if (isPrivyEnabled) {
     return (

@@ -300,9 +300,11 @@ pnpm --filter @goodpath/web privy:check
 ## 13. Acceptance criteria
 
 ### Path A complete
-- [ ] `pnpm build` passes
+- [x] `pnpm build` passes
 - [ ] Deployed with `GOODDOLLAR_ENV=production` (or staging) + Privy origins
 - [ ] Full path completed once with screen recording + Celoscan links
+
+**Master checklist:** [`docs/PATH_A_B_CLOSEOUT.md`](PATH_A_B_CLOSEOUT.md)
 - [ ] No “connect wallet” flash while wallet chip shows address
 - [ ] SUBMISSION.md accurate
 
@@ -312,7 +314,8 @@ pnpm --filter @goodpath/web privy:check
 - [x] B4: Superfluid stream tab on deploy quest
 - [x] B5: Referral link on Path Receipt (`?ref=`)
 - [x] B6: `chainProofs` on profile + league Celoscan copy
-- [ ] README / submission updated for deploy env vars (see `docs/SUBMISSION.md`)
+- [x] README / submission updated for deploy env vars (see `docs/SUBMISSION.md`)
+- [ ] Production E2E includes Deploy tx (Save or Stream) — see `docs/E2E_PRODUCTION.md` step 7
 
 ---
 

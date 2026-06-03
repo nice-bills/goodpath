@@ -6,7 +6,6 @@ import { Trophy, ArrowLeft, ArrowRight } from "@phosphor-icons/react";
 import { useProfile } from "@/hooks/use-profile";
 import { useDemoMode } from "@/hooks/use-demo-mode";
 import { useWalletSession } from "@/hooks/use-wallet-session";
-import { ConnectButton } from "@/components/connect-button";
 import { ProgressRing } from "@/components/progress-ring";
 import { DemoModeBanner } from "@/components/demo-mode-banner";
 import { TodaysHabit } from "@/components/todays-habit";
@@ -43,7 +42,6 @@ export function CelebrateTab() {
           <ArrowLeft className="mr-1 inline h-4 w-4" weight="bold" aria-hidden />
           Back
         </Link>
-        <ConnectButton />
       </div>
 
       <DemoModeBanner />
@@ -58,12 +56,9 @@ export function CelebrateTab() {
               </p>
             </>
           ) : (
-            <>
-              <p className="text-sm text-muted">Connect a wallet or enable demo mode to celebrate.</p>
-              <div className="mt-6 w-full max-w-[260px]">
-                <ConnectButton variant="pill" />
-              </div>
-            </>
+            <p className="text-sm text-muted">
+              Connect your wallet on Home to unlock Done.
+            </p>
           )}
         </div>
       ) : (

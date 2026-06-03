@@ -18,8 +18,9 @@ Run this on **staging** or **production** GoodDollar config before judging. Save
 | 3 | Claim daily G$ (gas sponsored if needed) | | `tx: 0x…` |
 | 4 | Tip ≥ `MIN_TIP_G` G$ | | `tx: 0x…` |
 | 5 | Support — send G$ on-chain **or** visit ack | | `tx: 0x…` or ack |
-| 6 | `/?tab=celebrate` — Path Receipt 100% | | Screenshot |
-| 7 | (Optional depth) Deploy — stake via savings-sdk | | `tx: 0x…` |
+| 6 | `/?tab=celebrate` — Path Receipt 100% (core path) | | Screenshot |
+| 7 | **Path B** — Deploy → **Save** (savings-sdk stake) **or** **Stream** (Superfluid) | | `tx: 0x…` |
+| 8 | Home — league rank + **chain proof** line (tip/support/deploy hashes) | | Celoscan links visible |
 
 ## Recording
 
@@ -34,7 +35,13 @@ https://celoscan.io/tx/0xYOUR_CLAIM_HASH
 https://celoscan.io/tx/0xYOUR_TIP_HASH
 https://celoscan.io/tx/0xYOUR_SUPPORT_HASH
 https://celoscan.io/tx/0xYOUR_STAKE_HASH
+https://celoscan.io/tx/0xYOUR_STREAM_HASH
 ```
+
+## Path A vs Path B sign-off
+
+- **Path A complete:** rows 1–6 + smoke on deploy URL.
+- **Path B complete:** row 7 (real Deploy tx on Celo mainnet) + row 8 (proofs on profile/receipt).
 
 ## Smoke after deploy
 

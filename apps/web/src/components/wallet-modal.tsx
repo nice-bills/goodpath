@@ -157,6 +157,38 @@ function LegacyWalletOptions({ onClose }: { onClose: () => void }) {
   );
 }
 
+function PrivyModalSignIn({ onClose }: { onClose: () => void }) {
+  const { ready } = usePrivy();
+
+  if (!ready) {
+    return (
+      <p className="mt-4 text-xs text-muted" role="status">
+        Preparing sign-in…
+      </p>
+    );
+  }
+
+  return (
+    <>
+      <p className="wallet-connect-fast-label">Recommended on desktop — usually under 10s</p>
+      <PrivyWalletLoginButton onClose={onClose} disabled={false} />
+      <p className="wallet-connect-divider">or sign in with email / Google</p>
+      <p className="wallet-connect-slow-hint text-xs text-muted">
+        Email creates a Privy wallet (first time can take 30–90s). Use MetaMask above if
+        you&apos;re in a hurry.
+      </p>
+      <PrivyLoginOptions onClose={onClose} />
+      <div className="wallet-sheet-note">
+        <strong>GoodDollar covers gas</strong>
+        <span className="wallet-sheet-note-detail">
+          WHEN YOU CLAIM — SAME AS GOODWALLET. NO CELO NEEDED TO START.
+        </span>
+      </div>
+      <PrivyResetSignIn />
+    </>
+  );
+}
+
 function PrivyResetSignIn() {
   const { authenticated, logout, ready } = usePrivy();
   const { isConnected } = useAccount();
@@ -235,23 +267,7 @@ export function WalletModal({ open, onClose }: { open: boolean; onClose: () => v
           </div>
 
           {isPrivyEnabled ? (
-            <>
-              <p className="wallet-connect-fast-label">Recommended on desktop — usually under 10s</p>
-              <PrivyWalletLoginButton onClose={onClose} disabled={false} />
-              <p className="wallet-connect-divider">or sign in with email / Google</p>
-              <p className="wallet-connect-slow-hint text-xs text-muted">
-                Email creates a Privy wallet (first time can take 30–90s). Use MetaMask above if
-                you&apos;re in a hurry.
-              </p>
-              <PrivyLoginOptions onClose={onClose} />
-              <div className="wallet-sheet-note">
-                <strong>GoodDollar covers gas</strong>
-                <span className="wallet-sheet-note-detail">
-                  WHEN YOU CLAIM — SAME AS GOODWALLET. NO CELO NEEDED TO START.
-                </span>
-              </div>
-              <PrivyResetSignIn />
-            </>
+            <PrivyModalSignIn onClose={onClose} />
           ) : (
             <LegacyWalletOptions onClose={onClose} />
           )}

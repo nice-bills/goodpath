@@ -33,7 +33,9 @@ export function QuestStickerGrid({
   const nextQuest = quests.find((q) => !q.completed && q.unlocked);
 
   return (
-    <section className="quest-sticker-grid-wrap">
+    <section
+      className={`quest-sticker-grid-wrap${nextQuest ? " quest-sticker-grid-wrap-split" : ""}`}
+    >
       <div className="quest-sticker-grid" aria-label="Path quests">
         {quests.map((quest, i) => {
           const done = quest.completed;

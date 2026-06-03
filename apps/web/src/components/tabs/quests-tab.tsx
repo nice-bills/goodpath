@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import dynamic from "next/dynamic";
 import { PageHeader } from "@/components/page-header";
 import { QuestReceiptStub } from "@/components/quest-receipt-stub";
-import { ConnectButton } from "@/components/connect-button";
 import { HomeSkeleton } from "@/components/ui/skeleton";
 import { FvReturnBanner } from "@/components/quest/fv-return-banner";
 import { DemoModeBanner } from "@/components/demo-mode-banner";
@@ -34,6 +33,7 @@ export function QuestsTab() {
         eyebrow={`${progress}%`}
         title="Quests"
         subtitle="Tap a sticker — finish the active step below."
+        showConnect
       />
 
       <DemoModeBanner />
@@ -50,12 +50,9 @@ export function QuestsTab() {
               <p className="mt-2 text-xs text-muted">Almost ready — keep this tab open.</p>
             </>
           ) : (
-            <>
-              <p className="text-sm text-muted">Connect a wallet on Celo or try demo mode.</p>
-              <div className="mt-6 w-full max-w-[260px]">
-                <ConnectButton variant="pill" />
-              </div>
-            </>
+            <p className="text-sm text-muted">
+              Connect your wallet on Home to start quests.
+            </p>
           )}
         </div>
       ) : isLoading && !profile ? (

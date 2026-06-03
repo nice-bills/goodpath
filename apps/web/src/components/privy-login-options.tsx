@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   usePrivy,
   useLoginWithEmail,
@@ -66,7 +66,39 @@ function WalletSetupPanel({
   );
 }
 
-export function PrivyLoginOptions({
+function PrivySignInLoading() {
+  const [slow, setSlow] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSlow(true), 6000);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  if (!slow) {
+    return <p className="text-xs text-muted">Loading sign-in…</p>;
+  }
+
+  return (
+    <div className="wallet-connect-actions">
+      <p className="text-sm font-medium text-foreground">Sign-in is taking longer than usual</p>
+      <p className="text-xs leading-relaxed text-muted">
+        Check that{" "}
+        <code className="rounded bg-surface-muted px-1">NEXT_PUBLIC_PRIVY_APP_ID</code> is set,
+        http://localhost:3000 is in your Privy app allowed origins, and ad blockers are off for
+        this site.
+      </p>
+      <button
+        type="button"
+        className="btn-secondary mt-2 w-full text-xs"
+        onClick={() => window.location.reload()}
+      >
+        Retry
+      </button>
+    </div>
+  );
+}
+
+function PrivyLoginOptionsReady({
   onClose,
 }: {
   onClose: () => void;
@@ -80,7 +112,7 @@ export function PrivyLoginOptions({
   const [formError, setFormError] = useState<string | null>(null);
   const [finishing, setFinishing] = useState(false);
 
-  const { ready, authenticated, logout } = usePrivy();
+  const { authenticated, logout } = usePrivy();
   const { ensureEmbeddedWalletLinked, phase, error: setupError, isReady } =
     usePrivyEmbeddedWalletLink({ autoRestore: false });
 
@@ -112,10 +144,6 @@ export function PrivyLoginOptions({
   const { sendCode, loginWithCode, state: emailState } = useLoginWithEmail({
     onError: (err) => setFormError(String(err)),
   });
-
-  if (!ready) {
-    return <p className="text-xs text-muted">Loading sign-in…</p>;
-  }
 
   if ((authenticated && !isReady) || finishing) {
     return (
@@ -240,13 +268,23 @@ export function PrivyLoginOptions({
   );
 }
 
-export function PrivyWalletLoginButton({
+export function PrivyLoginOptions({
+  onClose,
+}: {
+  onClose: () => void;
+  pendingClose?: boolean;
+  onPendingClose?: (v: boolean) => void;
+}) {
+  const { ready } = usePrivy();
+  if (!ready) return <PrivySignInLoading />;
+  return <PrivyLoginOptionsReady onClose={onClose} />;
+}
+
+function PrivyWalletLoginButtonReady({
   onClose,
   disabled,
 }: {
   onClose: () => void;
-  onPendingClose?: (v: boolean) => void;
-  className?: string;
   disabled?: boolean;
 }) {
   const { switchChain } = useSwitchChain();
@@ -293,4 +331,18 @@ export function PrivyWalletLoginButton({
       )}
     </>
   );
+}
+
+export function PrivyWalletLoginButton({
+  onClose,
+  disabled,
+}: {
+  onClose: () => void;
+  onPendingClose?: (v: boolean) => void;
+  className?: string;
+  disabled?: boolean;
+}) {
+  const { ready } = usePrivy();
+  if (!ready) return null;
+  return <PrivyWalletLoginButtonReady onClose={onClose} disabled={disabled} />;
 }

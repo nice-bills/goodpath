@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GoodPath - GoodBuilders Winning Direction</title>
+  <style>
+    :root {
+      --bg: #f4f2ec;
+      --paper: #fffdf6;
+      --ink: #101513;
+      --muted: #62706a;
+      --line: #dad7ce;
+      --green: #00a979;
+      --green-dark: #06392e;
+      --blue: #2457d6;
+      --yellow: #f4bd2a;
+      --pink: #dd466f;
+      --purple: #7257d9;
+      --soft-green: #e6f6ee;
+      --soft-blue: #e7efff;
+      --soft-yellow: #fff4cf;
+      --soft-pink: #ffe8ef;
+      --soft-purple: #eeeaff;
+      --radius: 8px;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      line-height: 1.5;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 18px;
+      border-right: 1px solid var(--line);
+      background: #fbfaf5;
+    }
+
+    aside h2 {
+      margin: 0 0 14px;
+      font-size: 12px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    aside a {
+      display: block;
+      padding: 9px 10px;
+      border-radius: 6px;
+      color: var(--green-dark);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    aside a:hover { background: var(--soft-green); }
+
+    main {
+      max-width: 1180px;
+      padding: 34px;
+    }
+
+    .hero {
+      min-height: 420px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+      gap: 24px;
+      align-items: stretch;
+      margin-bottom: 34px;
+    }
+
+    .hero-copy {
+      background: var(--green-dark);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 34px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 420px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      width: fit-content;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 10px;
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 999px;
+      color: rgba(255,255,255,.8);
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 20px 0 14px;
+      max-width: 780px;
+      font-size: clamp(42px, 6vw, 82px);
+      line-height: .92;
+      letter-spacing: 0;
+    }
+
+    .hero-copy p {
+      max-width: 720px;
+      margin: 0;
+      color: rgba(255,255,255,.78);
+      font-size: 18px;
+    }
+
+    .hero-panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .phone {
+      background: #101513;
+      border-radius: 28px;
+      padding: 16px;
+      color: #fff;
+      min-height: 380px;
+      box-shadow: 0 24px 50px rgba(16,21,19,.18);
+    }
+
+    .phone-screen {
+      height: 100%;
+      border-radius: 18px;
+      background: #f8f7f1;
+      color: var(--ink);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .rank-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .rank-badge {
+      width: 66px;
+      height: 66px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--yellow);
+      color: #111;
+      font-weight: 900;
+      font-size: 22px;
+    }
+
+    .mini-card {
+      background: #fff;
+      border: 1px solid #e7e3d8;
+      border-radius: var(--radius);
+      padding: 13px;
+    }
+
+    .mini-card strong { display: block; font-size: 15px; }
+    .mini-card span { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; }
+
+    .progress {
+      height: 12px;
+      border-radius: 999px;
+      background: #e5e2d7;
+      overflow: hidden;
+    }
+
+    .progress div {
+      width: 74%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--yellow));
+    }
+
+    .proof-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .proof {
+      padding: 10px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .proof:nth-child(1) { background: var(--soft-green); }
+    .proof:nth-child(2) { background: var(--soft-blue); }
+    .proof:nth-child(3) { background: var(--soft-yellow); }
+    .proof:nth-child(4) { background: var(--soft-pink); }
+
+    section {
+      margin: 0 0 34px;
+      scroll-margin-top: 18px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(26px, 3vw, 40px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      max-width: 520px;
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .card p, .card li {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .card p { margin: 0; }
+    .card ul { margin: 10px 0 0; padding-left: 18px; }
+    .card li { margin: 5px 0; }
+
+    .tag {
+      display: inline-flex;
+      margin-bottom: 12px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 850;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .tag.green { color: #075c44; background: var(--soft-green); }
+    .tag.blue { color: #153e9d; background: var(--soft-blue); }
+    .tag.yellow { color: #6f4b00; background: var(--soft-yellow); }
+    .tag.pink { color: #982d4a; background: var(--soft-pink); }
+    .tag.purple { color: #3d2b91; background: var(--soft-purple); }
+
+    .wide { grid-column: span 2; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .step {
+      position: relative;
+      min-height: 160px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .step b {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .step strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 13px 14px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      background: #f0eee6;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    code {
+      font-family: var(--mono);
+      font-size: .9em;
+      background: rgba(0,0,0,.06);
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+
+    .source-list a { color: var(--green-dark); font-weight: 700; }
+    .source-list li { margin: 8px 0; color: var(--muted); }
+
+    .callout {
+      border-radius: var(--radius);
+      border: 1px solid var(--green);
+      background: var(--soft-green);
+      padding: 18px;
+      font-size: 16px;
+    }
+
+    .callout strong { color: var(--green-dark); }
+
+    @media (max-width: 980px) {
+      .shell { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      main { padding: 22px; }
+      .hero { grid-template-columns: 1fr; }
+      .grid, .flow { grid-template-columns: 1fr; }
+      .wide { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <h2>GoodPath 2.0</h2>
+      <a href="#thesis">Thesis</a>
+      <a href="#research">Research signal</a>
+      <a href="#product">Product</a>
+      <a href="#contract">Upgradeable contract</a>
+      <a href="#social">Social and competitive</a>
+      <a href="#solo">Solo-first design</a>
+      <a href="#celo">Celo-only build</a>
+      <a href="#roadmap">Seven-day plan</a>
+      <a href="#sources">Sources</a>
+    </aside>
+
+    <main>
+      <section class="hero" id="thesis">
+        <div class="hero-copy">
+          <div>
+            <span class="eyebrow">GoodBuilders target</span>
+            <h1>Turn G$ Path into a solo-first Celo league for real GoodDollar circulation.</h1>
+            <p>
+              Stop selling it as "claim your UBI." Sell it as the first GoodDollar game where a single verified
+              human can climb immediately by moving G$ into tips, support pools, savings, and streams, all proven on Celo.
+            </p>
+          </div>
+          <p>
+            Judge line: "GoodPath makes GoodDollar useful after the claim. Every score comes from verified
+            Celo activity, and the app ships with an upgradeable mainnet contract for solo receipts, seasons, and optional social play."
+          </p>
+        </div>
+
+        <div class="hero-panel">
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="rank-row">
+                <div>
+                  <span class="tag green">Weekly league</span>
+                  <h3 style="margin:0;font-size:26px">Amina's Run</h3>
+                  <p style="margin:4px 0 0;color:var(--muted)">G$ moved this week: 184.2</p>
+                </div>
+                <div class="rank-badge">#2</div>
+              </div>
+              <div class="mini-card">
+                <strong>Next move: open a 7-day G$ stream</strong>
+                <span>+35 pts, Celoscan proof, beats your previous best run.</span>
+              </div>
+              <div class="progress"><div></div></div>
+              <div class="proof-grid">
+                <div class="proof">Verified human</div>
+                <div class="proof">Claimed UBI</div>
+                <div class="proof">Tipped friend</div>
+                <div class="proof">Stream active</div>
+              </div>
+              <div class="mini-card">
+                <strong>Solo challenge</strong>
+                <span>Complete 3 real G$ actions before midnight to unlock a streak shield.</span>
+              </div>
+              <div class="mini-card">
+                <strong>Mainnet contract</strong>
+                <span>GoodPathReceipt proxy emits quest, referral, squad, and season events.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="research">
+        <div class="section-head">
+          <h2>What the research says</h2>
+          <p>The winning bar is not "uses G$ somewhere." It is meaningful protocol usage, live product, Celo distribution, and social growth.</p>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <span class="tag green">GoodBuilders</span>
+            <h3>Top two matters</h3>
+            <p>The buildathon is tied to prizes and fast-track access into a funded 3-month program for the top two projects. That means the demo must look fundable, not just functional.</p>
+          </div>
+          <div class="card">
+            <span class="tag blue">GoodDollar</span>
+            <h3>Meaningful integration</h3>
+            <p>GoodDollar developer docs call out meaningful new protocol integrations. The app should prove G$ identity, claim, payments, community support, savings, and streaming.</p>
+          </div>
+          <div class="card">
+            <span class="tag yellow">Celo</span>
+            <h3>Celo is the chain story</h3>
+            <p>G$ on Celo is the official token surface we should build around. Do not market multi-chain. Do not support Fuse in the MVP. Everything should say Celo mainnet.</p>
+          </div>
+          <div class="card">
+            <span class="tag pink">Superfluid</span>
+            <h3>Streaming is the deep edge</h3>
+            <p>G$ is a native SuperToken on Celo, and GoodBuilders itself is connected to streaming/continuous funding. A stream quest is much stronger than another transfer quest.</p>
+          </div>
+          <div class="card">
+            <span class="tag purple">Social login</span>
+            <h3>Login must be boring-easy</h3>
+            <p>Privy embedded wallets let email/Google users enter without seed phrases. This is critical because GoodDollar users are mobile-first and often new to crypto.</p>
+          </div>
+          <div class="card">
+            <span class="tag green">Contract</span>
+            <h3>Upgradeable, but narrow</h3>
+            <p>Use an OpenZeppelin UUPS proxy for the GoodPath contract. It records product events and season logic; it must not custody user G$ in v1.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="product">
+        <div class="section-head">
+          <h2>Product concept</h2>
+          <p>Replace "quest checklist" with a solo ladder whose score only comes from useful Celo actions. Social features add upside, not dependency.</p>
+        </div>
+        <div class="flow">
+          <div class="step">
+            <b>01</b>
+            <strong>Join with social login</strong>
+            <span>Email or Google creates/links an embedded Celo wallet. Wallet users can still connect directly.</span>
+          </div>
+          <div class="step">
+            <b>02</b>
+            <strong>Verify and claim</strong>
+            <span>GoodDollar identity + daily UBI claim. This is entry, not the whole product.</span>
+          </div>
+          <div class="step">
+            <b>03</b>
+            <strong>Move G$ with purpose</strong>
+            <span>Tip a public jar, support a pool, save, or stream. Friends are optional; useful G$ movement is not.</span>
+          </div>
+          <div class="step">
+            <b>04</b>
+            <strong>Deploy G$</strong>
+            <span>Open a savings position or Superfluid G$ stream. This becomes the deep integration moment.</span>
+          </div>
+          <div class="step">
+            <b>05</b>
+            <strong>Climb your run</strong>
+            <span>Personal bests, weekly divisions, shareable receipts, Celoscan proof, and streak shields.</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="contract">
+        <div class="section-head">
+          <h2>Upgradeable contract</h2>
+          <p>The contract should make the project serious without creating unnecessary custody/security risk.</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Contract</th>
+              <th>Why it exists</th>
+              <th>V1 methods/events</th>
+              <th>Upgrade plan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>GoodPathReceipt</code></td>
+              <td>Public Celo mainnet proof that the app is not only SQLite points.</td>
+              <td><code>recordQuest</code>, <code>recordReferral</code>, <code>joinSquad</code>, <code>recordSeasonScore</code>; emits quest/referral/squad/season events.</td>
+              <td>OpenZeppelin UUPS proxy, owner is a multisig/admin wallet, storage-gap reserved for v2.</td>
+            </tr>
+            <tr>
+              <td><code>GoodPathSeason</code> later</td>
+              <td>On-chain season config if GoodBuilders funding continues.</td>
+              <td>Season windows, multipliers, allowlisted quest verifier, optional badge minting.</td>
+              <td>V2 upgrade or separate contract after demo, not needed before mainnet launch.</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="callout">
+          <strong>Important:</strong> v1 should not hold user funds. Let GoodDollar token, savings SDK, and Superfluid handle money movement. Our contract records verified product proofs and makes the league composable.
+        </div>
+      </section>
+
+      <section id="social">
+        <div class="section-head">
+          <h2>Social, competitive, fun</h2>
+          <p>These are not decorations. They are the growth loop and judging story.</p>
+        </div>
+        <div class="grid">
+          <div class="card wide">
+            <span class="tag green">Core loop</span>
+            <h3>GoodPath League</h3>
+            <p>Weekly ranking based on Celo proofs: claim streak, G$ tipped, G$ supported, stream opened, savings action, verified referral, and optional squad completion. The user sees "how to beat your previous run" before they see generic onboarding copy.</p>
+          </div>
+          <div class="card">
+            <span class="tag yellow">Fun</span>
+            <h3>Streak shields</h3>
+            <p>Earn one missed-day forgiveness by completing solo challenges: claim three days, support a pool, open a stream, or beat yesterday's score.</p>
+          </div>
+          <div class="card">
+            <span class="tag blue">Social</span>
+            <h3>Optional squads</h3>
+            <p>3-5 people can pool activity into a weekly squad rank, but users never need friends to progress. Squads are a multiplier for growth, not the base game.</p>
+          </div>
+          <div class="card">
+            <span class="tag pink">Shareable</span>
+            <h3>Receipt cards</h3>
+            <p>Receipts show rank, G$ moved, number of proofs, Celo links, and invite code. They should feel like a scorecard, not a certificate.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="solo">
+        <div class="section-head">
+          <h2>Solo-first design</h2>
+          <p>The product must be satisfying with one user, one judge account, or one person with no friends in the app.</p>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <span class="tag green">Default</span>
+            <h3>Personal best ladder</h3>
+            <p>Your first opponent is your previous run: fastest path, longest streak, most G$ moved, most proof types, first stream, and weekly score.</p>
+          </div>
+          <div class="card">
+            <span class="tag yellow">No friends needed</span>
+            <h3>Public targets</h3>
+            <p>Tip a rotating community jar, support a featured GoodCollective pool, save G$, or open a stream. The app always offers a useful destination.</p>
+          </div>
+          <div class="card">
+            <span class="tag blue">Competition</span>
+            <h3>Divisions, not giant leaderboards</h3>
+            <p>Start users in tiny seeded divisions: Bronze, Silver, Gold. A user can be #2 of 8 even when the app only has a few early users.</p>
+          </div>
+          <div class="card">
+            <span class="tag pink">Judge demo</span>
+            <h3>Seeded season</h3>
+            <p>For demos, show anonymized seeded runners plus the live user. The live user's Celo actions change rank in real time without pretending seeded rows are real users.</p>
+          </div>
+          <div class="card">
+            <span class="tag purple">Social later</span>
+            <h3>Rivals before squads</h3>
+            <p>Instead of requiring a friend group, let a user pick one public rival or "beat the median" challenge. This creates competition with low liquidity.</p>
+          </div>
+          <div class="card">
+            <span class="tag green">Contract fit</span>
+            <h3>Solo receipts first</h3>
+            <p>The upgradeable contract records solo run events in v1. Squad/referral events are present but optional, so mainnet launch is not blocked by network effects.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="celo">
+        <div class="section-head">
+          <h2>Celo-only architecture</h2>
+          <p>This is the technical shape I would implement after you approve the direction.</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Layer</th>
+              <th>Decision</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Chain</td>
+              <td>Celo mainnet only, chain id <code>42220</code></td>
+              <td>Matches your requirement and avoids "works on many chains badly."</td>
+            </tr>
+            <tr>
+              <td>Token</td>
+              <td>G$ on Celo: <code>0x62B8...a9c7A</code></td>
+              <td>Official Celo G$ token; also the SuperToken surface.</td>
+            </tr>
+            <tr>
+              <td>Login</td>
+              <td>Privy email/Google + embedded wallet, wallet connect as fallback</td>
+              <td>Social login for new users; crypto wallets for power users.</td>
+            </tr>
+            <tr>
+              <td>Contract deploy</td>
+              <td>Hardhat + OpenZeppelin upgrades + Forno Celo RPC</td>
+              <td>Standard deploy path with proxy validation and Celo mainnet support.</td>
+            </tr>
+            <tr>
+              <td>Proof verifier</td>
+              <td>API validates tx logs, then writes receipt event to contract</td>
+              <td>Keeps UX simple while still producing public Celo proof.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="roadmap">
+        <div class="section-head">
+          <h2>Seven-day plan</h2>
+          <p>The shortest path from current app to a top-two narrative.</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Build</th>
+              <th>Demo proof</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Rename product narrative to GoodPath Run/League; make Home personal-best-first, not claim-first.</td>
+              <td>Judges see competition without needing multiple real users.</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Add contract workspace, UUPS <code>GoodPathReceipt</code>, tests, Celo config.</td>
+              <td>Upgradeable contract tests pass locally.</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Deploy proxy to Celo mainnet; verify contract; store address in env/docs.</td>
+              <td>Celoscan contract link in submission.</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>API writes contract events after validated quests/referrals/squads.</td>
+              <td>Quest completion emits Celo event.</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>Build personal bests, seeded divisions, optional rivals, invite codes, and share receipt.</td>
+              <td>One account creates a visible competitive run; two accounts show social upside.</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>Make deep actions unavoidable: support pool + save or stream quest.</td>
+              <td>Demo includes G$ moved beyond claim.</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>Production E2E, submission video, source links, and judge script.</td>
+              <td>2-minute video proves social login, Celo mainnet, contract, G$ movement.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sources">
+        <div class="section-head">
+          <h2>Research sources</h2>
+          <p>Use these in the submission story so the product reads as ecosystem-aware.</p>
+        </div>
+        <ul class="source-list">
+          <li><a href="https://docs.gooddollar.org/for-developers/gooddapp-developer-guides">GoodDollar developer guides</a> - GoodBuilders rewards meaningful GoodDollar protocol integrations.</li>
+          <li><a href="https://www.gooddollar.org/">GoodDollar site</a> - G$ users can claim, earn, buy, transact, donate, participate in GoodDAO, and build partner integrations.</li>
+          <li><a href="https://docs.gooddollar.org/about-the-protocol/protocol-v4-documentation/core-contracts-and-api">GoodDollar core contracts</a> - G$ on Celo is <code>0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A</code> and is streamable on Celo.</li>
+          <li><a href="https://forum.superfluid.org/t/season-6-ideas-established-projects-gooddollar/1680">Superfluid forum GoodDollar overview</a> - G$ is a native SuperToken on Celo; GoodBuilders and ecosystem incentives use streaming concepts.</li>
+          <li><a href="https://docs.celo.org/developer/deploy/hardhat">Celo Hardhat deployment docs</a> - Celo mainnet deployment through Forno and Hardhat.</li>
+          <li><a href="https://docs.openzeppelin.com/upgrades/">OpenZeppelin Upgrades</a> - upgradeable contract tooling and safety checks.</li>
+          <li><a href="https://docs.privy.io/wallets/overview/embedded">Privy embedded wallets</a> - social login plus embedded wallet onboarding.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

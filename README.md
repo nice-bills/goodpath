@@ -88,7 +88,8 @@ Each quest has **Why this matters** copy. Order enforced server-side. Path **100
 4. Claim (approve CELO gas if prompted)  
 5. Tip → Support GoodCollective  
 6. **Done** (`/?tab=celebrate`) → Path Receipt → Copy share line  
-7. Home → Today's G$ habit + streak  
+7. **Deploy** — Save (stake) or Stream (G$/mo) — Path B depth  
+8. Home → league + Celoscan proof line  
 
 ## Demo mode (judges)
 
@@ -106,7 +107,8 @@ pnpm build
 
 ## Production
 
-- Checklist: [`docs/DEPLOY.md`](docs/DEPLOY.md)  
+- **Path A + B closeout:** [`docs/PATH_A_B_CLOSEOUT.md`](docs/PATH_A_B_CLOSEOUT.md)  
+- Deploy: [`docs/DEPLOY.md`](docs/DEPLOY.md)  
 - E2E template: [`docs/E2E_PRODUCTION.md`](docs/E2E_PRODUCTION.md)  
 - Submission copy: [`docs/SUBMISSION.md`](docs/SUBMISSION.md)
 
