@@ -12,7 +12,7 @@ export function LeagueCard({ profile }: { profile: ProfileResponse }) {
       : "Join the board";
 
   return (
-    <section className="league-card mb-6">
+    <section className="league-card" aria-label="Weekly league">
       <div className="league-card-inner">
         <div>
           <span>This week · {league.periodId}</span>

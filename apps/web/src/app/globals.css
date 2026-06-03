@@ -114,8 +114,7 @@ body {
 
 .app-shell:has(.main-start) .app-layout {
   flex: 1;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
   min-height: 0;
 }
 
@@ -125,13 +124,15 @@ body {
   flex-direction: column;
   justify-content: center;
   min-height: 0;
+  width: 100%;
 }
 
 .app-layout-main:has(.start-landing) > .flex {
   flex: 1;
   width: 100%;
-  align-items: center;
-  justify-content: center;
+  min-width: 0;
+  align-items: stretch;
+  justify-content: flex-start;
 }
 
 .start-landing {
@@ -431,8 +432,10 @@ button,
 
 @media (min-width: 768px) {
   .app-shell {
-    max-width: min(1120px, calc(100% - 32px));
-    padding: calc(24px + var(--safe-top)) 28px 28px;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: calc(24px + var(--safe-top)) clamp(24px, 4vw, 48px) 32px;
   }
 
   .app-shell:has(.start-passport) {
@@ -442,21 +445,25 @@ button,
   .app-layout {
     flex-direction: row;
     align-items: flex-start;
-    gap: 28px;
+    gap: 32px;
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
   }
 
   .app-shell:has(.main-start) .app-layout {
-    align-items: center;
-    justify-content: center;
+    align-items: stretch;
+    min-height: calc(100dvh - 56px - var(--safe-top) - var(--safe-bottom));
   }
 
   .desktop-nav {
     display: flex;
     flex-direction: column;
-    width: 196px;
+    width: 200px;
     flex-shrink: 0;
     position: sticky;
     top: calc(16px + var(--safe-top));
+    align-self: flex-start;
   }
 
   .mobile-nav {
@@ -480,15 +487,102 @@ button,
     top: calc(12px + var(--safe-top));
   }
 
-  .home-dashboard-grid {
+  .app-layout-main > .flex {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .page-header {
+    margin-bottom: 20px;
+  }
+
+  .home-page-header .eyebrow,
+  .home-page-header h1 {
+    display: none;
+  }
+
+  .home-page-header {
+    margin-bottom: 12px;
+  }
+
+  .home-page-header .page-header-row {
+    justify-content: flex-end;
+  }
+
+  .home-page-header p {
+    display: none;
+  }
+
+  .home-dashboard {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+    grid-template-areas:
+      "aside main"
+      "upcoming upcoming";
+    gap: 20px 28px;
+    width: 100%;
+  }
+
+  .home-dashboard-aside {
+    grid-area: aside;
+    display: flex;
+    flex-direction: column;
     gap: 14px;
   }
 
-  .home-dashboard-grid .home-dashboard-span {
-    grid-column: 1 / -1;
+  .home-dashboard-main {
+    grid-area: main;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
   }
+
+  .home-dashboard-upcoming {
+    grid-area: upcoming;
+  }
+
+  .home-upcoming-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .home-passport-hero {
+    margin-bottom: 0;
+  }
+
+  .home-dashboard-cta {
+    max-width: 360px;
+  }
+
+  .home-dashboard {
+    grid-template-areas:
+      "pulse pulse"
+      "aside main"
+      "upcoming upcoming";
+  }
+
+  .home-impact-strip {
+    grid-area: pulse;
+    margin-bottom: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-layout {
+    max-width: 1320px;
+  }
+
+  .desktop-nav {
+    width: 220px;
+  }
+
+  .home-dashboard {
+    grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+    gap: 24px 36px;
+  }
+
 }
 
 .bottom-nav {
@@ -594,7 +688,6 @@ button,
 }
 
 .passport-paper {
-  min-height: 420px;
   border: 2px dashed rgba(53, 33, 13, 0.22);
   border-radius: 22px;
   background:
@@ -602,6 +695,10 @@ button,
     #fffaf0;
   background-size: 100% 31px;
   padding: 18px;
+}
+
+.home-passport-hero .passport-paper {
+  min-height: 0;
 }
 
 .passport-head {
@@ -930,7 +1027,8 @@ button,
 
 .start-passport {
   width: 100%;
-  flex-shrink: 0;
+  flex: 1;
+  min-width: 0;
 }
 
 .start-passport-paper {
@@ -1092,41 +1190,91 @@ button,
 }
 
 @media (min-width: 768px) {
-  .app-shell:has(.main-start) {
-    padding-top: calc(20px + var(--safe-top));
-    padding-bottom: calc(24px + var(--safe-bottom));
-  }
-
-  .app-shell:has(.main-start) .app-layout {
-    align-items: center;
+  .main-start {
     justify-content: center;
-  }
-
-  .app-shell:has(.main-start) .desktop-nav {
-    align-self: center;
-  }
-
-  .app-shell:has(.main-start) .desktop-nav-brand {
-    display: none;
+    padding-block: 12px;
   }
 
   .start-landing {
-    max-width: min(460px, calc(100% - 8px));
-    gap: 20px;
+    display: grid;
+    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+    gap: clamp(28px, 3.5vw, 48px);
+    align-items: center;
+    max-width: none;
+    width: 100%;
+    margin-inline: 0;
   }
 
   .start-landing-intro {
-    text-align: center;
+    text-align: left;
+    padding-right: 8px;
+  }
+
+  .start-landing-title {
+    font-size: clamp(2.5rem, 3.2vw, 3.25rem);
   }
 
   .start-landing-lead {
-    margin-inline: auto;
-    max-width: 38ch;
-    font-size: 14px;
+    margin-inline: 0;
+    max-width: 32ch;
+    font-size: 15px;
+  }
+
+  .start-passport-paper {
+    padding: 22px 20px 16px;
   }
 
   .start-path-upcoming {
     gap: 12px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .start-landing {
+    grid-template-columns: minmax(280px, 360px) minmax(480px, 1fr);
+    gap: 48px;
+  }
+
+  .start-landing-title {
+    font-size: clamp(2.75rem, 3.5vw, 3.5rem);
+  }
+
+  .start-path-board {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .start-path-step-hero {
+    padding: 16px 18px;
+  }
+
+  .start-path-upcoming {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .start-path-step-locked {
+    flex-direction: column;
+    align-items: flex-start;
+    min-height: 118px;
+  }
+
+  .start-path-step-locked .start-path-step-copy strong {
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .start-path-step-hero {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .start-path-step-hero .start-path-step-copy p {
+    margin-top: 2px;
   }
 }
 
@@ -1353,6 +1501,228 @@ button,
 
 .path-hub-node.is-locked {
   opacity: 0.55;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+/* Connected home dashboard */
+.home-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.home-dashboard-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.home-dashboard-aside .habit-card {
+  margin-bottom: 0;
+}
+
+.home-dashboard-main {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.home-dashboard-cta {
+  width: 100%;
+}
+
+.home-upcoming-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.home-upcoming-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.home-passport-hero {
+  margin-bottom: 0;
+  border: 1px solid #e3e2de;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 1px 0 rgba(17, 17, 17, 0.04);
+  padding: 0;
+}
+
+.home-passport-paper {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  background-image: none;
+  padding: 20px 22px 18px;
+  min-height: 0;
+}
+
+.home-passport-title {
+  margin-top: 6px;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.home-passport-meta {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.home-path-hub {
+  margin-top: 18px;
+  padding: 14px 12px;
+  border: 1px solid #e3e2de;
+  border-radius: 12px;
+  background: #f7f6f3;
+  box-shadow: none;
+}
+
+.home-path-hub .path-hub-node {
+  border-radius: 10px;
+  border-width: 1px;
+  box-shadow: none;
+  transform: none;
+}
+
+.home-path-hub .path-hub-node.is-active {
+  transform: none;
+  border-color: var(--accent);
+  background: #edf7f2;
+}
+
+.home-path-hub .path-hub-node.is-done {
+  background: #edf7f2;
+  border-color: #007a55;
+}
+
+.passport-track {
+  margin-top: 18px;
+}
+
+.passport-track-rail {
+  height: 6px;
+  border-radius: 999px;
+  background: #e3e2de;
+  overflow: hidden;
+}
+
+.passport-track-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #007a55;
+  transition: width 0.5s var(--ease-out);
+}
+
+.passport-track-steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.passport-track-step {
+  display: flex;
+  justify-content: center;
+}
+
+.passport-track-dot {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid #c9c8c4;
+  background: #f7f6f3;
+}
+
+.passport-track-step.is-earned .passport-track-dot {
+  border-color: #007a55;
+  background: #007a55;
+}
+
+.home-passport-footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e3e2de;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.home-passport-footer-headline {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--foreground);
+}
+
+.home-passport-footer-sub {
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.home-passport-progress-pill {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #111111;
+  color: #f7f6f3;
+}
+
+.home-passport-progress-pill strong {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.home-passport-progress-pill span {
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.records-card {
+  border: 2px solid var(--border-strong);
+  border-radius: 18px;
+  background: var(--surface);
+  padding: 14px 16px;
+  box-shadow: 4px 4px 0 rgba(53, 33, 13, 0.1);
+}
+
+.records-card-inner {
+  min-height: 0;
+}
+
+.league-card {
+  margin-bottom: 0;
 }
 
 /* Records + league cards */

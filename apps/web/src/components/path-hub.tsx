@@ -19,11 +19,20 @@ const nodes = [
   { id: "support", icon: HandHeart, label: "Support" },
 ] as const;
 
-export function PathHub({ quests }: { quests: QuestStatus[] }) {
+export function PathHub({
+  quests,
+  className,
+}: {
+  quests: QuestStatus[];
+  className?: string;
+}) {
   const byId = new Map(quests.map((q) => [q.id, q]));
 
   return (
-    <div className="path-hub" aria-label="Path steps">
+    <div
+      className={["path-hub", className].filter(Boolean).join(" ")}
+      aria-label="Path steps"
+    >
       {nodes.map(({ id, icon: Icon, label }, index) => {
         const quest = byId.get(id);
         const done = quest?.completed;

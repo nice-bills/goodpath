@@ -9,16 +9,21 @@ export function PageHeader({
   title,
   subtitle,
   showConnect = true,
+  className,
 }: {
   eyebrow?: string;
   title: string;
   subtitle?: string;
   /** Hide header connect chip (e.g. Home passport has the primary CTA). */
   showConnect?: boolean;
+  className?: string;
 }) {
   return (
-    <motion.header {...fadeUp} className="mb-8">
-      <div className="flex items-center justify-between gap-3">
+    <motion.header
+      {...fadeUp}
+      className={["page-header", className].filter(Boolean).join(" ")}
+    >
+      <div className="page-header-row flex items-center justify-between gap-3">
         <span className="eyebrow">{eyebrow}</span>
         {showConnect ? <ConnectButton /> : null}
       </div>

@@ -119,13 +119,13 @@ export function HomeTab() {
     <main className={showPath ? "flex flex-1 flex-col" : "main-start flex flex-1 flex-col"}>
       {showPath ? (
         <PageHeader
+          className="home-page-header"
           title="G$ Path"
           subtitle="Five steps. Five minutes. Real GoodDollar onboarding."
           showConnect={hasWallet}
         />
       ) : null}
 
-      {hasWallet ? <ImpactStrip /> : null}
       <DemoModeBanner />
 
       {hasWallet && isError && !demoActive && (
@@ -140,14 +140,15 @@ export function HomeTab() {
       {showPath && isLoading ? (
         <HomeSkeleton />
       ) : showPath && profile ? (
-        <>
-          <div className="home-dashboard-grid">
+        <div className="home-dashboard">
+          <ImpactStrip className="home-impact-strip" />
+          <aside className="home-dashboard-aside">
             <LeagueCard profile={profile} />
             {(pathDone || progress > 0) && <PersonalBestsCard profile={profile} />}
             {pathDone && <TodaysHabit streak={streak} />}
-          </div>
+          </aside>
 
-          <div className="home-dashboard-span">
+          <div className="home-dashboard-main">
             <HeroPath
               progress={progress}
               streak={streak}
@@ -161,21 +162,21 @@ export function HomeTab() {
                     : "Open quests to pick up where you left off."
               }
             />
+
+            <TabLink
+              tab={pathDone ? "celebrate" : "quests"}
+              className="btn-primary group home-dashboard-cta"
+            >
+              {pathDone ? "View receipt" : "Continue quests"}
+              <span className="btn-icon-wrap">
+                <ArrowRight className="h-4 w-4" weight="bold" aria-hidden />
+              </span>
+            </TabLink>
           </div>
 
-          <TabLink
-            tab={pathDone ? "celebrate" : "quests"}
-            className="btn-primary group mb-8"
-          >
-            {pathDone ? "View receipt" : "Continue quests"}
-            <span className="btn-icon-wrap">
-              <ArrowRight className="h-4 w-4" weight="bold" aria-hidden />
-            </span>
-          </TabLink>
-
           {!pathDone && (
-            <>
-              <div className="mb-3 flex items-end justify-between">
+            <section className="home-dashboard-upcoming" aria-label="Upcoming quests">
+              <div className="home-upcoming-head">
                 <span className="section-label">Upcoming</span>
                 <TabLink
                   tab="quests"
@@ -185,7 +186,7 @@ export function HomeTab() {
                 </TabLink>
               </div>
 
-              <div className="flex flex-col gap-2">
+              <div className="home-upcoming-grid">
                 {(profile.quests ?? []).slice(0, 3).map((q, i) => (
                   <QuestCard
                     key={q.id}
@@ -196,9 +197,9 @@ export function HomeTab() {
                   />
                 ))}
               </div>
-            </>
+            </section>
           )}
-        </>
+        </div>
       ) : (
         <div className="start-landing">
           <header className="start-landing-intro">

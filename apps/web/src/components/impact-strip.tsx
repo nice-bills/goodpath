@@ -14,14 +14,17 @@ function Stat({ label, value }: { label: string; value: number | string }) {
   );
 }
 
-export function ImpactStrip() {
+export function ImpactStrip({ className }: { className?: string }) {
   const { data, isLoading, isError } = useImpactStats();
   const { hours, minutes } = hoursUntilClaimReset();
 
   if (isError) return null;
 
   return (
-    <section className="card mb-6 p-4" aria-label="Community stats">
+    <section
+      className={["impact-strip card mb-6 p-4", className].filter(Boolean).join(" ")}
+      aria-label="Community stats"
+    >
       <div className="flex items-end justify-between gap-2">
         <div>
           <p className="section-label">Community pulse</p>
