@@ -1,6 +1,5 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { TabLink } from "@/components/tab-link";
 import {
   ArrowRight,
@@ -38,57 +37,31 @@ const pathPreviewSteps = [
 ] as const;
 
 function StickerStartPreview() {
-  const [hero, ...upcoming] = pathPreviewSteps;
-  const HeroIcon = hero.icon;
-
   return (
-    <section className="start-passport animate-fade-in" aria-labelledby="start-passport-title">
-      <div className="passport-paper start-passport-paper">
-        <header className="start-passport-head">
-          <p className="section-label">Week 1</p>
-          <h2 id="start-passport-title" className="start-passport-title">
-            My G$ passport
-          </h2>
-          <p className="start-passport-meta">5 stickers · one receipt · ~5 minutes</p>
-        </header>
+    <section
+      className="passport-hero start-passport animate-fade-in"
+      aria-labelledby="start-passport-title"
+    >
+      <div className="passport-paper">
+        <div className="passport-head">
+          <div>
+            <span>Week 1</span>
+            <strong id="start-passport-title">My G$ passport</strong>
+            <p className="mt-1 text-sm text-muted">5 stickers · one receipt · ~5 minutes</p>
+          </div>
+        </div>
 
-        <div className="start-path-board" aria-label="Path preview">
-          <article className="start-path-step start-path-step-hero">
-            <div className="start-path-step-icon" aria-hidden>
-              <HeroIcon className="h-5 w-5" weight="bold" />
+        <div className="passport-grid mt-4" aria-label="5 path stickers, all locked">
+          {pathPreviewSteps.map(({ step, title }, index) => (
+            <div
+              key={step}
+              className={`passport-stamp passport-stamp-${index + 1} is-empty`}
+              title={title}
+            >
+              <span>Locked</span>
+              <strong>{step}</strong>
             </div>
-            <div className="start-path-step-copy">
-              <span className="start-path-step-num">Step {hero.step}</span>
-              <strong>{hero.title}</strong>
-              <p>{hero.hint}</p>
-            </div>
-          </article>
-
-          <ol className="start-path-upcoming">
-            {upcoming.map(({ step, title, hint, icon: Icon }, index) => (
-              <li
-                key={step}
-                className="start-path-step start-path-step-locked"
-                style={
-                  {
-                    "--stamp-rotate": `${(index % 2 === 0 ? -1 : 1) * 1.25}deg`,
-                  } as CSSProperties
-                }
-              >
-                <div
-                  className="start-path-step-icon start-path-step-icon--muted"
-                  aria-hidden
-                >
-                  <Icon className="h-4 w-4" weight="bold" />
-                </div>
-                <div className="start-path-step-copy">
-                  <span className="start-path-step-num">Step {step}</span>
-                  <strong>{title}</strong>
-                  <p>{hint}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
+          ))}
         </div>
 
         <div className="start-receipt-stub">

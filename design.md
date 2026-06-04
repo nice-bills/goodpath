@@ -1,60 +1,46 @@
 # Design — G$ Path
 
-Locked design system for this app. Hallmark-managed; pages read this before visual changes.
+**Product voice: scrapbook passport** — ruled notebook paper, thick ink borders, offset shadows, tilted color stickers with tape, dashed path hub. Not flat minimal SaaS.
 
-## Genre
+Hallmark skill files may exist under `.agents/skills/hallmark/`; do **not** apply modern-minimal overrides to this app unless explicitly requested.
 
-modern-minimal (utilitarian fintech onboarding — warm paper, single green accent)
+## Macrostructure
 
-## Macrostructure family
+- **App shell (home, quests, celebrate):** Workbench — side rail + passport work surface + upcoming quest stickers
+- **Pre-connect:** Split studio — copy column + full `passport-hero` with 5 locked stamps
 
-- **App shell (home, quests, celebrate):** Workbench — side rail + primary work surface + full-width utility strip
-- **Marketing / pre-connect:** Split studio — copy column + product card column
-
-## Theme (brand-locked — do not rotate)
+## Theme (warm scrapbook)
 
 | Token | Value | Use |
 |-------|--------|-----|
-| `--color-paper` | `#f7f6f3` | Canvas |
-| `--color-paper-2` | `#ffffff` | Cards |
-| `--color-ink` | `#111111` | Text, primary CTA |
-| `--color-ink-2` | `#62706a` | Muted body |
-| `--color-rule` | `#e3e2de` | Borders |
-| `--color-accent` | `#007a55` | Progress, active step, success |
-| `--color-accent-soft` | `#edf7f2` | Active surfaces |
-| `--color-focus` | `#007a55` | Focus rings |
+| Paper | `#fffaf0` | Passport interior, cards |
+| Ink | `#35210d` | Borders, primary CTA, progress pill |
+| Rule | `#ead9ad` | Notebook lines, soft borders |
+| Accent | `#00a979` | GoodDollar green, done states |
+| Sticker fills | `#caf6dd`, `#ffd1e2`, `#ffe66d`, `#dbeafe` | Stamp rotation + tape `::before` |
 
 ## Typography
 
-- **Display:** Instrument Serif — page titles only (pre-connect hero)
-- **Body:** Plus Jakarta Sans — UI, labels, buttons
-- **Mono:** IBM Plex Mono — stats, receipt counts, addresses
-- Display headings: `font-style: normal` always (no italic display)
+- **Display:** Instrument Serif — passport titles, league rank, footer headlines
+- **Body:** Plus Jakarta Sans — UI, labels
+- **Mono:** IBM Plex Mono — stats, receipt counts
 
-## Spacing
+## Passport components
 
-4pt scale via `--space-*` in `apps/web/src/app/globals.css`. Use tokens, not raw px in new code.
+- **Outer:** `.passport-hero` — 3px border, 30px radius, offset shadow
+- **Inner:** `.passport-paper` — dashed border, horizontal rules
+- **Stickers:** `.passport-grid` + `.passport-stamp-{1-5}` — tilt, color, tape
+- **Progress:** `.passport-progress` brown pill with % complete
+- **Quests:** `.quest-sticker` — same sticker language on quest grid
 
 ## Motion
 
 - Easing: `cubic-bezier(0.32, 0.72, 0, 1)` (`--ease-out`)
-- Reveals: subtle fade-up only on passport card
-- `prefers-reduced-motion`: disable transforms
+- Page enter: light fade + y on passport hero only
 
-## Microinteractions
+## Do not
 
-- Hover: border darken + 1px lift max (no scrapbook offset shadows)
-- Focus: 2px `--color-focus` outline, offset 2px
-- No celebratory toasts beyond existing wallet gate
-
-## CTA voice
-
-- Primary: solid `--color-ink` fill, `--radius-sm` (8px), white/cream text
-- Secondary: 1px `--color-rule` border, paper fill
-- One primary CTA per viewport region
-
-## Banned
-
-- 3px “scrapbook” frames, tape pseudo-elements, rotated stamp grids on dashboard
-- Gradient mesh backgrounds, purple AI slop, Inter as body
-- Duplicate product title in nav + page header on desktop app views
+- Flat `#f7f6f3` canvas-only cards with 1px `#e3e2de` borders
+- Replace sticker grid with progress rails or dot tracks
+- Hide the home page title on desktop for “cleanliness”
+- Set `min-height` on `.passport-paper` in dashboard aside (records card)

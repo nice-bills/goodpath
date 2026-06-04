@@ -25,9 +25,11 @@ export function PersonalBestsCard({ profile }: { profile: ProfileResponse }) {
   ];
 
   return (
-    <section className="records-card" aria-label="Your records">
-      <div className="records-card-inner">
-        <span className="section-label">Your records</span>
+    <section className="passport-hero records-passport" aria-label="Your records">
+      <div className="passport-paper py-4 records-passport-paper">
+        <span className="text-[10px] font-black uppercase tracking-wider text-muted">
+          Your records
+        </span>
         <div className="records-grid mt-3">
           {items.map(({ label, value }) => (
             <div key={label} className="record-stamp">
