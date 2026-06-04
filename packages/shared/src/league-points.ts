@@ -1,4 +1,4 @@
-import type { QuestId } from "./quests";
+import type { QuestId } from "./quests.js";
 
 /** Weekly league points per quest completion (this ISO week). */
 export const QUEST_LEAGUE_POINTS: Record<QuestId, number> = {
@@ -9,3 +9,6 @@ export const QUEST_LEAGUE_POINTS: Record<QuestId, number> = {
   support: 6,
   deploy: 12,
 };
+
+/** League pts credited to referrer when a referred wallet completes the path this week. */
+export const REFERRAL_PATH_BONUS = 15;

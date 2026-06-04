@@ -1,3 +1,23 @@
+/** Format wei string from API as human G$ moved (18 decimals). */
+export function formatGsMoved(weiStr: string | undefined): string {
+  if (!weiStr) return "0";
+  try {
+    const wei = BigInt(weiStr);
+    const zero = BigInt(0);
+    const unit = BigInt("1000000000000000000");
+    if (wei === zero) return "0";
+    const whole = wei / unit;
+    const frac = wei % unit;
+    const frac2 = Number(frac) / 1e18;
+    const n = Number(whole) + frac2;
+    if (n < 0.01) return "<0.01";
+    if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+    return n.toFixed(1);
+  } catch {
+    return "0";
+  }
+}
+
 export function formatPathDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;

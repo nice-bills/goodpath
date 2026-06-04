@@ -1,5 +1,5 @@
-import { QUEST_LEAGUE_POINTS, type QuestId } from "@goodpath/shared";
-import { db } from "./db.js";
+import { QUEST_LEAGUE_POINTS, REFERRAL_PATH_BONUS, type QuestId } from "@goodpath/shared";
+import { getDb } from "./db.js";
 
 /** ISO week id, e.g. 2026-W22 */
 export function getPeriodId(date = new Date()): string {
@@ -33,7 +33,7 @@ export function computeWeeklyPoints(
   const lower = address.toLowerCase();
   const weekStart = getWeekStartUtc();
 
-  const rows = db
+  const rows = getDb()
     .prepare(
       `SELECT quest_id FROM quest_completions
        WHERE address = ? AND date(completed_at) >= date(?)`,
@@ -52,7 +52,33 @@ export function computeWeeklyPoints(
     points += 50;
   }
 
+  points += referralBonusPoints(lower);
+
   return points;
+}
+
+function referralBonusPoints(referrerLower: string): number {
+  const weekStart = getWeekStartUtc();
+  const row = getDb()
+    .prepare(
+      `SELECT COUNT(*) as c FROM profiles
+       WHERE lower(referred_by) = ? AND path_completed_at IS NOT NULL
+         AND date(path_completed_at) >= date(?)`,
+    )
+    .get(referrerLower, weekStart) as { c: number };
+  return (row?.c ?? 0) * REFERRAL_PATH_BONUS;
+}
+
+export function countReferralsCompletedThisWeek(referrerLower: string): number {
+  const weekStart = getWeekStartUtc();
+  const row = getDb()
+    .prepare(
+      `SELECT COUNT(*) as c FROM profiles
+       WHERE lower(referred_by) = ? AND path_completed_at IS NOT NULL
+         AND date(path_completed_at) >= date(?)`,
+    )
+    .get(referrerLower, weekStart) as { c: number };
+  return row?.c ?? 0;
 }
 
 export function getLeagueStanding(address: string, streak: number, pathCompletedAt: string | null) {
@@ -60,7 +86,7 @@ export function getLeagueStanding(address: string, streak: number, pathCompleted
   const periodId = getPeriodId();
   const myPoints = computeWeeklyPoints(lower, streak, pathCompletedAt);
 
-  const addresses = db
+  const addresses = getDb()
     .prepare(
       `SELECT DISTINCT address FROM profiles
        UNION
@@ -70,7 +96,7 @@ export function getLeagueStanding(address: string, streak: number, pathCompleted
     .all(getWeekStartUtc()) as { address: string }[];
 
   const scored = addresses.map(({ address: addr }) => {
-    const row = db
+    const row = getDb()
       .prepare(
         "SELECT streak, path_completed_at FROM profiles WHERE address = ?",
       )
@@ -93,7 +119,7 @@ export function getLeagueStanding(address: string, streak: number, pathCompleted
   const displayRank = rankIndex >= 0 ? rankIndex + 1 : null;
 
   const hasTipThisWeek = Boolean(
-    db
+    getDb()
       .prepare(
         `SELECT 1 FROM quest_completions
          WHERE address = ? AND quest_id = 'tip' AND date(completed_at) >= date(?)`,

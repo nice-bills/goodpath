@@ -71,12 +71,12 @@ export function CelebrateTab() {
               <ProgressRing progress={progress} />
             </div>
             <h1 className="font-display mt-6 text-3xl leading-tight">
-              {complete ? "Path complete" : progress > 0 ? "Almost there" : "Finish the path"}
+              {complete ? "Run complete" : progress > 0 ? "Keep climbing" : "Start your run"}
             </h1>
             <p className="mt-3 text-sm text-muted">
               {complete
-                ? "You onboarded into GoodDollar — verified, claiming, transacting, supporting."
-                : `${progress}% done. Complete all five quests for your receipt.`}
+                ? "Your scorecard is live — G$ moved, league division, Celoscan proofs. Share it."
+                : `${progress}% of core path. Finish quests to unlock your receipt.`}
             </p>
             {profile ? (
               <p className="mt-2 font-mono text-sm text-muted">

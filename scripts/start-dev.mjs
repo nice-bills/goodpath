@@ -33,7 +33,15 @@ if (await devAlreadyRunning()) {
 
 execSync("node scripts/kill-dev.mjs", { cwd: root, stdio: "inherit" });
 
-console.log("[goodpath] starting web + API …\n");
+execSync("pnpm --filter @goodpath/shared build && pnpm --filter @goodpath/api build", {
+  cwd: root,
+  stdio: "inherit",
+});
+
+console.log(
+  "[goodpath] starting web (Turbopack :3000) + API (:3001) — fast local dev.\n" +
+    "  Tip: avoid GOODPATH_DEV_CLEAR=1 unless you need a clean Next cache.\n",
+);
 
 const child = spawn(
   "pnpm",
@@ -46,7 +54,14 @@ const child = spawn(
     "pnpm --filter @goodpath/web dev",
     "pnpm --filter @goodpath/api dev",
   ],
-  { cwd: root, stdio: "inherit", env: process.env },
+  {
+    cwd: root,
+    stdio: "inherit",
+    env: {
+      ...process.env,
+      NEXT_PUBLIC_API_URL: "http://localhost:3001",
+    },
+  },
 );
 
 child.on("exit", (code) => process.exit(code ?? 0));

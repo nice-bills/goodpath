@@ -9,6 +9,8 @@ import { HomeTab } from "@/components/tabs/home-tab";
 import { QuestsTab } from "@/components/tabs/quests-tab";
 import { CelebrateTab } from "@/components/tabs/celebrate-tab";
 import { AppTabProvider, useAppTab } from "@/components/app-tab-provider";
+import { useReferralCapture } from "@/hooks/use-referral-capture";
+import { useWalletSession } from "@/hooks/use-wallet-session";
 import type { AppTab } from "@/lib/app-tab";
 
 function TabPanel({
@@ -38,6 +40,8 @@ function TabPanel({
 
 function AppTabShellInner() {
   const { tab, tabGateMessage, clearTabGateMessage, canAccessGatedTabs } = useAppTab();
+  const { address } = useWalletSession();
+  useReferralCapture(address);
   const showPlatformGuide = isMobileBrowser() && tab !== "celebrate";
   const [visited, setVisited] = useState<Set<AppTab>>(() => new Set(["home"]));
 

@@ -7,7 +7,7 @@ import { CORE_PATH_QUEST_IDS, QUESTS } from "@goodpath/shared";
 import { referralUrl } from "@/lib/referral";
 import type { ProfileResponse } from "@/lib/api";
 import { formatPathReceipt, receiptShareLine } from "@/lib/path-receipt";
-import { formatPathDuration } from "@/lib/format";
+import { ReceiptScorecard } from "@/components/receipt-scorecard";
 
 function txUrl(hash: string) {
   return `https://celoscan.io/tx/${hash}`;
@@ -52,53 +52,30 @@ export function PathReceipt({
       )}
 
       <p className="font-display text-3xl leading-tight tracking-tight">
-        I completed my G$ Path
+        My G$ run — receipt
       </p>
       <p className="mt-2 text-sm text-muted">
-        Sybil-resistant and slightly smug.{" "}
+        Celo mainnet proofs ·{" "}
         <span className="font-mono text-foreground">
           {profile.address.slice(0, 6)}…{profile.address.slice(-4)}
         </span>
+        {profile.league?.points != null ? (
+          <>
+            {" "}
+            · <span className="font-semibold text-foreground">{profile.league.points}</span>{" "}
+            league pts
+          </>
+        ) : null}
       </p>
 
-      <dl className="mt-6 grid grid-cols-2 gap-3 border-y border-border py-4">
-        <div>
-          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-dim">
-            Streak
-          </dt>
-          <dd className="font-mono text-lg font-semibold">
-            {profile.streak} day{profile.streak === 1 ? "" : "s"}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-dim">
-            This week
-          </dt>
-          <dd className="font-mono text-lg font-semibold">
-            {profile.league?.rank != null
-              ? `#${profile.league.rank}`
-              : "—"}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-dim">
-            Fastest path
-          </dt>
-          <dd className="font-mono text-lg font-semibold">
-            {profile.personalBests?.fastestPathSeconds
-              ? formatPathDuration(profile.personalBests.fastestPathSeconds)
-              : "—"}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-dim">
-            League pts
-          </dt>
-          <dd className="font-mono text-lg font-semibold">
-            {profile.league?.points ?? 0}
-          </dd>
-        </div>
-      </dl>
+      <ReceiptScorecard profile={profile} />
+
+      <p className="mt-3 text-center font-mono text-sm text-muted">
+        {profile.streak} day streak
+        {profile.league?.rank != null
+          ? ` · #${profile.league.rank} global this week`
+          : ""}
+      </p>
 
       <ul className="receipt-sticker-grid mt-5">
         {QUESTS.map((q, index) => {

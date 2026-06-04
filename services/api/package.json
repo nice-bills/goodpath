@@ -3,6 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    },
+    "./app": {
+      "import": "./dist/app.js"
+    }
+  },
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "tsc -p tsconfig.json",

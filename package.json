@@ -13,7 +13,9 @@
     "dev:reset": "pnpm --filter @goodpath/web dev:reset",
     "dev:smoke": "pnpm --filter @goodpath/web smoke",
     "build": "pnpm -r build",
-    "lint": "pnpm -r lint"
+    "lint": "pnpm -r lint",
+    "contracts:test": "cd packages/contracts && forge test",
+    "contracts:build": "cd packages/contracts && forge build"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",

@@ -1,5 +1,6 @@
 import { QUESTS } from "@goodpath/shared";
 import type { ProfileResponse } from "@/lib/api";
+import { formatGsMoved } from "@/lib/format";
 
 const EXPLORER_TX = (hash: string) => `https://celoscan.io/tx/${hash}`;
 
@@ -44,5 +45,8 @@ export function receiptShareLine(profile: ProfileResponse): string {
   const proofCount = profile.chainProofs?.length ?? 0;
   const proofNote =
     proofCount > 0 ? ` ${proofCount} Celoscan proof${proofCount === 1 ? "" : "s"},` : "";
-  return `I completed my G$ Path — verified, claimed UBI, tipped, supported the ecosystem${deployNote}${proofNote} on-chain.${time}${rank} ${profile.streak}-day streak. #GoodDollar #UBI`;
+  const gMoved = formatGsMoved(profile.league?.gMovedWei);
+  const div = profile.league?.divisionLabel;
+  const divNote = div ? ` ${div} division,` : "";
+  return `I ran G$ on Celo — ${gMoved} G$ moved this week,${divNote} verified + claimed + tipped + supported${deployNote}${proofNote} on-chain.${time}${rank} ${profile.streak}-day streak. #GoodDollar #Celo`;
 }

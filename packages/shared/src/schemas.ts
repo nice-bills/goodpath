@@ -5,7 +5,7 @@ import {
   QUEST_IDS,
   SUPPORT_ACK_META,
   type QuestId,
-} from "./quests";
+} from "./quests.js";
 
 export { DEPLOY_SAVE_META, DEPLOY_STREAM_META, SUPPORT_ACK_META };
 

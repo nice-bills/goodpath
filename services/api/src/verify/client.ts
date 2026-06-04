@@ -2,6 +2,7 @@ import { createPublicClient, http, zeroAddress, type Address } from "viem";
 import { createRequire } from "node:module";
 import { celo } from "viem/chains";
 
+/** CJS require avoids citizen-sdk → lz-string ESM named-export crash under Node. */
 const requireSdk = createRequire(import.meta.url);
 const {
   SupportedChains,

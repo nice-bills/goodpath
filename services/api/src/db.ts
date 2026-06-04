@@ -5,21 +5,36 @@ import {
   QUESTS,
   CORE_PATH_QUEST_IDS,
   CHAIN_PROOF_QUEST_IDS,
+  DEPLOY_SAVE_META,
+  DEPLOY_STREAM_META,
   computeProgress,
   prerequisitesMet,
   completionsFromIds,
   isQuestUnlocked,
   type QuestId,
 } from "@goodpath/shared";
-import { getLeagueStanding } from "./league.js";
+import { countReferralsCompletedThisWeek, getLeagueStanding } from "./league.js";
+import { sumGsMovedWeiThisWeek } from "./chain/g-moved.js";
+import {
+  divisionLabel,
+  nextMoveHint,
+  seededDivisionRank,
+} from "@goodpath/shared";
 
-const dataDir = process.env.GOODPATH_DATA_DIR ?? path.join(process.cwd(), "data");
-fs.mkdirSync(dataDir, { recursive: true });
+const dataDir =
+  process.env.GOODPATH_DATA_DIR ??
+  (process.env.VERCEL ? "/tmp/goodpath-data" : path.join(process.cwd(), "data"));
 
 const dbPath = path.join(dataDir, "goodpath.db");
-export const db = new Database(dbPath);
 
-db.exec(`
+let dbInstance: Database.Database | null = null;
+
+/** Open SQLite on first use so `/health` can respond without native bindings. */
+export function getDb(): Database.Database {
+  if (!dbInstance) {
+    fs.mkdirSync(dataDir, { recursive: true });
+    dbInstance = new Database(dbPath);
+    dbInstance.exec(`
   CREATE TABLE IF NOT EXISTS profiles (
     address TEXT PRIMARY KEY,
     streak INTEGER NOT NULL DEFAULT 0,
@@ -38,18 +53,22 @@ db.exec(`
   );
 `);
 
-function ensureColumn(table: string, column: string, ddl: string) {
-  const cols = db
-    .prepare(`PRAGMA table_info(${table})`)
-    .all() as { name: string }[];
-  if (!cols.some((c) => c.name === column)) {
-    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${ddl}`);
-  }
-}
+    function ensureColumn(table: string, column: string, ddl: string) {
+      const cols = dbInstance!
+        .prepare(`PRAGMA table_info(${table})`)
+        .all() as { name: string }[];
+      if (!cols.some((c) => c.name === column)) {
+        dbInstance!.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${ddl}`);
+      }
+    }
 
-ensureColumn("profiles", "path_started_at", "TEXT");
-ensureColumn("profiles", "fastest_path_seconds", "INTEGER");
-ensureColumn("profiles", "longest_streak", "INTEGER NOT NULL DEFAULT 0");
+    ensureColumn("profiles", "path_started_at", "TEXT");
+    ensureColumn("profiles", "fastest_path_seconds", "INTEGER");
+    ensureColumn("profiles", "longest_streak", "INTEGER NOT NULL DEFAULT 0");
+    ensureColumn("profiles", "referred_by", "TEXT");
+  }
+  return dbInstance;
+}
 
 export interface ProfileRow {
   address: string;
@@ -59,6 +78,7 @@ export interface ProfileRow {
   path_started_at: string | null;
   fastest_path_seconds: number | null;
   longest_streak: number;
+  referred_by: string | null;
 }
 
 function normalizeAddress(address: string): string {
@@ -76,7 +96,7 @@ function yesterdayUtc(): string {
 }
 
 function touchStreakLocked(lower: string): number {
-  const profile = db
+  const profile = getDb()
     .prepare(
       "SELECT streak, last_active_date FROM profiles WHERE address = ?",
     )
@@ -94,17 +114,17 @@ function touchStreakLocked(lower: string): number {
     streak = 1;
   }
 
-  db.prepare(
+  getDb().prepare(
     "UPDATE profiles SET streak = ?, last_active_date = ? WHERE address = ?",
   ).run(streak, today, lower);
 
   const longest = (
-    db
+    getDb()
       .prepare("SELECT longest_streak FROM profiles WHERE address = ?")
       .get(lower) as { longest_streak: number }
   ).longest_streak;
   if (streak > longest) {
-    db.prepare("UPDATE profiles SET longest_streak = ? WHERE address = ?").run(
+    getDb().prepare("UPDATE profiles SET longest_streak = ? WHERE address = ?").run(
       streak,
       lower,
     );
@@ -114,7 +134,7 @@ function touchStreakLocked(lower: string): number {
 }
 
 function ensureConnectQuest(lower: string): void {
-  db.prepare(
+  getDb().prepare(
     `INSERT OR IGNORE INTO quest_completions (address, quest_id, tx_hash, meta)
      VALUES (?, 'connect', NULL, NULL)`,
   ).run(lower);
@@ -122,22 +142,22 @@ function ensureConnectQuest(lower: string): void {
 
 export function getProfile(address: string): ProfileRow {
   const lower = normalizeAddress(address);
-  let row = db
+  let row = getDb()
     .prepare(
       `SELECT address, streak, last_active_date, path_completed_at,
-              path_started_at, fastest_path_seconds, longest_streak
+              path_started_at, fastest_path_seconds, longest_streak, referred_by
        FROM profiles WHERE address = ?`,
     )
     .get(lower) as ProfileRow | undefined;
 
   if (!row) {
-    db.prepare(
+    getDb().prepare(
       "INSERT INTO profiles (address, path_started_at) VALUES (?, datetime('now'))",
     ).run(lower);
-    row = db
+    row = getDb()
       .prepare(
         `SELECT address, streak, last_active_date, path_completed_at,
-                path_started_at, fastest_path_seconds, longest_streak
+                path_started_at, fastest_path_seconds, longest_streak, referred_by
          FROM profiles WHERE address = ?`,
       )
       .get(lower) as ProfileRow;
@@ -147,6 +167,37 @@ export function getProfile(address: string): ProfileRow {
   return row;
 }
 
+export function setReferrer(address: string, referrer: string): { ok: true } | { ok: false; error: string } {
+  const lower = normalizeAddress(address);
+  const refLower = normalizeAddress(referrer);
+
+  if (lower === refLower) {
+    return { ok: false, error: "Cannot refer yourself" };
+  }
+
+  const row = getDb()
+    .prepare("SELECT referred_by FROM profiles WHERE address = ?")
+    .get(lower) as { referred_by: string | null } | undefined;
+
+  if (!row) {
+    getProfile(lower);
+  }
+
+  const existing = (
+    getDb()
+      .prepare("SELECT referred_by FROM profiles WHERE address = ?")
+      .get(lower) as { referred_by: string | null }
+  ).referred_by;
+
+  if (existing) {
+    if (existing.toLowerCase() === refLower) return { ok: true };
+    return { ok: false, error: "Referrer already set" };
+  }
+
+  getDb().prepare("UPDATE profiles SET referred_by = ? WHERE address = ?").run(refLower, lower);
+  return { ok: true };
+}
+
 export function getCompletions(
   address: string,
 ): Record<
@@ -154,7 +205,7 @@ export function getCompletions(
   { completedAt: string; txHash: string | null; meta: string | null }
 > {
   const lower = normalizeAddress(address);
-  const rows = db
+  const rows = getDb()
     .prepare(
       "SELECT quest_id, completed_at, tx_hash, meta FROM quest_completions WHERE address = ?",
     )
@@ -190,7 +241,7 @@ function countClaimsThisWeek(lower: string): number {
   weekStart.setUTCDate(weekStart.getUTCDate() - (day - 1));
   const weekStartStr = weekStart.toISOString().slice(0, 10);
 
-  const row = db
+  const row = getDb()
     .prepare(
       `SELECT COUNT(*) as c FROM quest_completions
        WHERE address = ? AND quest_id = 'claim' AND date(completed_at) >= date(?)`,
@@ -199,7 +250,7 @@ function countClaimsThisWeek(lower: string): number {
   return row.c;
 }
 
-export function buildProfilePayload(address: string) {
+export async function buildProfilePayload(address: string) {
   const profile = getProfile(address);
   const lower = normalizeAddress(address);
   const completions = getCompletions(address);
@@ -209,11 +260,42 @@ export function buildProfilePayload(address: string) {
   ).length;
   const progress = computeProgress(coreCompleted);
   const completionMap = completionsFromIds(completedIds);
-  const league = getLeagueStanding(
+  const standing = getLeagueStanding(
     lower,
     profile.streak,
     profile.path_completed_at,
   );
+
+  const quests = QUESTS.map((q) => ({
+    ...q,
+    completed: Boolean(completions[q.id]),
+    completedAt: completions[q.id]?.completedAt ?? null,
+    txHash: completions[q.id]?.txHash ?? null,
+    unlocked: isQuestUnlocked(q.id, completionMap),
+  }));
+
+  const deployMeta = completions.deploy?.meta;
+  const division = seededDivisionRank(standing.points);
+  const gMovedWei = await sumGsMovedWeiThisWeek(lower);
+
+  const league = {
+    ...standing,
+    division: division.division,
+    divisionLabel: divisionLabel(division.division),
+    divisionRank: division.rank,
+    divisionSize: division.divisionSize,
+    gMovedWei,
+    nextMove: nextMoveHint({
+      points: standing.points,
+      quests: quests.map((q) => ({
+        id: q.id,
+        completed: q.completed,
+        unlocked: q.unlocked,
+      })),
+      hasStreamProof: deployMeta === DEPLOY_STREAM_META,
+      hasSaveProof: deployMeta === DEPLOY_SAVE_META,
+    }),
+  };
 
   const chainProofs = CHAIN_PROOF_QUEST_IDS.filter((id) =>
     Boolean(completions[id]?.txHash),
@@ -239,14 +321,10 @@ export function buildProfilePayload(address: string) {
       longestStreak: Math.max(profile.longest_streak, profile.streak),
       claimsThisWeek: countClaimsThisWeek(lower),
     },
+    referredBy: profile.referred_by,
+    referralsCompletedThisWeek: countReferralsCompletedThisWeek(lower),
     league,
-    quests: QUESTS.map((q) => ({
-      ...q,
-      completed: Boolean(completions[q.id]),
-      completedAt: completions[q.id]?.completedAt ?? null,
-      txHash: completions[q.id]?.txHash ?? null,
-      unlocked: isQuestUnlocked(q.id, completionMap),
-    })),
+    quests,
   };
 }
 
@@ -258,20 +336,20 @@ export function completeQuest(
 ): { streak: number; pathComplete: boolean } {
   const lower = normalizeAddress(address);
 
-  return db.transaction(() => {
+  return getDb().transaction(() => {
     getProfile(lower);
     const completionMap = getCompletionMap(lower);
 
     if (completionMap[questId]) {
       return {
         streak: (
-          db
+          getDb()
             .prepare("SELECT streak FROM profiles WHERE address = ?")
             .get(lower) as { streak: number }
         ).streak,
         pathComplete: Boolean(
           (
-            db
+            getDb()
               .prepare(
                 "SELECT path_completed_at FROM profiles WHERE address = ?",
               )
@@ -286,12 +364,12 @@ export function completeQuest(
       throw new QuestPrerequisiteError(prereq.missing);
     }
 
-    db.prepare(
+    getDb().prepare(
       `INSERT INTO quest_completions (address, quest_id, tx_hash, meta)
        VALUES (?, ?, ?, ?)`,
     ).run(lower, questId, txHash ?? null, meta ?? null);
 
-    db.prepare(
+    getDb().prepare(
       `UPDATE profiles SET path_started_at = COALESCE(path_started_at, datetime('now'))
        WHERE address = ?`,
     ).run(lower);
@@ -299,7 +377,7 @@ export function completeQuest(
     const streak = touchStreakLocked(lower);
 
     const coreCount = (
-      db
+      getDb()
         .prepare(
           `SELECT COUNT(*) as c FROM quest_completions
            WHERE address = ? AND quest_id IN (${CORE_PATH_QUEST_IDS.map(() => "?").join(",")})`,
@@ -309,7 +387,7 @@ export function completeQuest(
 
     let pathComplete = false;
     if (coreCount >= CORE_PATH_QUEST_IDS.length) {
-      const row = db
+      const row = getDb()
         .prepare(
           "SELECT path_started_at, fastest_path_seconds FROM profiles WHERE address = ?",
         )
@@ -326,7 +404,7 @@ export function completeQuest(
           ? durationSec
           : Math.min(row.fastest_path_seconds, durationSec);
 
-      db.prepare(
+      getDb().prepare(
         `UPDATE profiles SET
            path_completed_at = COALESCE(path_completed_at, datetime('now')),
            fastest_path_seconds = ?
@@ -348,7 +426,7 @@ export class QuestPrerequisiteError extends Error {
 
 export function getImpactStats() {
   const pathsCompleted = (
-    db
+    getDb()
       .prepare(
         "SELECT COUNT(*) as c FROM profiles WHERE path_completed_at IS NOT NULL",
       )
@@ -356,11 +434,11 @@ export function getImpactStats() {
   ).c;
 
   const questCompletions = (
-    db.prepare("SELECT COUNT(*) as c FROM quest_completions").get() as { c: number }
+    getDb().prepare("SELECT COUNT(*) as c FROM quest_completions").get() as { c: number }
   ).c;
 
   const tipsSent = (
-    db
+    getDb()
       .prepare(
         "SELECT COUNT(*) as c FROM quest_completions WHERE quest_id = 'tip' AND tx_hash IS NOT NULL",
       )
@@ -368,7 +446,7 @@ export function getImpactStats() {
   ).c;
 
   const chainProofCount = (
-    db
+    getDb()
       .prepare(
         `SELECT COUNT(*) as c FROM quest_completions
          WHERE quest_id IN ('tip','support','deploy') AND tx_hash IS NOT NULL`,
@@ -377,7 +455,7 @@ export function getImpactStats() {
   ).c;
 
   const walletsOnPath = (
-    db.prepare("SELECT COUNT(*) as c FROM profiles").get() as { c: number }
+    getDb().prepare("SELECT COUNT(*) as c FROM profiles").get() as { c: number }
   ).c;
 
   return {

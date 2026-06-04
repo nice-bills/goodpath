@@ -17,7 +17,8 @@ import { HomeSkeleton } from "@/components/ui/skeleton";
 import { ImpactStrip } from "@/components/impact-strip";
 import { DemoModeBanner } from "@/components/demo-mode-banner";
 import { TodaysHabit } from "@/components/todays-habit";
-import { LeagueCard } from "@/components/league-card";
+import { RunHeroCard } from "@/components/run-hero-card";
+import { RunChallengeCard } from "@/components/run-challenge-card";
 import { PersonalBestsCard } from "@/components/personal-bests-card";
 import { useProfile } from "@/hooks/use-profile";
 import { useDemoMode } from "@/hooks/use-demo-mode";
@@ -94,7 +95,7 @@ export function HomeTab() {
         <PageHeader
           className="home-page-header"
           title="G$ Path"
-          subtitle="Five steps. Five minutes. Real GoodDollar onboarding."
+          subtitle="Your weekly run on Celo — move G$, earn proofs, climb the league."
           showConnect={hasWallet}
         />
       ) : null}
@@ -116,7 +117,8 @@ export function HomeTab() {
         <div className="home-dashboard">
           <ImpactStrip className="home-impact-strip" />
           <aside className="home-dashboard-aside">
-            <LeagueCard profile={profile} />
+            <RunHeroCard profile={profile} />
+            <RunChallengeCard profile={profile} />
             {(pathDone || progress > 0) && <PersonalBestsCard profile={profile} />}
             {pathDone && <TodaysHabit streak={streak} />}
           </aside>
@@ -177,10 +179,10 @@ export function HomeTab() {
         <div className="start-landing">
           <header className="start-landing-intro">
             <span className="eyebrow">GoodDollar</span>
-            <h1 className="font-display start-landing-title">G$ Path</h1>
+            <h1 className="font-display start-landing-title">Start your G$ run</h1>
             <p className="start-landing-lead">
-              Five steps. Five minutes. Real onboarding on Celo — verify, claim, move G$,
-              earn your receipt.
+              Solo-first league on Celo mainnet — verify, claim, tip, support a pool, then
+              save or stream G$. Every score is a real on-chain proof.
             </p>
           </header>
           <StickerStartPreview />

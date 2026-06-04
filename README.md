@@ -1,6 +1,6 @@
 # G$ Path
 
-Gamified **GoodDollar onboarding** for the GoodBuilders hackathon — verify identity, claim daily UBI, tip with G$, support GoodCollective, build a streak. Ends with a shareable **Path Receipt**.
+Gamified **GoodDollar onboarding + weekly G$ run league** for the GoodBuilders hackathon. **2.0:** `docs/GOODPATH_2.0.md` · contract: `packages/contracts` — verify identity, claim daily UBI, tip with G$, support GoodCollective, build a streak. Ends with a shareable **Path Receipt**.
 
 ## Pitch (one line)
 

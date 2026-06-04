@@ -21,6 +21,12 @@ export interface LeagueStanding {
   totalInLeague: number;
   promoted: boolean;
   streakShield: boolean;
+  division?: "bronze" | "silver" | "gold";
+  divisionLabel?: string;
+  divisionRank?: number;
+  divisionSize?: number;
+  gMovedWei?: string;
+  nextMove?: string;
 }
 
 export interface ChainProof {
@@ -39,6 +45,8 @@ export interface ProfileResponse {
   completions: Record<string, { completedAt: string; txHash: string | null }>;
   personalBests?: PersonalBests;
   league?: LeagueStanding;
+  referredBy?: string | null;
+  referralsCompletedThisWeek?: number;
   quests: QuestStatus[];
 }
 
@@ -71,6 +79,22 @@ export async function fetchImpactStats(): Promise<ImpactStats> {
   const res = await fetch(`${API_URL}/api/stats`, { cache: "no-store" });
   if (!res.ok) throw new ApiError("Failed to load stats", res.status);
   return res.json();
+}
+
+export async function registerReferral(
+  address: string,
+  referrer: string,
+): Promise<void> {
+  const res = await fetch(`${API_URL}/api/profile/${address}/referral`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ referrer }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    const msg = typeof data.error === "string" ? data.error : "Failed to register referral";
+    throw new ApiError(msg, res.status, data);
+  }
 }
 
 export async function completeQuest(

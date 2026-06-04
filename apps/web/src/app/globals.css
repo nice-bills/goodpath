@@ -1595,6 +1595,20 @@ button,
   margin-bottom: 0;
 }
 
+.run-challenge-card {
+  border: 2px solid var(--border-strong);
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ffe66d 0%, #fffaf0 55%);
+  padding: 14px 16px;
+  box-shadow: 5px 5px 0 rgba(53, 33, 13, 0.1);
+}
+
+.receipt-scorecard {
+  border-top: 2px dashed var(--border);
+  border-bottom: 2px dashed var(--border);
+  padding: 14px 0;
+}
+
 /* Records + league cards */
 .records-grid {
   display: grid;

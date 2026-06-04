@@ -1,4 +1,4 @@
-import { CORE_PATH_QUEST_IDS } from "./quests";
+import { CORE_PATH_QUEST_IDS } from "./quests.js";
 
 export function computeProgress(
   completedCount: number,
