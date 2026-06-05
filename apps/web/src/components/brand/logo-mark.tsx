@@ -8,34 +8,19 @@ const MARK_SIZES = {
 
 export type LogoMarkSize = keyof typeof MARK_SIZES;
 
-function TrailMarkPaths() {
+function TraceMarkPaths() {
   return (
     <>
       <rect width="64" height="64" rx="18" fill="#007a55" />
       <path
-        d="M18 48 L18 40 M18 34 L18 26 M18 20 L18 14"
-        stroke="#f7f6f3"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeDasharray="5 4"
-      />
-      <path
-        d="M30 16 L44 24 L30 32"
+        d="M16 46 C16 46 22 28 32 22 C42 16 48 24 48 24"
         stroke="#f7f6f3"
         strokeWidth="3.5"
-        strokeLinejoin="round"
         strokeLinecap="round"
         fill="none"
       />
-      <path
-        d="M30 32 L44 40 L30 48"
-        stroke="#f7f6f3"
-        strokeWidth="3.5"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <circle cx="44" cy="48" r="4" fill="#f7f6f3" />
+      <circle cx="48" cy="24" r="4" fill="#f7f6f3" />
+      <circle cx="32" cy="22" r="2.5" fill="#007a55" opacity={0.85} />
     </>
   );
 }
@@ -60,7 +45,7 @@ export function LogoMark({
       style={{ display: "block", flexShrink: 0 }}
       {...props}
     >
-      <TrailMarkPaths />
+      <TraceMarkPaths />
     </svg>
   );
 }

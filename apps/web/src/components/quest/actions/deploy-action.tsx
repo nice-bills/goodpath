@@ -184,7 +184,7 @@ export function DeployAction({
     return (
       <QuestPanel quest={quest} variant={variant}>
         <p className="mt-3 text-xs text-muted">
-          Finish the 5-step path first — then put idle G$ to work.
+          Finish the 5-step path first, then put idle G$ to work.
         </p>
       </QuestPanel>
     );
@@ -193,7 +193,7 @@ export function DeployAction({
   return (
     <QuestPanel quest={quest} variant={variant} className="quest-active-panel">
       <p className="mt-2 text-xs text-muted">
-        Pick how to deploy idle G$ — both verify on Celoscan via our API.
+        Pick how to deploy idle G$. Both verify on Celoscan via our API.
       </p>
       <div className="mt-3 flex gap-2">
         <button

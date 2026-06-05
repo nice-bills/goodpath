@@ -46,7 +46,7 @@ export function FvQrPanel({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      setQrError("Copy failed — select the link in your browser bar on desktop.");
+      setQrError("Copy failed. Select the link in your browser bar on desktop.");
     }
   };
 
@@ -106,7 +106,7 @@ export function FvQrPanel({
       {verified && (
         <p className="mt-3 flex items-center gap-2 text-sm font-medium text-win">
           <CheckCircle className="size-4" weight="fill" aria-hidden />
-          Verified — updating your quest…
+          Verified. Updating your quest…
         </p>
       )}
 

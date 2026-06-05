@@ -98,7 +98,7 @@ export function CelebrateTab() {
           ) : profile?.league?.promoted ? (
             <>
               <p className="text-center text-sm font-semibold text-foreground">
-                Top of {profile.league.divisionLabel} this week — share the climb.
+                Top of {profile.league.divisionLabel} this week. Share the climb.
               </p>
               <FlexShareButton
                 profile={profile}

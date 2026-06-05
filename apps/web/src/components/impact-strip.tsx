@@ -42,17 +42,17 @@ export function ImpactStrip({ className }: { className?: string }) {
       <div className="mt-3 flex divide-x divide-border">
         <Stat
           label="Wallets"
-          value={isLoading ? "—" : formatCount(data?.walletsOnPath)}
+          value={isLoading ? "-" : formatCount(data?.walletsOnPath)}
         />
         <Stat
           label="Paths done"
-          value={isLoading ? "—" : formatCount(data?.pathsCompleted)}
+          value={isLoading ? "-" : formatCount(data?.pathsCompleted)}
         />
         <Stat
           label="Quest steps"
-          value={isLoading ? "—" : formatCount(data?.questCompletions)}
+          value={isLoading ? "-" : formatCount(data?.questCompletions)}
         />
-        <Stat label="Tips" value={isLoading ? "—" : formatCount(data?.tipsSent)} />
+        <Stat label="Tips" value={isLoading ? "-" : formatCount(data?.tipsSent)} />
       </div>
     </section>
   );

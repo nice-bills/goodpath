@@ -31,7 +31,7 @@ export function QuestsTab() {
       <PageHeader
         eyebrow={pathDone ? "Path done" : `${progress}%`}
         title="Your path"
-        subtitle="Tap a quest — claim daily G$ before the board cools."
+        subtitle="Tap a quest. Claim daily G$ before the board cools."
         showConnect
       />
 
@@ -45,7 +45,7 @@ export function QuestsTab() {
           {walletStatus === "linking" ? (
             <>
               <p className="text-sm font-medium text-foreground">Setting up your wallet…</p>
-              <p className="mt-2 text-xs text-muted">Almost ready — keep this tab open.</p>
+              <p className="mt-2 text-xs text-muted">Almost ready. Keep this tab open.</p>
             </>
           ) : (
             <p className="text-sm text-muted">

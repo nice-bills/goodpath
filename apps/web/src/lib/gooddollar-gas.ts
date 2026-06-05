@@ -107,6 +107,6 @@ export async function ensureGoodDollarGas(
   return {
     ok: false,
     balance,
-    error: `Need at least ${MIN_CELO_FOR_TX} CELO on Celo (you have ${formatCeloAmount(balance)}). GoodDollar gas can take up to a minute — wait and retry, or use the Celo faucet.`,
+    error: `Need at least ${MIN_CELO_FOR_TX} CELO on Celo (you have ${formatCeloAmount(balance)}). GoodDollar gas can take up to a minute. Wait and retry, or use the Celo faucet.`,
   };
 }

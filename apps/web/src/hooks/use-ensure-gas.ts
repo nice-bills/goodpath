@@ -18,12 +18,12 @@ function gasStatusMessage(result: Extract<EnsureGasResult, { ok: true }>): strin
   const bal = formatCeloAmount(result.balance);
   if (result.sponsored) {
     if (result.borderline) {
-      return `GoodDollar sent gas (${bal} CELO on Celo). MetaMask may still warn — if it does, add a little CELO from the faucet.`;
+      return `GoodDollar sent gas (${bal} CELO on Celo). MetaMask may still warn. If it does, add a little CELO from the faucet.`;
     }
-    return `GoodDollar covered gas — ${bal} CELO on Celo now.`;
+    return `GoodDollar covered gas. ${bal} CELO on Celo now.`;
   }
   if (result.borderline) {
-    return `${bal} CELO on Celo — borderline for claims. If MetaMask says insufficient, use the Celo faucet.`;
+    return `${bal} CELO on Celo, borderline for claims. If MetaMask says insufficient, use the Celo faucet.`;
   }
   return `${bal} CELO on Celo (need ~${MIN_CELO_FOR_TX}+ for this step).`;
 }

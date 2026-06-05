@@ -23,7 +23,7 @@ const plexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "GoodPath",
-  description: "Mark your progress — weekly runs on the GoodDollar path.",
+  description: "Mark your progress. Weekly runs on the GoodDollar path.",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -34,13 +34,13 @@ export const metadata: Metadata = {
   manifest: "/site.webmanifest",
   openGraph: {
     title: "GoodPath",
-    description: "Mark your progress — weekly runs on the GoodDollar path.",
+    description: "Mark your progress. Weekly runs on the GoodDollar path.",
     siteName: "GoodPath",
   },
   twitter: {
     card: "summary_large_image",
     title: "GoodPath",
-    description: "Mark your progress — weekly runs on the GoodDollar path.",
+    description: "Mark your progress. Weekly runs on the GoodDollar path.",
   },
 };
 

@@ -170,7 +170,7 @@ function PrivyModalSignIn({ onClose }: { onClose: () => void }) {
 
   return (
     <>
-      <p className="wallet-connect-fast-label">Recommended on desktop — usually under 10s</p>
+      <p className="wallet-connect-fast-label">Recommended on desktop, usually under 10s</p>
       <PrivyWalletLoginButton onClose={onClose} disabled={false} />
       <p className="wallet-connect-divider">or sign in with email / Google</p>
       <p className="wallet-connect-slow-hint text-xs text-muted">
@@ -181,7 +181,7 @@ function PrivyModalSignIn({ onClose }: { onClose: () => void }) {
       <div className="wallet-sheet-note">
         <strong>GoodDollar covers gas</strong>
         <span className="wallet-sheet-note-detail">
-          WHEN YOU CLAIM — SAME AS GOODWALLET. NO CELO NEEDED TO START.
+          WHEN YOU CLAIM: SAME AS GOODWALLET. NO CELO NEEDED TO START.
         </span>
       </div>
       <PrivyResetSignIn />
@@ -248,7 +248,7 @@ export function WalletModal({ open, onClose }: { open: boolean; onClose: () => v
                   </h2>
                   <p className="wallet-sheet-sub">
                     {inMetaMaskBrowser
-                      ? "You’re in MetaMask’s browser — connect directly below."
+                      ? "You’re in MetaMask’s browser. Connect directly below."
                       : mobile
                         ? "On phone, open inside MetaMask (recommended). WalletConnect is a fallback."
                         : "We’ll switch you to Celo if needed."}

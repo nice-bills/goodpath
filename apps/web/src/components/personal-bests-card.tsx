@@ -12,7 +12,7 @@ export function PersonalBestsCard({ profile }: { profile: ProfileResponse }) {
       label: "Fastest path",
       value: personalBests.fastestPathSeconds
         ? formatPathDuration(personalBests.fastestPathSeconds)
-        : "—",
+        : "-",
     },
     {
       label: "Longest streak",

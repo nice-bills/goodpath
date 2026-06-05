@@ -178,7 +178,7 @@ export function ClaimAction({
         ) : (
           <FvVerificationOptions
             flow={fvFlow}
-            intro="GoodDollar needs face verification before you can claim. Scan the QR to finish on your phone — usually faster than this browser."
+            intro="GoodDollar needs face verification before you can claim. Scan the QR to finish on your phone. Usually faster than this browser."
           />
         )}
       </QuestPanel>
@@ -211,11 +211,11 @@ export function ClaimAction({
           >
             {formatCeloAmount(celoAmount)}
           </span>
-          {lowCelo && " — below minimum; we’ll request GoodDollar gas when you claim."}
+          {lowCelo && ". Below minimum; we’ll request GoodDollar gas when you claim."}
           {borderlineCelo &&
             !lowCelo &&
-            " — can still be tight; MetaMask uses its own fee estimate."}
-          {!walletOnCelo && " — switch MetaMask to Celo before signing."}
+            ". Can still be tight; MetaMask uses its own fee estimate."}
+          {!walletOnCelo && ". Switch MetaMask to Celo before signing."}
         </p>
       )}
 
@@ -305,7 +305,7 @@ export function ClaimAction({
       <p className="mt-3 text-[11px] leading-relaxed text-muted">
         Claims need about {MIN_CELO_FOR_TX}+ CELO on Celo for network fees. The app reads your
         on-chain balance; MetaMask shows its own estimate when you sign. GoodDollar can fund gas
-        automatically — same as GoodWallet.
+        automatically, same as GoodWallet.
       </p>
     </QuestPanel>
   );

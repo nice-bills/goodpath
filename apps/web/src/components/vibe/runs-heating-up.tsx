@@ -56,7 +56,7 @@ export function RunsHeatingUp() {
           Runs heating up <span aria-hidden>🔥</span>
         </h2>
         <p className="vibe-feed-sub">
-          Real weekly goals from connected wallets — no bots, no filler names.
+          Real weekly goals from connected wallets. No bots, no filler names.
         </p>
       </div>
       <ul className="vibe-feed-track" aria-label="Public weekly run goals">

@@ -49,7 +49,7 @@ export function HomeRunVibe({ profile }: { profile: ProfileResponse }) {
         {league ? (
           <p className="vibe-you-rank">
             <span className="vibe-you-rank-num">
-              {league.divisionRank != null ? `#${league.divisionRank}` : "—"}
+              {league.divisionRank != null ? `#${league.divisionRank}` : "-"}
             </span>
             <span className="vibe-you-rank-meta">
               in {league.divisionLabel ?? "Bronze"} · {formatPoints(league.points)} pts
@@ -61,7 +61,7 @@ export function HomeRunVibe({ profile }: { profile: ProfileResponse }) {
           {pathDone
             ? "Path crushed. Flex the receipt before someone passes you."
             : nextQuest
-              ? `${nextQuest.title} is live — do it before the board cools.`
+              ? `${nextQuest.title} is live. Do it before the board cools.`
               : "Pick up where you left off. The league does not wait."}
         </p>
 

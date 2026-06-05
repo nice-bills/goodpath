@@ -75,7 +75,7 @@ export function PathReceipt({
     <div className="receipt-card sticker-receipt-card text-left">
       {demo && (
         <p className="mb-4 rounded-lg border border-border-strong bg-surface-muted px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
-          Demo receipt — sample data
+          Demo receipt (sample data)
         </p>
       )}
 

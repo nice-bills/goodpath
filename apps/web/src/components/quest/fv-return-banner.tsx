@@ -12,7 +12,7 @@ function buildMessage(search: string): { type: "ok" | "err"; text: string } | nu
   if (result.isVerified) {
     return {
       type: "ok",
-      text: 'Face verification passed. Tap "I already verified — refresh" on the verify quest if it has not updated yet.',
+      text: 'Face verification passed. Tap "I already verified, refresh" on the verify quest if it has not updated yet.',
     };
   }
   return {

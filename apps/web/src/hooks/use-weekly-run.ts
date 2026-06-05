@@ -42,7 +42,7 @@ export function useCreateWeeklyRun() {
     isPublic = true,
   ) => {
     if (USE_HONO_API) {
-      throw new Error("Weekly runs require Convex — set NEXT_PUBLIC_CONVEX_URL");
+      throw new Error("Weekly runs require Convex. Set NEXT_PUBLIC_CONVEX_URL");
     }
     return createRun({
       address: address.toLowerCase(),

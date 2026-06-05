@@ -141,15 +141,15 @@ export function nextMoveHint(input: {
     if (!input.hasStreamProof) {
       return "Try a Superfluid G$ stream for +18 league pts vs save.";
     }
-    return "Beat your weekly score — tip, support on-chain, or claim again tomorrow.";
+    return "Beat your weekly score: tip, support on-chain, or claim again tomorrow.";
   }
   switch (next.id) {
     case "verify":
-      return "Verify on Celo — unlock claim and league points.";
+      return "Verify on Celo to unlock claim and league points.";
     case "claim":
-      return "Claim daily G$ — entry to the run, not the finish line.";
+      return "Claim daily G$. Entry to the run, not the finish line.";
     case "tip":
-      return "Tip with G$ on Celo — moves real G$ and adds league pts.";
+      return "Tip with G$ on Celo. Moves real G$ and adds league pts.";
     case "support":
       return "Support a GoodCollective pool on-chain for +10 pts (vs visit ack).";
     case "deploy":

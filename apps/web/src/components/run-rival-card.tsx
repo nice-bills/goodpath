@@ -17,7 +17,7 @@ export function RunRivalCard({ profile }: { profile: ProfileResponse }) {
       </p>
       <p className="mt-2 text-xs leading-relaxed text-muted">
         {rival.isSeeded
-          ? "Practice target from league scoring — not a real person. Your job: beat the points with real G$ txs."
+          ? "Practice target from league scoring, not a real person. Your job: beat the points with real G$ txs."
           : `Tracking ${rival.address.slice(0, 6)}…${rival.address.slice(-4)}`}
       </p>
       {profile.squads && profile.squads.length > 0 ? (

@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useRecentRuns } from "@/hooks/use-recent-runs";
 import { useImpactStats } from "@/hooks/use-impact-stats";
 import { formatCount, formatRelativeTime } from "@/lib/format";
@@ -35,9 +36,9 @@ function PulseStats() {
   if (isLoading) {
     return (
       <div className="vibe-pulse-stats" aria-busy>
-        <span>—</span>
-        <span>—</span>
-        <span>—</span>
+        <span>-</span>
+        <span>-</span>
+        <span>-</span>
       </div>
     );
   }
@@ -68,10 +69,10 @@ export function RunPulseFeed({ subtitle }: { subtitle?: string }) {
     subtitle ??
     (hasEvents
       ? last24hCount > 0
-        ? `${formatCount(last24hCount)} move${last24hCount === 1 ? "" : "s"} in the last 24h — real wallets, no bots.`
+        ? `${formatCount(last24hCount)} move${last24hCount === 1 ? "" : "s"} in the last 24h. Real wallets, no bots.`
         : "Real quest completions from GoodPath."
       : live
-        ? "No moves yet. Connect and claim — you can be first on the board."
+        ? "No moves yet. Connect and claim. You can be first on the board."
         : "Turn on Convex to see live runs, or connect and start the board.");
 
   return (
@@ -92,7 +93,7 @@ export function RunPulseFeed({ subtitle }: { subtitle?: string }) {
       ) : hasEvents ? (
         <ul
           className="vibe-feed-track"
-          aria-label="Live runs — scroll sideways for more"
+          aria-label="Live runs, scroll sideways for more"
         >
           {events.map((e) => (
             <LiveEventCard
@@ -105,10 +106,27 @@ export function RunPulseFeed({ subtitle }: { subtitle?: string }) {
           ))}
         </ul>
       ) : (
-        <div className="vibe-empty-board">
+        <div className="vibe-board-stage">
           <p className="vibe-empty-hook">
             First claim sets the tone. Miss today and someone else owns the streak energy.
           </p>
+          <ul className="vibe-ghost-slots" aria-label="Open board slots">
+            {["You?", "Open", "Open"].map((label, i) => (
+              <li
+                key={label + i}
+                className="vibe-ghost-slot"
+                style={{ "--slot-i": i } as CSSProperties}
+              >
+                <span className="vibe-ghost-avatar" aria-hidden>
+                  {i === 0 ? "★" : "?"}
+                </span>
+                <span className="vibe-ghost-label">{label}</span>
+                <span className="vibe-ghost-hint">
+                  {i === 0 ? "First on board" : "Waiting"}
+                </span>
+              </li>
+            ))}
+          </ul>
           <PulseStats />
         </div>
       )}

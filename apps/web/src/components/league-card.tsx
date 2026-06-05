@@ -19,7 +19,7 @@ export function LeagueCard({ profile }: { profile: ProfileResponse }) {
           <strong>{rankLabel}</strong>
           <p className="mt-1 text-sm text-muted">
             {league.points} league pts
-            {league.promoted ? " · Top 3 — promoted next week" : ""}
+            {league.promoted ? " · Top 3, promoted next week" : ""}
           </p>
         </div>
         <div className="league-points-pill">
@@ -29,13 +29,13 @@ export function LeagueCard({ profile }: { profile: ProfileResponse }) {
       </div>
       {league.streakShield && (
         <p className="league-shield-note">
-          Streak shield earned — one missed claim forgiven this week.
+          Streak shield earned. One missed claim forgiven this week.
         </p>
       )}
       {(profile.chainProofs?.length ?? 0) > 0 && (
         <p className="mt-2 text-[10px] text-muted">
           {profile.chainProofs!.length} on-chain proof
-          {profile.chainProofs!.length === 1 ? "" : "s"} this path —{" "}
+          {profile.chainProofs!.length === 1 ? "" : "s"} this path:{" "}
           <span className="font-semibold text-foreground">provable on Celoscan</span>
         </p>
       )}

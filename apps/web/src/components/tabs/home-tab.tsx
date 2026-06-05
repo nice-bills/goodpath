@@ -52,7 +52,7 @@ export function HomeTab() {
           {showClaimHint ? (
             <div className="vibe-claim-hint" role="status">
               <p className="vibe-claim-hint-text">
-                Daily claim is live — tap <strong>Claim</strong> in the nav when you&apos;re ready.
+                Daily claim is live. Tap <strong>Claim</strong> in the nav when you&apos;re ready.
               </p>
               <button
                 type="button"
@@ -105,14 +105,29 @@ export function HomeTab() {
             <div className="vibe-top-bar vibe-top-bar-landing">
               <LogoLockup size="nav" />
             </div>
+            <div className="start-landing-meta">
+              <span className="start-landing-live">
+                <span className="start-live-dot" aria-hidden />
+                Live on Celo
+              </span>
+              <span className="start-landing-stamp">Week 1</span>
+            </div>
             <h1 className="font-display start-landing-title">
-              The run is <span className="start-landing-accent">heating up</span>{" "}
-              <span aria-hidden>🔥</span>
+              The run is{" "}
+              <span className="start-landing-accent">heating up</span>
+              <span className="start-landing-emoji" aria-hidden>
+                🔥
+              </span>
             </h1>
             <p className="start-landing-lead">
-              Claim, flex your rank, stream G$ — miss a day and someone else eats your
+              Claim, flex your rank, stream G$. Miss a day and someone else eats your
               spot.
             </p>
+            <ul className="start-landing-chips" aria-label="What you unlock">
+              <li>Claim daily G$</li>
+              <li>Beat the board</li>
+              <li>Flex your rank</li>
+            </ul>
           </header>
           <StartRunBoard />
         </div>

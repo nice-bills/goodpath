@@ -20,7 +20,7 @@ export function GoodWalletConnectHint({ className }: { className?: string }) {
       <p className="font-semibold">Already verified on GoodWallet?</p>
       <p className="mt-1 text-muted">
         Face verification is tied to the wallet you verify. Connect that wallet here (MetaMask /
-        WalletConnect), or link it to your GoodDollar identity — don&apos;t paste a separate
+        WalletConnect), or link it to your GoodDollar identity. Don&apos;t paste a separate
         address.
       </p>
       <p className="mt-2 flex flex-wrap gap-3">

@@ -17,7 +17,7 @@ export function RunPressure({ profile }: { profile: ProfileResponse }) {
           <p className="vibe-pressure-sub">
             <span className="font-semibold text-foreground">{above.gap} pts</span> behind{" "}
             <span className="font-mono">{above.label.replace(/^Benchmark\s*·\s*/i, "")}</span>{" "}
-            in your division — one on-chain move closes the gap.
+            in your division. One on-chain move closes the gap.
           </p>
         </div>
       ) : null}

@@ -30,7 +30,7 @@ async function waitForConnectedWallet(
     await new Promise((r) => setTimeout(r, 250));
   }
   throw new Error(
-    "Wallet setup timed out (90s). Privy’s servers may be slow — reset sign-in or use MetaMask below.",
+    "Wallet setup timed out (90s). Privy’s servers may be slow. Reset sign-in or use MetaMask below.",
   );
 }
 

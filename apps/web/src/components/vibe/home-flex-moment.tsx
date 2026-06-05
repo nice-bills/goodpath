@@ -13,7 +13,7 @@ function momentCopy(profile: ProfileResponse): { kind: Moment; title: string; su
   if (pathDone) {
     return {
       kind: "path",
-      title: "Path complete — flex it",
+      title: "Path complete. Flex it",
       sub: "Your receipt has G$ moved, division rank, and Celoscan proofs.",
       label: "Share path receipt",
     };
@@ -23,7 +23,7 @@ function momentCopy(profile: ProfileResponse): { kind: Moment; title: string; su
     return {
       kind: "rank",
       title: "You moved up this week",
-      sub: `Top of ${profile.league.divisionLabel ?? "your"} division energy — share before the board resets.`,
+      sub: `Top of ${profile.league.divisionLabel ?? "your"} division energy. Share before the board resets.`,
       label: "Flex rank-up",
     };
   }
@@ -32,7 +32,7 @@ function momentCopy(profile: ProfileResponse): { kind: Moment; title: string; su
     return {
       kind: "claim",
       title: "Claim on the board",
-      sub: "Drop your run in the group chat — real wallet, real on-chain proof.",
+      sub: "Drop your run in the group chat. Real wallet, real on-chain proof.",
       label: "Flex this claim",
     };
   }

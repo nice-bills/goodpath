@@ -39,7 +39,7 @@ export function FvVerificationOptions({
 
   if (whitelisted) {
     return (
-      <p className="mt-3 text-sm font-medium text-win">Verified — you can continue.</p>
+      <p className="mt-3 text-sm font-medium text-win">Verified. You can continue.</p>
     );
   }
 
@@ -47,10 +47,10 @@ export function FvVerificationOptions({
     <>
       <p className="mt-3 text-xs leading-relaxed text-muted">
         {sdkLoading
-          ? "Loading your wallet and GoodDollar identity tools — email sign-in can take 10–20 seconds the first time."
+          ? "Loading your wallet and GoodDollar identity tools. Email sign-in can take 10–20 seconds the first time."
           : intro ??
             (showPhoneQrOption
-              ? "Face verification is required. On a laptop, scan the QR to finish on your phone — often easier than this browser."
+              ? "Face verification is required. On a laptop, scan the QR to finish on your phone. Often easier than this browser."
               : "Face verification is required before you can continue.")}
       </p>
       <div className="mt-3">
@@ -113,7 +113,7 @@ export function FvVerificationOptions({
         disabled={checking || !identitySDK}
         className="mt-2 w-full text-center text-xs text-muted underline disabled:opacity-50"
       >
-        {checking ? "Checking on-chain…" : "I already verified — refresh"}
+        {checking ? "Checking on-chain…" : "I already verified, refresh"}
       </button>
 
       {fvQrLink && (

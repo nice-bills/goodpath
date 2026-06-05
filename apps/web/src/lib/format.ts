@@ -20,14 +20,14 @@ export function formatGsMoved(weiStr: string | undefined): string {
 
 /** Whole numbers for stats (wallets, tips, quest steps). */
 export function formatCount(n: number | undefined | null): string {
-  if (n == null || !Number.isFinite(n)) return "—";
+  if (n == null || !Number.isFinite(n)) return "-";
   if (n === 0) return "0";
   return formatCompactNumber(n, { maxFractionDigits: n >= 10_000 ? 1 : 0 });
 }
 
 /** League points and similar small integers. */
 export function formatPoints(n: number | undefined | null): string {
-  if (n == null || !Number.isFinite(n)) return "—";
+  if (n == null || !Number.isFinite(n)) return "-";
   return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(n);
 }
 

@@ -36,7 +36,7 @@ function WalletSetupPanel({
     phase === "creating"
       ? "Creating your Celo wallet…"
       : phase === "slow"
-        ? "Still working — Privy can take up to 90s the first time."
+        ? "Still working. Privy can take up to 90s the first time."
         : phase === "failed"
           ? "Wallet setup stalled."
           : "Linking wallet to GoodPath…";
@@ -49,7 +49,7 @@ function WalletSetupPanel({
       <p className="text-sm font-medium text-foreground">{setupMessage}</p>
       <p className="text-xs text-muted">
         Email login creates a Privy embedded wallet on Celo (required after your code). First
-        sign-in is often slow — MetaMask below is usually faster.
+        sign-in is often slow. MetaMask below is usually faster.
       </p>
       {error && <p className="wallet-connect-error">{error}</p>}
       {showMetaMaskEscape && (
@@ -159,7 +159,7 @@ function PrivyLoginOptionsReady({
   if (emailStep === "email") {
     return (
       <div className="wallet-connect-actions">
-        <p className="text-sm text-muted">Enter your email — we&apos;ll send a one-time code.</p>
+        <p className="text-sm text-muted">Enter your email. We&apos;ll send a one-time code.</p>
         <input
           type="email"
           autoComplete="email"

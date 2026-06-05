@@ -34,7 +34,7 @@ export function ReceiptScorecard({ profile }: { profile: ProfileResponse }) {
             Division
           </dt>
           <dd className="font-mono text-base font-semibold tabular-nums">
-            {profile.league?.divisionLabel ?? "—"}
+            {profile.league?.divisionLabel ?? "-"}
             {profile.league?.divisionRank != null
               ? ` · #${profile.league.divisionRank}`
               : ""}
@@ -53,7 +53,7 @@ export function ReceiptScorecard({ profile }: { profile: ProfileResponse }) {
           <dd className="font-mono text-base font-semibold tabular-nums">
             {profile.personalBests?.fastestPathSeconds
               ? formatPathDuration(profile.personalBests.fastestPathSeconds)
-              : "—"}
+              : "-"}
           </dd>
         </div>
         <div>
@@ -61,7 +61,7 @@ export function ReceiptScorecard({ profile }: { profile: ProfileResponse }) {
             Global rank
           </dt>
           <dd className="font-mono text-base font-semibold tabular-nums">
-            {profile.league?.rank != null ? `#${profile.league.rank}` : "—"}
+            {profile.league?.rank != null ? `#${profile.league.rank}` : "-"}
           </dd>
         </div>
         {proofMix ? (

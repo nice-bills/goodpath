@@ -13,7 +13,7 @@ export function RunHeroCard({ profile }: { profile: ProfileResponse }) {
   const rankInDivision =
     league.divisionRank != null && league.divisionSize
       ? `#${league.divisionRank} / ${league.divisionSize}`
-      : "—";
+      : "-";
 
   const above = league.personAbove;
   const rival = league.rival;
@@ -44,7 +44,7 @@ export function RunHeroCard({ profile }: { profile: ProfileResponse }) {
           <div className="run-pulse-stat">
             <dt>Global</dt>
             <dd className="text-lg">
-              {league.rank != null ? `#${league.rank}` : "—"}
+              {league.rank != null ? `#${league.rank}` : "-"}
             </dd>
           </div>
         </dl>
