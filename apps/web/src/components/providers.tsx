@@ -6,8 +6,17 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { getWagmiConfig } from "@/lib/wagmi-config";
 import { isPrivyEnabled } from "@/lib/privy-config";
 import { PrivyProviders } from "@/components/privy-providers";
+import { ConvexClientProvider } from "@/components/convex-client-provider";
+import { useEnsureConvexProfile } from "@/hooks/use-ensure-convex-profile";
 import { useMounted } from "@/hooks/use-mounted";
+import { useWalletSession } from "@/hooks/use-wallet-session";
 import { clearWalletConnectStorage, isMetaMaskInAppBrowser } from "@/lib/mobile-wallet";
+
+function ConvexWalletBootstrap() {
+  const { status, address } = useWalletSession();
+  useEnsureConvexProfile(status === "ready" ? address : undefined);
+  return null;
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const mounted = useMounted();
@@ -38,11 +47,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
   if (!mounted || !wagmiConfig) {
     return (
       <QueryClientProvider client={queryClient}>
-        <div className="app-shell flex min-h-dvh flex-col">
-          <div className="flex flex-1 items-center justify-center p-6">
-            <p className="text-sm text-muted">Loading wallet…</p>
+        <ConvexClientProvider>
+          <div className="app-shell flex min-h-dvh flex-col">
+            <div className="flex flex-1 items-center justify-center p-6">
+              <p className="text-sm text-muted">Loading wallet…</p>
+            </div>
           </div>
-        </div>
+        </ConvexClientProvider>
       </QueryClientProvider>
     );
   }
@@ -54,7 +65,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   if (isPrivyEnabled) {
     return (
       <PrivyProviders queryClient={queryClient} wagmiConfig={wagmiConfig}>
-        {shell}
+        <ConvexClientProvider>
+          <ConvexWalletBootstrap />
+          {shell}
+        </ConvexClientProvider>
       </PrivyProviders>
     );
   }
@@ -62,7 +76,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig} reconnectOnMount={!isMetaMaskInAppBrowser()}>
       <QueryClientProvider client={queryClient}>
-        {shell}
+        <ConvexClientProvider>
+          <ConvexWalletBootstrap />
+          {shell}
+        </ConvexClientProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

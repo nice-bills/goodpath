@@ -1,32 +1,11 @@
 import { createPublicClient, http, zeroAddress, type Address } from "viem";
-import { createRequire } from "node:module";
 import { celo } from "viem/chains";
-
-/** CJS require avoids citizen-sdk → lz-string ESM named-export crash under Node. */
-const requireSdk = createRequire(import.meta.url);
-const {
+import {
   SupportedChains,
   chainConfigs,
   identityV2ABI,
   ubiSchemeV2ABI,
-}: {
-  SupportedChains: { CELO: number };
-  chainConfigs: Record<
-    number,
-    {
-      contracts: Record<
-        string,
-        {
-          identityContract: Address;
-          ubiContract: Address;
-          g$Contract: Address;
-        }
-      >;
-    }
-  >;
-  identityV2ABI: readonly unknown[];
-  ubiSchemeV2ABI: readonly unknown[];
-} = requireSdk("@goodsdks/citizen-sdk");
+} from "@goodsdks/citizen-sdk";
 
 type contractEnv = "production" | "staging" | "development";
 

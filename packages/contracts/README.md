@@ -1,30 +1,41 @@
-# GoodPathReceipt (Celo)
+# GoodPathReceipt (UUPS)
 
-Upgradeable **UUPS** ledger for GoodPath 2.0. Records quest/referral/squad/season events on Celo — **does not custody G$**.
+Upgradeable **attestation** contract for GoodPath 3.0 — records quest completions, referrals, rivals, squads, season scores, and receipt hashes on **Celo**. **No user fund custody.**
 
-## Status
+## Events
 
-| Step | Status |
-|------|--------|
-| Solidity + unit tests | ✅ Run locally |
-| Mainnet deploy | **Deferred** — enable when ready for judge contract link |
+| Event | Purpose |
+|-------|---------|
+| `QuestRecorded` | Quest completion + optional proof tx hash |
+| `ReferralRecorded` | Referrer ↔ referred link |
+| `RivalSet` | User picked a rival |
+| `SquadJoined` | Squad membership (v2 scoring) |
+| `SeasonScoreRecorded` | Weekly league score snapshot |
+| `ReceiptIssued` | Shareable run receipt hash |
 
-## Local
-
-```bash
-pnpm contracts:test    # from repo root
-pnpm contracts:build
-```
-
-## Deploy later (not required for app dev)
+## Commands
 
 ```bash
 cd packages/contracts
-export DEPLOYER_PRIVATE_KEY=0x…
-export GOODPATH_RECEIPT_OWNER=0x…   # API relayer or multisig
-forge script script/Deploy.s.sol --rpc-url celo --broadcast --verify
+forge build
+forge test
 ```
 
-Then set `GOODPATH_RECEIPT_ADDRESS` + `GOODPATH_RELAYER_PRIVATE_KEY` on the API and `NEXT_PUBLIC_GOODPATH_RECEIPT_ADDRESS` on the web.
+## Deploy (gated)
 
-Until then, the app uses **SQLite league + Celoscan tx proofs** only; `recordQuestOnChain` is a no-op without env.
+Set `DEPLOYER_PRIVATE_KEY` and optional `GOODPATH_CONTRACT_OWNER`, then:
+
+```bash
+forge script script/DeployGoodPathReceipt.s.sol \
+  --rpc-url $CELO_RPC_URL \
+  --broadcast
+```
+
+Wire the proxy address into API env:
+
+- `GOODPATH_RECEIPT_ADDRESS`
+- `GOODPATH_RELAYER_PRIVATE_KEY` (owner or dedicated relayer key)
+
+## Upgrade
+
+Owner calls `upgradeToAndCall` on the proxy (UUPS). Keep the storage gap in `GoodPathReceipt.sol` when adding state.

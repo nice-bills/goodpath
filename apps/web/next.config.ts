@@ -69,7 +69,10 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     turbo: {
-      resolveAlias: turboOptionalDepAliases,
+      resolveAlias: {
+        ...turboOptionalDepAliases,
+        "@goodpath/api/app": join(monorepoRoot, "services/api/src/app.ts"),
+      },
     },
   },
 };

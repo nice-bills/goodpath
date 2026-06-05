@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { BottomNav, DesktopNav } from "@/components/main-nav";
 import { PlatformGuide } from "@/components/platform-guide";
 import { WalletGateToast } from "@/components/wallet-gate-toast";
@@ -43,17 +43,16 @@ function AppTabShellInner() {
   const { address } = useWalletSession();
   useReferralCapture(address);
   const showPlatformGuide = isMobileBrowser() && tab !== "celebrate";
-  const [visited, setVisited] = useState<Set<AppTab>>(() => new Set(["home"]));
-
-  useEffect(() => {
-    if (tab !== "home" && !canAccessGatedTabs) return;
-    setVisited((prev) => {
-      if (prev.has(tab)) return prev;
-      const next = new Set(prev);
+  const visited = useMemo(() => {
+    const next = new Set<AppTab>(["home"]);
+    if (canAccessGatedTabs) {
+      next.add("quests");
+      next.add("celebrate");
+    } else if (tab !== "home") {
       next.add(tab);
-      return next;
-    });
-  }, [tab, canAccessGatedTabs]);
+    }
+    return next;
+  }, [canAccessGatedTabs, tab]);
 
   return (
     <div className="app-layout">

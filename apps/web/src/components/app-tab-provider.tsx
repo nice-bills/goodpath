@@ -19,9 +19,14 @@ import {
   CONNECT_TO_CONTINUE_MESSAGE,
 } from "@/lib/wallet-access";
 
+type SetTabOptions = { hash?: string };
+
+type QuestNavFocus = "claim" | "path";
+
 type AppTabContextValue = {
   tab: AppTab;
-  setTab: (next: AppTab) => void;
+  questNavFocus: QuestNavFocus;
+  setTab: (next: AppTab, options?: SetTabOptions) => void;
   canAccessGatedTabs: boolean;
   tabGateMessage: string | null;
   clearTabGateMessage: () => void;
@@ -48,12 +53,10 @@ function AppTabProviderInner({ children }: { children: ReactNode }) {
   const gatedTabsAllowed = canAccessGatedTabs(walletStatus, demoActive);
 
   const resolvedTab = resolveTab(urlTab, gatedTabsAllowed);
-  const [tab, setTabState] = useState<AppTab>(resolvedTab);
+  const [tabOverride, setTabOverride] = useState<AppTab | null>(null);
+  const tab = tabOverride ?? resolvedTab;
   const [tabGateMessage, setTabGateMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    setTabState(resolvedTab);
-  }, [resolvedTab]);
+  const [questNavFocus, setQuestNavFocus] = useState<QuestNavFocus>("path");
 
   useEffect(() => {
     if (!gatedTabsAllowed && urlTab !== "home") {
@@ -69,7 +72,7 @@ function AppTabProviderInner({ children }: { children: ReactNode }) {
         setTabGateMessage(CONNECT_TO_CONTINUE_MESSAGE);
         window.history.replaceState(window.history.state, "", appTabHref("home"));
       }
-      setTabState(allowed);
+      setTabOverride(allowed);
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
@@ -78,30 +81,45 @@ function AppTabProviderInner({ children }: { children: ReactNode }) {
   const clearTabGateMessage = useCallback(() => setTabGateMessage(null), []);
 
   const setTab = useCallback(
-    (next: AppTab) => {
+    (next: AppTab, options?: SetTabOptions) => {
       if (next !== "home" && !gatedTabsAllowed) {
         setTabGateMessage(CONNECT_TO_CONTINUE_MESSAGE);
         return;
       }
       setTabGateMessage(null);
-      setTabState((current) => {
-        if (current === next) return current;
-        window.history.replaceState(window.history.state, "", appTabHref(next));
-        return next;
-      });
+      const href = appTabHref(next, options?.hash);
+      const sameTab = tab === next;
+      window.history.replaceState(window.history.state, "", href);
+      setTabOverride(next);
+      if (next === "quests") {
+        setQuestNavFocus(options?.hash === "claim" ? "claim" : "path");
+      }
+      if (options?.hash) {
+        const raw = options.hash.replace(/^#/, "");
+        const id = raw.startsWith("quest-") ? raw : `quest-${raw}`;
+        requestAnimationFrame(() => {
+          document.getElementById(id)?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        });
+      } else if (!sameTab) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     },
-    [gatedTabsAllowed],
+    [gatedTabsAllowed, tab],
   );
 
   const value = useMemo(
     () => ({
       tab,
+      questNavFocus,
       setTab,
       canAccessGatedTabs: gatedTabsAllowed,
       tabGateMessage,
       clearTabGateMessage,
     }),
-    [tab, setTab, gatedTabsAllowed, tabGateMessage, clearTabGateMessage],
+    [tab, questNavFocus, setTab, gatedTabsAllowed, tabGateMessage, clearTabGateMessage],
   );
 
   return <AppTabContext.Provider value={value}>{children}</AppTabContext.Provider>;

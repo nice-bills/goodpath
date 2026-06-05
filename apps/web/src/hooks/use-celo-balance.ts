@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useWalletSession } from "@/hooks/use-wallet-session";
 import { useAccount } from "wagmi";
 import { celo } from "wagmi/chains";
 import { createPublicClient, formatEther, http } from "viem";
@@ -20,12 +21,14 @@ export { MIN_CELO_FOR_TX, CELO_CAUTION_BELOW };
 
 /** CELO native balance on Celo mainnet for the connected address (via RPC, not MetaMask UI). */
 export function useCeloBalance() {
-  const { address, chainId, isConnected } = useAccount();
+  const { address: sessionAddress, status } = useWalletSession();
+  const { chainId } = useAccount();
+  const address = sessionAddress;
   const walletOnCelo = chainId === celo.id;
 
   const query = useQuery({
     queryKey: ["celo-balance", address],
-    enabled: Boolean(isConnected && address),
+    enabled: status === "ready" && Boolean(address),
     queryFn: async () => {
       const wei = await publicClient.getBalance({ address: address! });
       const formatted = formatEther(wei);

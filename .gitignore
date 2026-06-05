@@ -23,6 +23,9 @@ data/
 .DS_Store
 Thumbs.db
 
+# Convex local temp (cross-fs workaround)
+.convex-tmp/
+
 # IDE / local
 .vercel
 coverage/

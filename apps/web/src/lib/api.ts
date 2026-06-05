@@ -14,6 +14,13 @@ export interface PersonalBests {
   claimsThisWeek: number;
 }
 
+export interface DivisionLeaderboardRow {
+  label: string;
+  points: number;
+  isSeeded: boolean;
+  isUser: boolean;
+}
+
 export interface LeagueStanding {
   periodId: string;
   points: number;
@@ -27,14 +34,30 @@ export interface LeagueStanding {
   divisionSize?: number;
   gMovedWei?: string;
   nextMove?: string;
+  divisionLeaderboard?: DivisionLeaderboardRow[];
+  personAbove?: { label: string; points: number; gap: number } | null;
+  rival?: { address: string; label: string | null; isSeeded: boolean } | null;
+}
+
+export interface PublicProfileCard {
+  verifiedHuman: boolean;
+  streak: number;
+  pathComplete: boolean;
+  weeklyPoints: number;
+  division?: string;
+  divisionLabel?: string;
+  proofMix: string[];
+  gMovedWei: string;
 }
 
 export interface ChainProof {
   questId: string;
   txHash: string;
   meta?: string;
+  proofType?: string;
 }
 
+/** Profile from Convex `profiles.get` or legacy Hono `/api/profile`. */
 export interface ProfileResponse {
   address: string;
   streak: number;
@@ -48,6 +71,14 @@ export interface ProfileResponse {
   referredBy?: string | null;
   referralsCompletedThisWeek?: number;
   quests: QuestStatus[];
+  publicCard?: PublicProfileCard;
+  recentProofs?: Array<{
+    questId: string;
+    proofType: string;
+    txHash: string | null;
+    createdAt: string;
+  }>;
+  squads?: Array<{ squad_id: string; address: string; role: string; joined_at: string }>;
 }
 
 export class ApiError extends Error {
@@ -61,12 +92,6 @@ export class ApiError extends Error {
   }
 }
 
-export async function fetchProfile(address: string): Promise<ProfileResponse> {
-  const res = await fetch(`${API_URL}/api/profile/${address}`, { cache: "no-store" });
-  if (!res.ok) throw new ApiError("Failed to load profile", res.status);
-  return res.json();
-}
-
 export interface ImpactStats {
   pathsCompleted: number;
   questCompletions: number;
@@ -75,26 +100,16 @@ export interface ImpactStats {
   walletsOnPath: number;
 }
 
+export async function fetchProfile(address: string): Promise<ProfileResponse> {
+  const res = await fetch(`${API_URL}/api/profile/${address}`, { cache: "no-store" });
+  if (!res.ok) throw new ApiError("Failed to load profile", res.status);
+  return res.json();
+}
+
 export async function fetchImpactStats(): Promise<ImpactStats> {
   const res = await fetch(`${API_URL}/api/stats`, { cache: "no-store" });
   if (!res.ok) throw new ApiError("Failed to load stats", res.status);
   return res.json();
-}
-
-export async function registerReferral(
-  address: string,
-  referrer: string,
-): Promise<void> {
-  const res = await fetch(`${API_URL}/api/profile/${address}/referral`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ referrer }),
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    const msg = typeof data.error === "string" ? data.error : "Failed to register referral";
-    throw new ApiError(msg, res.status, data);
-  }
 }
 
 export async function completeQuest(
@@ -112,8 +127,44 @@ export async function completeQuest(
     const msg =
       typeof data.error === "string"
         ? data.error
-        : data.error?.message ?? "Failed to complete quest";
+        : (data.error?.message ?? "Failed to complete quest");
     throw new ApiError(msg, res.status, data);
   }
   return { streak: data.streak, pathComplete: data.pathComplete };
+}
+
+export async function registerReferral(
+  address: string,
+  referrer: string,
+): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/api/profile/${address}/referral`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ referrer }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = typeof data.error === "string" ? data.error : "Failed to register referral";
+    throw new ApiError(msg, res.status, data);
+  }
+  return { ok: true };
+}
+
+export async function createShareInvite(
+  address: string,
+): Promise<{ code: string; referrer: string; shareUrl: string }> {
+  const res = await fetch(`${API_URL}/api/profile/${address}/share-invite`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: "{}",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new ApiError(
+      typeof data.error === "string" ? data.error : "Failed to create share invite",
+      res.status,
+      data,
+    );
+  }
+  return data;
 }

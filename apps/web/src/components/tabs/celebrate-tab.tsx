@@ -3,13 +3,15 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Trophy, ArrowLeft, ArrowRight } from "@phosphor-icons/react";
+import { motion } from "framer-motion";
 import { useProfile } from "@/hooks/use-profile";
 import { useDemoMode } from "@/hooks/use-demo-mode";
 import { useWalletSession } from "@/hooks/use-wallet-session";
 import { ProgressRing } from "@/components/progress-ring";
-import { DemoModeBanner } from "@/components/demo-mode-banner";
 import { TodaysHabit } from "@/components/todays-habit";
+import { FlexShareButton } from "@/components/flex-share-button";
 import { appTabHref } from "@/lib/app-tab";
+import { fadeUp } from "@/lib/motion";
 
 const ConfettiBurst = dynamic(
   () => import("@/components/ui/confetti").then((m) => ({ default: m.ConfettiBurst })),
@@ -37,14 +39,13 @@ export function CelebrateTab() {
         <Link
           href={appTabHref("home")}
           scroll={false}
-          className="text-xs font-semibold text-muted hover:text-foreground"
+          className="inline-flex min-h-[44px] items-center text-xs font-semibold text-muted hover:text-foreground"
         >
           <ArrowLeft className="mr-1 inline h-4 w-4" weight="bold" aria-hidden />
-          Back
+          Back to run
         </Link>
       </div>
 
-      <DemoModeBanner />
 
       {!showContent ? (
         <div className="card mt-10 flex flex-1 flex-col items-center justify-center p-8 text-center">
@@ -57,12 +58,15 @@ export function CelebrateTab() {
             </>
           ) : (
             <p className="text-sm text-muted">
-              Connect your wallet on Home to unlock Done.
+              Connect your wallet on Run to unlock your receipt.
             </p>
           )}
         </div>
       ) : (
-        <div className="mt-8 flex flex-1 flex-col gap-6 pb-4">
+        <motion.div
+          {...fadeUp}
+          className="mt-8 flex flex-1 flex-col gap-6 pb-4"
+        >
           <div className="text-center">
             {complete ? (
               <Trophy className="mx-auto h-12 w-12 text-accent" weight="fill" aria-hidden />
@@ -70,16 +74,16 @@ export function CelebrateTab() {
             <div className="mt-4 flex justify-center">
               <ProgressRing progress={progress} />
             </div>
-            <h1 className="font-display mt-6 text-3xl leading-tight">
-              {complete ? "Run complete" : progress > 0 ? "Keep climbing" : "Start your run"}
+            <h1 className="font-display mt-6 text-3xl leading-tight text-balance">
+              {complete ? "Path receipt" : progress > 0 ? "Keep climbing" : "Start your run"}
             </h1>
-            <p className="mt-3 text-sm text-muted">
+            <p className="mt-3 text-sm text-pretty text-muted">
               {complete
-                ? "Your scorecard is live — G$ moved, league division, Celoscan proofs. Share it."
-                : `${progress}% of core path. Finish quests to unlock your receipt.`}
+                ? "Your scorecard is ready: G$ moved, division, and Celoscan proofs. Share it."
+                : `${progress}% of the core path. Finish quests to unlock your receipt.`}
             </p>
             {profile ? (
-              <p className="mt-2 font-mono text-sm text-muted">
+              <p className="mt-2 font-mono text-sm tabular-nums text-muted">
                 {profile.streak} day streak
               </p>
             ) : null}
@@ -87,9 +91,27 @@ export function CelebrateTab() {
 
           {complete && profile ? (
             <>
+              <FlexShareButton profile={profile} className="btn-primary mx-auto w-full max-w-[320px]" />
               <PathReceipt profile={profile} demo={demoActive} />
               <TodaysHabit streak={profile.streak} />
             </>
+          ) : profile?.league?.promoted ? (
+            <>
+              <p className="text-center text-sm font-semibold text-foreground">
+                Top of {profile.league.divisionLabel} this week. Share the climb.
+              </p>
+              <FlexShareButton
+                profile={profile}
+                label="Flex rank-up"
+                className="btn-primary mx-auto w-full max-w-[320px]"
+              />
+            </>
+          ) : profile && progress >= 50 ? (
+            <FlexShareButton
+              profile={profile}
+              label="Flex progress"
+              className="btn-secondary mx-auto w-full max-w-[320px]"
+            />
           ) : (
             <p className="text-center text-xs text-muted">
               Your shareable Path Receipt unlocks at 100%.
@@ -101,12 +123,12 @@ export function CelebrateTab() {
             scroll={false}
             className="btn-primary group mx-auto w-full max-w-[320px]"
           >
-            {complete ? "Home" : "Continue quests"}
+            {complete ? "Back to run" : "Continue quests"}
             <span className="btn-icon-wrap">
               <ArrowRight className="h-4 w-4" weight="bold" aria-hidden />
             </span>
           </Link>
-        </div>
+        </motion.div>
       )}
     </main>
   );

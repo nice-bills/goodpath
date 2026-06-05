@@ -15,6 +15,10 @@ import type { QuestId } from "@goodpath/shared";
 const RECEIPT_ABI = parseAbi([
   "function recordQuest(address user, bytes32 questId, bytes32 txHash)",
   "function recordReferral(address referrer, address referred)",
+  "function setRival(address user, address rival)",
+  "function recordSquadJoin(address user, bytes32 squadId)",
+  "function recordSeasonScore(bytes32 seasonId, address user, uint256 points)",
+  "function issueReceipt(address user, bytes32 receiptHash)",
 ]);
 
 function questIdBytes32(questId: QuestId): `0x${string}` {

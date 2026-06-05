@@ -37,7 +37,7 @@ export const QUESTS: QuestDefinition[] = [
     title: "Connect your wallet",
     description: "Link a wallet on Celo to start your G$ path.",
     whyItMatters:
-      "GoodDollar runs on Celo — your wallet is how you receive UBI and send G$.",
+      "GoodDollar runs on Celo. Your wallet is how you receive UBI and send G$.",
     kind: "auto",
     rewardLabel: "Path unlocked",
   },
@@ -48,7 +48,7 @@ export const QUESTS: QuestDefinition[] = [
     description:
       "Complete GoodDollar face verification so you're sybil-resistant.",
     whyItMatters:
-      "One person, one identity — so UBI goes to real humans, not duplicate bots.",
+      "One person, one identity, so UBI goes to real humans, not duplicate bots.",
     kind: "identity",
     rewardLabel: "+1 step",
   },
@@ -56,9 +56,9 @@ export const QUESTS: QuestDefinition[] = [
     id: "claim",
     order: 3,
     title: "Claim daily G$",
-    description: "Claim your universal basic income — come back every day.",
+    description: "Claim your universal basic income. Come back every day.",
     whyItMatters:
-      "Daily G$ from the UBI pool — claimable every day once you're verified.",
+      "Daily G$ from the UBI pool, claimable every day once you're verified.",
     kind: "claim",
     rewardLabel: "Daily UBI",
   },
@@ -68,7 +68,7 @@ export const QUESTS: QuestDefinition[] = [
     title: "Send a G$ tip",
     description: "Tip a friend or the demo jar with real G$ on Celo.",
     whyItMatters:
-      "G$ is real money on-chain — tipping proves you can transact, not just claim.",
+      "G$ is real money on-chain. Tipping proves you can transact, not just claim.",
     kind: "transfer",
     rewardLabel: "Utility unlocked",
     minAmount: "0.01",
@@ -80,7 +80,7 @@ export const QUESTS: QuestDefinition[] = [
     description:
       "Send G$ to a GoodCollective pool (on-chain), or visit and confirm if you donated elsewhere.",
     whyItMatters:
-      "GoodCollective pools fund builders and causes — onboarding ends in participation.",
+      "GoodCollective pools fund builders and causes. Onboarding ends in participation.",
     kind: "external",
     rewardLabel: "Community badge",
     externalUrl: "https://goodcollective.vercel.app/",
@@ -93,7 +93,7 @@ export const QUESTS: QuestDefinition[] = [
     description:
       "Save: stake G$ via savings-sdk. Stream: micro-flow G$/mo with Superfluid on Celo.",
     whyItMatters:
-      "Idle G$ should grow or flow — official GoodDollar save + stream paths, provable on Celoscan.",
+      "Idle G$ should grow or flow. Official GoodDollar save + stream paths, provable on Celoscan.",
     kind: "deploy",
     rewardLabel: "Grow unlocked",
     minAmount: "0.01",

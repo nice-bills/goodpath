@@ -30,7 +30,7 @@ async function waitForConnectedWallet(
     await new Promise((r) => setTimeout(r, 250));
   }
   throw new Error(
-    "Wallet setup timed out (90s). Privy’s servers may be slow — reset sign-in or use MetaMask below.",
+    "Wallet setup timed out (90s). Privy’s servers may be slow. Reset sign-in or use MetaMask below.",
   );
 }
 
@@ -46,7 +46,9 @@ export function usePrivyEmbeddedWalletLink(options?: { autoRestore?: boolean }) 
   const { setActiveWallet } = useSetActiveWallet();
   const { isConnected, address: wagmiAddress } = useAccount();
   const walletsRef = useRef(wallets);
-  walletsRef.current = wallets;
+  useEffect(() => {
+    walletsRef.current = wallets;
+  }, [wallets]);
 
   const [phase, setPhase] = useState<PrivyWalletSetupPhase>("idle");
   const [error, setError] = useState<string | null>(null);
@@ -142,18 +144,13 @@ export function usePrivyEmbeddedWalletLink(options?: { autoRestore?: boolean }) 
     ensureEmbeddedWalletLinked,
   ]);
 
-  useEffect(() => {
-    if (!authenticated) {
-      startedAtRef.current = null;
-      setPhase("idle");
-      setError(null);
-    }
-  }, [authenticated]);
+  const effectivePhase: PrivyWalletSetupPhase = authenticated ? phase : "idle";
+  const effectiveError = authenticated ? error : null;
 
   return {
     ensureEmbeddedWalletLinked,
-    phase,
-    error,
+    phase: effectivePhase,
+    error: effectiveError,
     displayAddress,
     isReady,
     walletsReady,

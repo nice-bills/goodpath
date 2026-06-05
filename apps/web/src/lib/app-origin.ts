@@ -20,5 +20,5 @@ export function isLocalOnlyOrigin(origin = getAppOrigin()): boolean {
 }
 
 export function phoneAccessHint(): string {
-  return "Run `pnpm dev:lan` (same WiFi) or `pnpm dev:tunnel` (HTTPS), open that URL on your laptop, then scan the QR — not localhost.";
+  return "Run `pnpm dev:lan` (same WiFi) or `pnpm dev:tunnel` (HTTPS), open that URL on your laptop, then scan the QR. Not localhost.";
 }

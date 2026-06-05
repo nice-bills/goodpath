@@ -10,7 +10,7 @@ export function WalletGateToast({
   onDismiss: () => void;
 }) {
   return (
-    <div className="wallet-gate-toast" role="status" aria-live="polite">
+    <div className="wallet-gate-toast card" role="status" aria-live="polite">
       <Wallet className="h-4 w-4 shrink-0" weight="duotone" aria-hidden />
       <p className="flex-1 text-xs font-medium leading-snug">{message}</p>
       <button

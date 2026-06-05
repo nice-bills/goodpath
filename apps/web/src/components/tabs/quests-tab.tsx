@@ -6,7 +6,6 @@ import { PageHeader } from "@/components/page-header";
 import { QuestReceiptStub } from "@/components/quest-receipt-stub";
 import { HomeSkeleton } from "@/components/ui/skeleton";
 import { FvReturnBanner } from "@/components/quest/fv-return-banner";
-import { DemoModeBanner } from "@/components/demo-mode-banner";
 import { useProfile } from "@/hooks/use-profile";
 import { useDemoMode } from "@/hooks/use-demo-mode";
 import { useWalletSession } from "@/hooks/use-wallet-session";
@@ -30,13 +29,12 @@ export function QuestsTab() {
   return (
     <main className="flex flex-1 flex-col">
       <PageHeader
-        eyebrow={`${progress}%`}
-        title="Quests"
-        subtitle="Tap a sticker — finish the active step below."
+        eyebrow={pathDone ? "Path done" : `${progress}%`}
+        title="Your path"
+        subtitle="Tap a quest. Claim daily G$ before the board cools."
         showConnect
       />
 
-      <DemoModeBanner />
 
       <Suspense fallback={null}>
         <FvReturnBanner />
@@ -47,7 +45,7 @@ export function QuestsTab() {
           {walletStatus === "linking" ? (
             <>
               <p className="text-sm font-medium text-foreground">Setting up your wallet…</p>
-              <p className="mt-2 text-xs text-muted">Almost ready — keep this tab open.</p>
+              <p className="mt-2 text-xs text-muted">Almost ready. Keep this tab open.</p>
             </>
           ) : (
             <p className="text-sm text-muted">

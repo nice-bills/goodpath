@@ -39,7 +39,7 @@ export function PlatformGuide({ variant = "full" }: PlatformGuideProps) {
   }
 
   return (
-    <aside className="platform-guide" aria-label="How G$ Path works on mobile and web">
+    <aside className="platform-guide" aria-label="How GoodPath works on mobile and web">
       <p className="section-label mb-3">Mobile &amp; web</p>
       <div className="platform-guide-grid">
         <div className="platform-guide-card">

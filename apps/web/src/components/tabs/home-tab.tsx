@@ -1,89 +1,28 @@
 "use client";
 
+import { LogoLockup } from "@/components/brand/logo-mark";
 import { TabLink } from "@/components/tab-link";
-import {
-  ArrowRight,
-  Coins,
-  Fingerprint,
-  Gift,
-  HandHeart,
-  Wallet,
-} from "@phosphor-icons/react";
-import { PageHeader } from "@/components/page-header";
-import { HeroPath } from "@/components/hero-path";
-import { QuestCard } from "@/components/quest-card";
 import { ConnectButton } from "@/components/connect-button";
+import { QuestCard } from "@/components/quest-card";
+import { StartRunBoard } from "@/components/start-run-board";
 import { HomeSkeleton } from "@/components/ui/skeleton";
-import { ImpactStrip } from "@/components/impact-strip";
-import { DemoModeBanner } from "@/components/demo-mode-banner";
-import { TodaysHabit } from "@/components/todays-habit";
-import { RunHeroCard } from "@/components/run-hero-card";
-import { RunChallengeCard } from "@/components/run-challenge-card";
-import { PersonalBestsCard } from "@/components/personal-bests-card";
+import { HomeRunVibe } from "@/components/vibe/home-run-vibe";
+import { useClaimTabHint } from "@/hooks/use-claim-tab-hint";
+import { useAppTab } from "@/hooks/use-app-tab";
 import { useProfile } from "@/hooks/use-profile";
 import { useDemoMode } from "@/hooks/use-demo-mode";
 import { useWalletSession } from "@/hooks/use-wallet-session";
-
-const pathPreviewSteps = [
-  {
-    step: 1,
-    title: "Your wallet",
-    hint: "Connect on Celo to unlock the path",
-    icon: Wallet,
-  },
-  { step: 2, title: "Verify identity", hint: "Face verification", icon: Fingerprint },
-  { step: 3, title: "Claim daily G$", hint: "Gas-sponsored UBI", icon: Gift },
-  { step: 4, title: "Send a G$ tip", hint: "Move G$ on-chain", icon: Coins },
-  { step: 5, title: "Support community", hint: "GoodCollective", icon: HandHeart },
-] as const;
-
-function StickerStartPreview() {
-  return (
-    <section
-      className="passport-hero start-passport animate-fade-in"
-      aria-labelledby="start-passport-title"
-    >
-      <div className="passport-paper">
-        <div className="passport-head">
-          <div>
-            <span>Week 1</span>
-            <strong id="start-passport-title">My G$ passport</strong>
-            <p className="mt-1 text-sm text-muted">5 stickers · one receipt · ~5 minutes</p>
-          </div>
-        </div>
-
-        <div className="passport-grid mt-4" aria-label="5 path stickers, all locked">
-          {pathPreviewSteps.map(({ step, title }, index) => (
-            <div
-              key={step}
-              className={`passport-stamp passport-stamp-${index + 1} is-empty`}
-              title={title}
-            >
-              <span>Locked</span>
-              <strong>{step}</strong>
-            </div>
-          ))}
-        </div>
-
-        <div className="start-receipt-stub">
-          <div>
-            <span className="start-receipt-label">Receipt locked</span>
-            <strong className="start-receipt-count">0 / 5</strong>
-          </div>
-          <ConnectButton variant="pill" />
-        </div>
-      </div>
-    </section>
-  );
-}
+import type { QuestStatus } from "@/lib/api";
 
 export function HomeTab() {
+  const { tab, setTab } = useAppTab();
   const { status: walletStatus, address: walletAddress } = useWalletSession();
   const { active: demoActive } = useDemoMode();
-  const { data: profile, isLoading, isError, error } = useProfile(walletAddress);
+  const { data: profile, isLoading, isError, error: profileError } = useProfile(walletAddress);
+  const { show: showClaimHint, dismiss: dismissClaimHint } = useClaimTabHint(profile, tab);
+  const profileErrorMessage =
+    profileError instanceof Error ? profileError.message : null;
 
-  const progress = profile?.progress ?? 0;
-  const streak = profile?.streak ?? 0;
   const nextQuest = profile?.quests.find((q) => !q.completed && q.unlocked);
   const pathDone = Boolean(profile?.pathCompletedAt);
   const hasWallet = walletStatus === "ready" && Boolean(walletAddress);
@@ -91,78 +30,63 @@ export function HomeTab() {
 
   return (
     <main className={showPath ? "flex flex-1 flex-col" : "main-start flex flex-1 flex-col"}>
-      {showPath ? (
-        <PageHeader
-          className="home-page-header"
-          title="G$ Path"
-          subtitle="Your weekly run on Celo — move G$, earn proofs, climb the league."
-          showConnect={hasWallet}
-        />
-      ) : null}
-
-      <DemoModeBanner />
-
       {hasWallet && isError && !demoActive && (
         <div className="card mb-6 border-loss/30 bg-loss-soft p-4 text-sm text-loss">
-          Could not load your path. From the project root run{" "}
-          <code className="rounded bg-surface-muted px-1">pnpm dev</code> (starts web +
-          API on port 3001).
-          {error instanceof Error ? ` (${error.message})` : null}
+          Could not load your path. Set{" "}
+          <code className="rounded bg-surface-muted px-1">NEXT_PUBLIC_CONVEX_URL</code> (run{" "}
+          <code className="rounded bg-surface-muted px-1">npx convex dev</code> locally,{" "}
+          <code className="rounded bg-surface-muted px-1">npx convex deploy</code> for production).
+          {profileErrorMessage ? ` (${profileErrorMessage})` : null}
         </div>
       )}
 
       {showPath && isLoading ? (
         <HomeSkeleton />
       ) : showPath && profile ? (
-        <div className="home-dashboard">
-          <ImpactStrip className="home-impact-strip" />
-          <aside className="home-dashboard-aside">
-            <RunHeroCard profile={profile} />
-            <RunChallengeCard profile={profile} />
-            {(pathDone || progress > 0) && <PersonalBestsCard profile={profile} />}
-            {pathDone && <TodaysHabit streak={streak} />}
-          </aside>
-
-          <div className="home-dashboard-main">
-            <HeroPath
-              progress={progress}
-              streak={streak}
-              quests={profile.quests}
-              headline={pathDone ? "Path complete" : nextQuest ? "Next quest" : "Continue"}
-              subline={
-                pathDone
-                  ? "Receipt ready on Celebrate — claim again tomorrow."
-                  : nextQuest
-                    ? nextQuest.title
-                    : "Open quests to pick up where you left off."
-              }
-            />
-
-            <TabLink
-              tab={pathDone ? "celebrate" : "quests"}
-              className="btn-primary group home-dashboard-cta"
-            >
-              {pathDone ? "View receipt" : "Continue quests"}
-              <span className="btn-icon-wrap">
-                <ArrowRight className="h-4 w-4" weight="bold" aria-hidden />
-              </span>
-            </TabLink>
-          </div>
-
+        <div className="vibe-home-page">
+          <header className="vibe-top-bar">
+            <LogoLockup size="nav" />
+            <span className="flex-1" aria-hidden />
+            {hasWallet ? <ConnectButton /> : null}
+          </header>
+          {showClaimHint ? (
+            <div className="vibe-claim-hint" role="status">
+              <p className="vibe-claim-hint-text">
+                Daily claim is live. Tap <strong>Claim</strong> in the nav when you&apos;re ready.
+              </p>
+              <button
+                type="button"
+                className="vibe-claim-hint-go"
+                onClick={() => {
+                  dismissClaimHint();
+                  setTab("quests", { hash: "claim" });
+                }}
+              >
+                Go to claim
+              </button>
+              <button
+                type="button"
+                className="vibe-claim-hint-dismiss"
+                onClick={dismissClaimHint}
+                aria-label="Dismiss"
+              >
+                ×
+              </button>
+            </div>
+          ) : null}
+          <HomeRunVibe profile={profile} />
           {!pathDone && (
-            <section className="home-dashboard-upcoming" aria-label="Upcoming quests">
-              <div className="home-upcoming-head">
-                <span className="section-label">Upcoming</span>
-                <TabLink
-                  tab="quests"
-                  className="text-xs font-semibold text-foreground underline-offset-2 hover:underline"
-                >
-                  All
+            <section className="vibe-up-next" aria-label="Up next on your path">
+              <div className="vibe-up-next-head">
+                <h3 className="vibe-feed-title">
+                  Up next <span aria-hidden>⚡</span>
+                </h3>
+                <TabLink tab="quests" className="vibe-link-all">
+                  Full path
                 </TabLink>
               </div>
-
-              <div className="home-upcoming-grid">
-                {(profile.quests ?? []).slice(0, 3).map((q, i) => (
+              <div className="vibe-up-next-grid">
+                {(profile.quests ?? []).slice(0, 3).map((q: QuestStatus, i: number) => (
                   <QuestCard
                     key={q.id}
                     quest={q}
@@ -178,14 +102,34 @@ export function HomeTab() {
       ) : (
         <div className="start-landing">
           <header className="start-landing-intro">
-            <span className="eyebrow">GoodDollar</span>
-            <h1 className="font-display start-landing-title">Start your G$ run</h1>
+            <div className="vibe-top-bar vibe-top-bar-landing">
+              <LogoLockup size="nav" />
+            </div>
+            <div className="start-landing-meta">
+              <span className="start-landing-live">
+                <span className="start-live-dot" aria-hidden />
+                Live on Celo
+              </span>
+              <span className="start-landing-stamp">Week 1</span>
+            </div>
+            <h1 className="font-display start-landing-title">
+              The run is{" "}
+              <span className="start-landing-accent">heating up</span>
+              <span className="start-landing-emoji" aria-hidden>
+                🔥
+              </span>
+            </h1>
             <p className="start-landing-lead">
-              Solo-first league on Celo mainnet — verify, claim, tip, support a pool, then
-              save or stream G$. Every score is a real on-chain proof.
+              Claim, flex your rank, stream G$. Miss a day and someone else eats your
+              spot.
             </p>
+            <ul className="start-landing-chips" aria-label="What you unlock">
+              <li>Claim daily G$</li>
+              <li>Beat the board</li>
+              <li>Flex your rank</li>
+            </ul>
           </header>
-          <StickerStartPreview />
+          <StartRunBoard />
         </div>
       )}
     </main>

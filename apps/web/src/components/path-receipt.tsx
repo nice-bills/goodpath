@@ -4,8 +4,11 @@ import { useState } from "react";
 import { Check, ShareNetwork } from "@phosphor-icons/react";
 import { useMemo } from "react";
 import { CORE_PATH_QUEST_IDS, QUESTS } from "@goodpath/shared";
+import { useMutation as useConvexMutation } from "convex/react";
+import { api } from "@convex/api";
 import { referralUrl } from "@/lib/referral";
-import type { ProfileResponse } from "@/lib/api";
+import { createShareInvite, type ProfileResponse, type QuestStatus } from "@/lib/api";
+import { USE_HONO_API } from "@/lib/data-source";
 import { formatPathReceipt, receiptShareLine } from "@/lib/path-receipt";
 import { ReceiptScorecard } from "@/components/receipt-scorecard";
 
@@ -20,24 +23,49 @@ export function PathReceipt({
   profile: ProfileResponse;
   demo?: boolean;
 }) {
-  const [copied, setCopied] = useState<"receipt" | "share" | "referral" | null>(
-    null,
-  );
+  const [copied, setCopied] = useState<
+    "receipt" | "share" | "referral" | "invite" | null
+  >(null);
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const createShareInviteConvex = useConvexMutation(api.profiles.createShareInvite);
   const questById = useMemo(
-    () => new Map(profile.quests.map((q) => [q.id, q])),
+    () => new Map(profile.quests.map((q: QuestStatus) => [q.id, q])),
     [profile.quests],
   );
   const coreDone = CORE_PATH_QUEST_IDS.filter((id) =>
     Boolean(questById.get(id)?.completed),
   ).length;
 
-  const copy = async (kind: "receipt" | "share" | "referral") => {
-    const text =
-      kind === "receipt"
-        ? formatPathReceipt(profile)
-        : kind === "share"
-          ? receiptShareLine(profile)
-          : referralUrl(profile.address);
+  const copy = async (kind: "receipt" | "share" | "referral" | "invite") => {
+    let text: string;
+    if (kind === "receipt") text = formatPathReceipt(profile);
+    else if (kind === "share") text = receiptShareLine(profile);
+    else if (kind === "referral") text = referralUrl(profile.address);
+    else {
+      if (!inviteCode) {
+        setInviteLoading(true);
+        try {
+          const inv = USE_HONO_API
+            ? await createShareInvite(profile.address)
+            : await createShareInviteConvex({
+                address: profile.address.toLowerCase(),
+              });
+          setInviteCode(inv.code);
+          const origin =
+            typeof window !== "undefined" ? window.location.origin : "";
+          text = `${origin}/?ref=${profile.address}&invite=${inv.code}`;
+        } catch {
+          text = referralUrl(profile.address);
+        } finally {
+          setInviteLoading(false);
+        }
+      } else {
+        const origin =
+          typeof window !== "undefined" ? window.location.origin : "";
+        text = `${origin}/?ref=${profile.address}&invite=${inviteCode}`;
+      }
+    }
     await navigator.clipboard.writeText(text);
     setCopied(kind);
     setTimeout(() => setCopied(null), 2000);
@@ -47,14 +75,17 @@ export function PathReceipt({
     <div className="receipt-card sticker-receipt-card text-left">
       {demo && (
         <p className="mb-4 rounded-lg border border-border-strong bg-surface-muted px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
-          Demo receipt — sample data
+          Demo receipt (sample data)
         </p>
       )}
 
-      <p className="font-display text-3xl leading-tight tracking-tight">
-        My G$ run — receipt
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-dim">
+        Path receipt · Celo mainnet
       </p>
-      <p className="mt-2 text-sm text-muted">
+      <p className="font-display mt-2 text-3xl leading-tight tracking-tight text-balance">
+        My G$ run
+      </p>
+      <p className="mt-2 text-sm text-pretty text-muted">
         Celo mainnet proofs ·{" "}
         <span className="font-mono text-foreground">
           {profile.address.slice(0, 6)}…{profile.address.slice(-4)}
@@ -128,7 +159,16 @@ export function PathReceipt({
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => copy("referral")}
+            onClick={() => void copy("invite")}
+            disabled={inviteLoading}
+            className="receipt-footer-share text-[10px] font-semibold"
+            title="Copy share invite link"
+          >
+            {inviteLoading ? "…" : copied === "invite" ? "✓" : "Invite"}
+          </button>
+          <button
+            type="button"
+            onClick={() => void copy("referral")}
             className="receipt-footer-share text-[10px] font-semibold"
             title="Copy referral link"
           >

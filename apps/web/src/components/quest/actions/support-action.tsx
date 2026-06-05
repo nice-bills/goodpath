@@ -135,7 +135,7 @@ export function SupportAction({
           disabled={ackSubmitting || !walletReady}
           className="btn-secondary mt-2 w-full text-xs disabled:opacity-50"
         >
-          {ackSubmitting ? "Saving…" : "I donated elsewhere — complete with visit ack"}
+          {ackSubmitting ? "Saving…" : "I donated elsewhere, complete with visit ack"}
         </button>
       )}
       {displayHash && (

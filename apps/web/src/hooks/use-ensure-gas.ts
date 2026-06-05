@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useAccount } from "wagmi";
+import { useCallback, useState } from "react";
+import { useWalletSession } from "@/hooks/use-wallet-session";
 import {
   ensureGoodDollarGas,
   formatCeloAmount,
@@ -18,28 +18,40 @@ function gasStatusMessage(result: Extract<EnsureGasResult, { ok: true }>): strin
   const bal = formatCeloAmount(result.balance);
   if (result.sponsored) {
     if (result.borderline) {
-      return `GoodDollar sent gas (${bal} CELO on Celo). MetaMask may still warn — if it does, add a little CELO from the faucet.`;
+      return `GoodDollar sent gas (${bal} CELO on Celo). MetaMask may still warn. If it does, add a little CELO from the faucet.`;
     }
-    return `GoodDollar covered gas — ${bal} CELO on Celo now.`;
+    return `GoodDollar covered gas. ${bal} CELO on Celo now.`;
   }
   if (result.borderline) {
-    return `${bal} CELO on Celo — borderline for claims. If MetaMask says insufficient, use the Celo faucet.`;
+    return `${bal} CELO on Celo, borderline for claims. If MetaMask says insufficient, use the Celo faucet.`;
   }
   return `${bal} CELO on Celo (need ~${MIN_CELO_FOR_TX}+ for this step).`;
 }
 
 export function useEnsureGoodDollarGas() {
-  const { address } = useAccount();
+  const { address } = useWalletSession();
   const { refetch: refetchCelo } = useCeloBalance();
-  const [phase, setPhase] = useState<GasEnsurePhase>("idle");
-  const [lastResult, setLastResult] = useState<EnsureGasResult | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [gasUi, setGasUi] = useState({
+    address: address as string | undefined,
+    phase: "idle" as GasEnsurePhase,
+    message: null as string | null,
+    lastResult: null as EnsureGasResult | null,
+  });
 
-  useEffect(() => {
-    setPhase("idle");
-    setMessage(null);
-    setLastResult(null);
-  }, [address]);
+  if (address !== gasUi.address) {
+    setGasUi({
+      address,
+      phase: "idle",
+      message: null,
+      lastResult: null,
+    });
+  }
+
+  const { phase, message, lastResult } = gasUi;
+  const setPhase = (next: GasEnsurePhase) => setGasUi((s) => ({ ...s, phase: next }));
+  const setMessage = (next: string | null) => setGasUi((s) => ({ ...s, message: next }));
+  const setLastResult = (next: EnsureGasResult | null) =>
+    setGasUi((s) => ({ ...s, lastResult: next }));
 
   const ensureGas = useCallback(async (): Promise<EnsureGasResult> => {
     if (!address) {
@@ -76,9 +88,12 @@ export function useEnsureGoodDollarGas() {
   }, [address, refetchCelo]);
 
   const reset = useCallback(() => {
-    setPhase("idle");
-    setMessage(null);
-    setLastResult(null);
+    setGasUi((s) => ({
+      ...s,
+      phase: "idle",
+      message: null,
+      lastResult: null,
+    }));
   }, []);
 
   return {

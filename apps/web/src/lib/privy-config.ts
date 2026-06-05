@@ -11,7 +11,7 @@ export const privyConfig: PrivyClientConfig = {
   appearance: {
     theme: "light",
     accentColor: "#00a979",
-    logo: "/icon.svg",
+    logo: "/brand/mark.svg",
     walletList: ["metamask", "detected_ethereum_wallets", "wallet_connect"],
   },
   embeddedWallets: {

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" fill="none" aria-hidden="true">
+  <rect width="64" height="64" rx="18" fill="#007a55"/>
+  <path d="M16 46 C16 46 22 28 32 22 C42 16 48 24 48 24" stroke="#f7f6f3" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+  <circle cx="48" cy="24" r="4" fill="#f7f6f3"/>
+  <circle cx="32" cy="22" r="2.5" fill="#007a55" opacity="0.85"/>
+  <text x="80" y="42" fill="#111111" font-family="'Instrument Serif', Georgia, 'Times New Roman', serif" font-size="36" font-style="italic" font-weight="400" letter-spacing="-0.03em">GoodPath</text>
+</svg>
