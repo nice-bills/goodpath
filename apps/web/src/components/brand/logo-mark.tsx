@@ -59,7 +59,6 @@ export function LogoLockup({
   className?: string;
   wordmarkClassName?: string;
 }) {
-  const px = MARK_SIZES[size];
   const wordmarkSize =
     size === "sm" ? "text-[13px]" : size === "nav" ? "text-[1.15rem]" : "text-2xl";
 

@@ -3,7 +3,7 @@ import {
   DEPLOY_STREAM_META,
   SUPPORT_ACK_META,
   type QuestId,
-} from "./quests";
+} from "./quests.js";
 
 export type QuestProofInput = {
   txHash?: string;

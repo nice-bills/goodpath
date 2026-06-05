@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Stop goodpath dev servers and clear the Next.js cache. */
+/** Stop goodpath dev servers. Clears `.next` only when GOODPATH_DEV_CLEAR=1. */
 import { existsSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -25,7 +25,7 @@ for (const port of ["3000", "3001"]) {
 
 execSync("sleep 0.6");
 
-if (existsSync(nextDir)) {
+if (process.env.GOODPATH_DEV_CLEAR === "1" && existsSync(nextDir)) {
   rmSync(nextDir, { recursive: true, force: true });
   console.log("[goodpath] cleared apps/web/.next");
 }

@@ -42,11 +42,14 @@ const nextConfig: NextConfig = {
     "@privy-io/wagmi",
   ],
   async rewrites() {
-    if (!useApiProxy) return [];
     const target = process.env.API_PROXY_TARGET ?? "http://127.0.0.1:3001";
-    return [{ source: "/goodpath-api/:path*", destination: `${target}/:path*` }];
+    /** Dev/tunnel: proxy to :3001 so Turbopack never bundles API `.js` → `.ts` source tree. */
+    if (process.env.NODE_ENV === "development" || useApiProxy) {
+      return [{ source: "/goodpath-api/:path*", destination: `${target}/:path*` }];
+    }
+    return [];
   },
-  webpack: (config) => {
+  webpack: (config, { dev }) => {
     config.resolve.extensionAlias = {
       ...config.resolve.extensionAlias,
       ".js": [".ts", ".tsx", ".js"],
@@ -54,9 +57,14 @@ const nextConfig: NextConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       ...webpackOptionalDepAliases,
-      /** Bundle API from TS source so server traces include @goodsdks/citizen-sdk. */
-      "@goodpath/api/app": join(monorepoRoot, "services/api/src/app.ts"),
     };
+    /** Production only: bundle API from TS source for file tracing (not used in `next dev`). */
+    if (!dev) {
+      config.resolve.alias["@goodpath/api/app"] = join(
+        monorepoRoot,
+        "services/api/src/app.ts",
+      );
+    }
     return config;
   },
   experimental: {

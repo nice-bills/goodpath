@@ -1,4 +1,4 @@
-import { QUESTS, CORE_PATH_QUEST_IDS, type QuestId } from "./quests";
+import { QUESTS, CORE_PATH_QUEST_IDS, type QuestId } from "./quests.js";
 
 export type CompletionMap = Record<string, boolean>;
 

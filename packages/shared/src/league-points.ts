@@ -3,7 +3,7 @@ import {
   DEPLOY_STREAM_META,
   SUPPORT_ACK_META,
   type QuestId,
-} from "./quests";
+} from "./quests.js";
 
 /** Base weekly league points per quest completion (this ISO week). */
 export const QUEST_LEAGUE_POINTS: Record<QuestId, number> = {

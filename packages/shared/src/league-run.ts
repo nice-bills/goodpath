@@ -1,4 +1,4 @@
-import type { QuestId } from "./quests";
+import type { QuestId } from "./quests.js";
 
 export type LeagueDivision = "bronze" | "silver" | "gold";
 
