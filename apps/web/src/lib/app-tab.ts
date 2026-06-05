@@ -1,10 +1,14 @@
-export type AppTab = "home" | "quests" | "celebrate";
+export type AppTab = "home" | "explore" | "quests" | "celebrate";
 
-export const APP_TABS: AppTab[] = ["home", "quests", "celebrate"];
+export const APP_TABS: AppTab[] = ["home", "explore", "quests", "celebrate"];
+
+/** Tabs that work without a connected wallet. */
+export const PUBLIC_APP_TABS: AppTab[] = ["home", "explore"];
 
 export function parseAppTab(pathname: string, tabParam: string | null): AppTab {
   if (pathname === "/quests") return "quests";
   if (pathname === "/celebrate") return "celebrate";
+  if (tabParam === "explore") return "explore";
   if (tabParam === "quests" || tabParam === "celebrate") return tabParam;
   return "home";
 }

@@ -13,7 +13,7 @@ import {
 import { usePathname, useSearchParams } from "next/navigation";
 import { useWalletSession } from "@/hooks/use-wallet-session";
 import { useDemoMode } from "@/hooks/use-demo-mode";
-import { type AppTab, appTabHref, parseAppTab } from "@/lib/app-tab";
+import { type AppTab, appTabHref, parseAppTab, PUBLIC_APP_TABS } from "@/lib/app-tab";
 import {
   canAccessGatedTabs,
   CONNECT_TO_CONTINUE_MESSAGE,
@@ -40,7 +40,7 @@ function readTabFromWindow(): AppTab {
 }
 
 function resolveTab(urlTab: AppTab, gatedTabsAllowed: boolean): AppTab {
-  if (!gatedTabsAllowed && urlTab !== "home") return "home";
+  if (!gatedTabsAllowed && !PUBLIC_APP_TABS.includes(urlTab)) return "home";
   return urlTab;
 }
 
@@ -59,7 +59,7 @@ function AppTabProviderInner({ children }: { children: ReactNode }) {
   const [questNavFocus, setQuestNavFocus] = useState<QuestNavFocus>("path");
 
   useEffect(() => {
-    if (!gatedTabsAllowed && urlTab !== "home") {
+    if (!gatedTabsAllowed && !PUBLIC_APP_TABS.includes(urlTab)) {
       window.history.replaceState(window.history.state, "", appTabHref("home"));
     }
   }, [gatedTabsAllowed, urlTab]);
@@ -68,7 +68,7 @@ function AppTabProviderInner({ children }: { children: ReactNode }) {
     const onPopState = () => {
       const next = readTabFromWindow();
       const allowed = resolveTab(next, gatedTabsAllowed);
-      if (!gatedTabsAllowed && next !== "home") {
+      if (!gatedTabsAllowed && !PUBLIC_APP_TABS.includes(next)) {
         setTabGateMessage(CONNECT_TO_CONTINUE_MESSAGE);
         window.history.replaceState(window.history.state, "", appTabHref("home"));
       }
@@ -82,7 +82,7 @@ function AppTabProviderInner({ children }: { children: ReactNode }) {
 
   const setTab = useCallback(
     (next: AppTab, options?: SetTabOptions) => {
-      if (next !== "home" && !gatedTabsAllowed) {
+      if (!PUBLIC_APP_TABS.includes(next) && !gatedTabsAllowed) {
         setTabGateMessage(CONNECT_TO_CONTINUE_MESSAGE);
         return;
       }

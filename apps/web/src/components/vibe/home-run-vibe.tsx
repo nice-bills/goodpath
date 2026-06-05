@@ -11,6 +11,8 @@ import { RunPressure } from "@/components/vibe/run-pressure";
 import { RunRivalCard } from "@/components/run-rival-card";
 import { CreateRunForm } from "@/components/vibe/create-run-form";
 import { RunsHeatingUp } from "@/components/vibe/runs-heating-up";
+import { ReturnPulseBanner } from "@/components/vibe/return-pulse-banner";
+import { useReturnPulse } from "@/hooks/use-return-pulse";
 
 export function HomeRunVibe({ profile }: { profile: ProfileResponse }) {
   const league = profile.league;
@@ -20,10 +22,13 @@ export function HomeRunVibe({ profile }: { profile: ProfileResponse }) {
 
   const claimQuest = profile.quests.find((q) => q.id === "claim");
   const claimDue = claimQuest?.unlocked && !claimQuest.completed;
+  const { pulse, dismiss } = useReturnPulse(profile);
 
   return (
     <div className="vibe-home">
       <CreateRunForm />
+
+      {pulse ? <ReturnPulseBanner pulse={pulse} onDismiss={dismiss} /> : null}
 
       {claimDue ? <ClaimDueBanner profile={profile} /> : null}
 

@@ -1,15 +1,17 @@
 "use client";
 
-import { Gift, House, Signpost, Trophy } from "@phosphor-icons/react";
+import { Compass, Gift, House, Signpost, Trophy } from "@phosphor-icons/react";
 import { useAppTab } from "@/hooks/use-app-tab";
 import { useWalletSession } from "@/hooks/use-wallet-session";
 import { useProfile } from "@/hooks/use-profile";
 import { useDemoMode } from "@/hooks/use-demo-mode";
+import { useClaimCountdown } from "@/hooks/use-claim-countdown";
 import { LogoLockup } from "@/components/brand/logo-mark";
 import type { NavItem } from "@/lib/app-tab";
 
 const navItems: (NavItem & { icon: typeof House })[] = [
   { id: "run", tab: "home", label: "Run", icon: House },
+  { id: "explore", tab: "explore", label: "Explore", icon: Compass },
   { id: "claim", tab: "quests", label: "Claim", hash: "claim", icon: Gift },
   { id: "path", tab: "quests", label: "Path", icon: Signpost },
   { id: "flex", tab: "celebrate", label: "Flex", icon: Trophy },
@@ -22,6 +24,7 @@ function NavButton({
   layout,
   locked = false,
   hot = false,
+  countdownShort,
 }: {
   item: (typeof navItems)[number];
   active: boolean;
@@ -29,6 +32,7 @@ function NavButton({
   layout: "bottom" | "side";
   locked?: boolean;
   hot?: boolean;
+  countdownShort?: string;
 }) {
   const Icon = item.icon;
   return (
@@ -48,7 +52,10 @@ function NavButton({
       onClick={() => onSelect(item)}
     >
       <Icon className="h-[18px] w-[18px]" weight={active ? "fill" : "regular"} aria-hidden />
-      {item.label}
+      <span className="nav-link-label">{item.label}</span>
+      {hot && item.id === "claim" ? (
+        <span className="nav-link-countdown font-mono">{countdownShort}</span>
+      ) : null}
     </button>
   );
 }
@@ -61,20 +68,24 @@ function NavLinks({ layout }: { layout: "bottom" | "side" }) {
   const claimQuest = profile?.quests.find((q) => q.id === "claim");
   const claimHot =
     Boolean(claimQuest?.unlocked && !claimQuest.completed) && !demoActive;
+  const countdown = useClaimCountdown();
 
   const activeNavId =
     tab === "home"
       ? "run"
-      : tab === "celebrate"
-        ? "flex"
-        : tab === "quests"
-          ? questNavFocus
-          : "run";
+      : tab === "explore"
+        ? "explore"
+        : tab === "celebrate"
+          ? "flex"
+          : tab === "quests"
+            ? questNavFocus
+            : "run";
 
   return (
     <>
       {navItems.map((item) => {
-        const locked = item.tab !== "home" && !tabsUnlocked;
+        const locked =
+          item.tab !== "home" && item.tab !== "explore" && !tabsUnlocked;
         const active = item.id === activeNavId;
         return (
           <NavButton
@@ -87,6 +98,7 @@ function NavLinks({ layout }: { layout: "bottom" | "side" }) {
             layout={layout}
             locked={locked}
             hot={item.id === "claim" && claimHot && !active}
+            countdownShort={countdown.shortLabel}
           />
         );
       })}
