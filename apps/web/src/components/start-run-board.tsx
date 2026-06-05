@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight, Lightning, Wallet } from "@phosphor-icons/react";
 import { ConnectButton } from "@/components/connect-button";
+import { TabLink } from "@/components/tab-link";
 import { RunPulseFeed } from "@/components/vibe/run-pulse-feed";
 import { RunsHeatingUp } from "@/components/vibe/runs-heating-up";
 
@@ -71,6 +72,13 @@ export function StartRunBoard() {
           </div>
         </div>
       </motion.div>
+
+      <p className="vibe-explore-nudge">
+        Want to see who&apos;s moving?{" "}
+        <TabLink tab="explore" className="vibe-link-all">
+          Open Explore
+        </TabLink>
+      </p>
 
       <motion.ul className="vibe-perk-row" aria-label="Run perks" variants={rise}>
         <li className="vibe-perk-sticker vibe-perk-sticker-a">Claim daily G$</li>

@@ -9,6 +9,7 @@
  */
 
 import type * as activity from "../activity.js";
+import type * as explore from "../explore.js";
 import type * as lib_address from "../lib/address.js";
 import type * as lib_dates from "../lib/dates.js";
 import type * as lib_ensureProfile from "../lib/ensureProfile.js";
@@ -44,6 +45,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   activity: typeof activity;
+  explore: typeof explore;
   "lib/address": typeof lib_address;
   "lib/dates": typeof lib_dates;
   "lib/ensureProfile": typeof lib_ensureProfile;

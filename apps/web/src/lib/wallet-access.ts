@@ -9,4 +9,4 @@ export function canAccessGatedTabs(
 }
 
 export const CONNECT_TO_CONTINUE_MESSAGE =
-  "Connect your wallet on Home to open Quests and Done.";
+  "Connect your wallet on Run to open Claim, Path, and Flex.";
