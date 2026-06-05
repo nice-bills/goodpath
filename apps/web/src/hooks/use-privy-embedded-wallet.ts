@@ -46,7 +46,9 @@ export function usePrivyEmbeddedWalletLink(options?: { autoRestore?: boolean }) 
   const { setActiveWallet } = useSetActiveWallet();
   const { isConnected, address: wagmiAddress } = useAccount();
   const walletsRef = useRef(wallets);
-  walletsRef.current = wallets;
+  useEffect(() => {
+    walletsRef.current = wallets;
+  }, [wallets]);
 
   const [phase, setPhase] = useState<PrivyWalletSetupPhase>("idle");
   const [error, setError] = useState<string | null>(null);
@@ -142,18 +144,13 @@ export function usePrivyEmbeddedWalletLink(options?: { autoRestore?: boolean }) 
     ensureEmbeddedWalletLinked,
   ]);
 
-  useEffect(() => {
-    if (!authenticated) {
-      startedAtRef.current = null;
-      setPhase("idle");
-      setError(null);
-    }
-  }, [authenticated]);
+  const effectivePhase: PrivyWalletSetupPhase = authenticated ? phase : "idle";
+  const effectiveError = authenticated ? error : null;
 
   return {
     ensureEmbeddedWalletLinked,
-    phase,
-    error,
+    phase: effectivePhase,
+    error: effectiveError,
     displayAddress,
     isReady,
     walletsReady,

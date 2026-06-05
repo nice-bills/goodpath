@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDisconnect } from "wagmi";
 import { usePrivy } from "@privy-io/react-auth";
 import { SignOut } from "@phosphor-icons/react";
@@ -8,7 +8,7 @@ import { WalletModal } from "@/components/wallet-modal";
 import { useWalletSession } from "@/hooks/use-wallet-session";
 
 export function ConnectButtonPrivy({ variant = "compact" }: { variant?: "compact" | "pill" }) {
-  const { status, address: walletAddress } = useWalletSession();
+  const { status, address: walletAddress, isLinking } = useWalletSession();
   const { disconnect } = useDisconnect();
   const { logout, authenticated, ready } = usePrivy();
   const [modalOpen, setModalOpen] = useState(false);
@@ -19,12 +19,7 @@ export function ConnectButtonPrivy({ variant = "compact" }: { variant?: "compact
     if (authenticated) void logout();
   };
 
-  useEffect(() => {
-    if (walletAddress && modalOpen) {
-      setModalOpen(false);
-      setOpening(false);
-    }
-  }, [walletAddress, modalOpen]);
+  const showWalletModal = modalOpen && !walletAddress;
 
   if (ready && status === "ready" && walletAddress) {
     return (
@@ -65,14 +60,14 @@ export function ConnectButtonPrivy({ variant = "compact" }: { variant?: "compact
       >
         {opening
           ? "Opening…"
-          : status === "linking"
-            ? "Setting up wallet…"
+          : status === "linking" || isLinking
+            ? "Creating Celo wallet…"
             : authenticated
               ? "Finish setup"
               : "Connect wallet"}
       </button>
       <WalletModal
-        open={modalOpen}
+        open={showWalletModal}
         onClose={() => {
           setModalOpen(false);
           setOpening(false);

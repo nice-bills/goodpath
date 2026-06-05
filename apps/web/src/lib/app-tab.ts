@@ -15,3 +15,11 @@ export function appTabHref(tab: AppTab, hash?: string): string {
   const fragment = hash.startsWith("#") ? hash : `#${hash}`;
   return `${base}${fragment}`;
 }
+
+/** Nav item may map to a tab plus optional quest hash (e.g. Claim → quests#claim). */
+export type NavItem = {
+  id: string;
+  tab: AppTab;
+  label: string;
+  hash?: string;
+};

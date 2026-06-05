@@ -21,13 +21,7 @@ export function TabLink({ tab, hash, onClick, ...props }: TabLinkProps) {
       {...props}
       onClick={(e) => {
         e.preventDefault();
-        setTab(tab);
-        if (hash) {
-          const id = hash.replace(/^#/, "");
-          requestAnimationFrame(() => {
-            document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-          });
-        }
+        setTab(tab, hash ? { hash } : undefined);
         onClick?.(e);
       }}
     />

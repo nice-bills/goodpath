@@ -30,13 +30,13 @@ function legacyConnectors(): CreateConnectorFn[] {
         projectId: WC_PROJECT_ID,
         showQrModal: true,
         metadata: {
-          name: "G$ Path",
-          description: "GoodDollar onboarding on Celo",
+          name: "GoodPath",
+          description: "Mark your progress on the GoodDollar path",
           url: typeof window !== "undefined" ? window.location.origin : "https://goodpath.app",
           icons: [
             typeof window !== "undefined"
-              ? `${window.location.origin}/icon.svg`
-              : "https://goodpath.app/icon.svg",
+              ? `${window.location.origin}/brand/mark.svg`
+              : "https://goodpath.app/brand/mark.svg",
           ],
         },
       }),

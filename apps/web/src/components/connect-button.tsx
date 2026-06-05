@@ -1,19 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { useAccount, useDisconnect } from "wagmi";
+import { useDisconnect } from "wagmi";
+import { useWalletSession } from "@/hooks/use-wallet-session";
 import { SignOut } from "@phosphor-icons/react";
 import { WalletModal } from "@/components/wallet-modal";
 import { isPrivyEnabled } from "@/lib/privy-config";
 import { ConnectButtonPrivy } from "@/components/connect-button-privy";
 
 function ConnectButtonLegacy({ variant = "compact" }: { variant?: "compact" | "pill" }) {
-  const { address, isConnected } = useAccount();
+  const { address, status } = useWalletSession();
   const { disconnect } = useDisconnect();
   const [modalOpen, setModalOpen] = useState(false);
   const [opening, setOpening] = useState(false);
 
-  if (isConnected && address) {
+  if (status === "ready" && address) {
     return (
       <button
         type="button"
@@ -49,7 +50,11 @@ function ConnectButtonLegacy({ variant = "compact" }: { variant?: "compact" | "p
         }
         aria-busy={opening}
       >
-        {opening ? "Opening…" : "Connect wallet"}
+        {opening
+          ? "Opening…"
+          : status === "linking"
+            ? "Setting up wallet…"
+            : "Connect wallet"}
       </button>
       <WalletModal
         open={modalOpen}

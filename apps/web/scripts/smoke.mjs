@@ -13,8 +13,9 @@ async function check(path) {
 
 try {
   await check("/api/health");
+  await check("/goodpath-api/health");
   await check("/");
-  console.log("smoke ok: /api/health and / return 200");
+  console.log("smoke ok: /api/health, /goodpath-api/health, and / return 200");
 } catch (e) {
   console.error("smoke failed:", e.message);
   process.exit(1);

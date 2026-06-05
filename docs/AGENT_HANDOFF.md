@@ -6,6 +6,8 @@
 
 **Owner goal:** Production-ready for judge selection. Path A must be bulletproof; Path B must prove protocol depth (not “claim + tip + SQLite only”).
 
+**GoodPath 3.0:** See [`docs/architecture/GOODPATH_3.0_HANDOFF.md`](architecture/GOODPATH_3.0_HANDOFF.md) for domain/repository layer, seeded league, migrations, rivals/squads stubs, contract package, and judge demo (`scripts/judge-demo.md`).
+
 ---
 
 ## 1. Judge narrative (use in submission + demo)
@@ -19,8 +21,9 @@
 ```
 goodpath/
 ├── apps/web/          Next.js 15 (Turbopack), wagmi, Privy optional, GoodSDKs
-├── services/api/      Hono + SQLite (quest progress, streaks, league)
-└── packages/shared/   Quest defs, Zod schemas, prerequisite order
+├── services/api/      Hono + domain/ + repository/ + SQLite (migrations)
+├── packages/contracts/ GoodPathReceipt UUPS (optional Celo deploy)
+└── packages/shared/   Quest defs, league scoring, seeded cohorts
 ```
 
 | Layer | Tech |

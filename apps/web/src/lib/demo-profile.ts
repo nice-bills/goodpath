@@ -45,7 +45,15 @@ export function buildDemoProfile(): ProfileResponse {
       totalInLeague: 18,
       promoted: false,
       streakShield: true,
+      division: "gold",
+      divisionLabel: "Gold",
+      divisionRank: 2,
+      divisionSize: 8,
+      gMovedWei: "184200000000000000000",
+      nextMove: "Deploy G$: save or stream on Celo mainnet.",
     },
+    referredBy: null,
+    referralsCompletedThisWeek: 1,
     completions,
     quests: QUESTS.map((q) => {
       const done = q.id !== "deploy";

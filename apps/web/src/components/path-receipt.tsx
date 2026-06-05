@@ -4,10 +4,13 @@ import { useState } from "react";
 import { Check, ShareNetwork } from "@phosphor-icons/react";
 import { useMemo } from "react";
 import { CORE_PATH_QUEST_IDS, QUESTS } from "@goodpath/shared";
+import { useMutation as useConvexMutation } from "convex/react";
+import { api } from "@convex/api";
 import { referralUrl } from "@/lib/referral";
-import type { ProfileResponse } from "@/lib/api";
+import { createShareInvite, type ProfileResponse, type QuestStatus } from "@/lib/api";
+import { USE_HONO_API } from "@/lib/data-source";
 import { formatPathReceipt, receiptShareLine } from "@/lib/path-receipt";
-import { formatPathDuration } from "@/lib/format";
+import { ReceiptScorecard } from "@/components/receipt-scorecard";
 
 function txUrl(hash: string) {
   return `https://celoscan.io/tx/${hash}`;
@@ -20,24 +23,49 @@ export function PathReceipt({
   profile: ProfileResponse;
   demo?: boolean;
 }) {
-  const [copied, setCopied] = useState<"receipt" | "share" | "referral" | null>(
-    null,
-  );
+  const [copied, setCopied] = useState<
+    "receipt" | "share" | "referral" | "invite" | null
+  >(null);
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const createShareInviteConvex = useConvexMutation(api.profiles.createShareInvite);
   const questById = useMemo(
-    () => new Map(profile.quests.map((q) => [q.id, q])),
+    () => new Map(profile.quests.map((q: QuestStatus) => [q.id, q])),
     [profile.quests],
   );
   const coreDone = CORE_PATH_QUEST_IDS.filter((id) =>
     Boolean(questById.get(id)?.completed),
   ).length;
 
-  const copy = async (kind: "receipt" | "share" | "referral") => {
-    const text =
-      kind === "receipt"
-        ? formatPathReceipt(profile)
-        : kind === "share"
-          ? receiptShareLine(profile)
-          : referralUrl(profile.address);
+  const copy = async (kind: "receipt" | "share" | "referral" | "invite") => {
+    let text: string;
+    if (kind === "receipt") text = formatPathReceipt(profile);
+    else if (kind === "share") text = receiptShareLine(profile);
+    else if (kind === "referral") text = referralUrl(profile.address);
+    else {
+      if (!inviteCode) {
+        setInviteLoading(true);
+        try {
+          const inv = USE_HONO_API
+            ? await createShareInvite(profile.address)
+            : await createShareInviteConvex({
+                address: profile.address.toLowerCase(),
+              });
+          setInviteCode(inv.code);
+          const origin =
+            typeof window !== "undefined" ? window.location.origin : "";
+          text = `${origin}/?ref=${profile.address}&invite=${inv.code}`;
+        } catch {
+          text = referralUrl(profile.address);
+        } finally {
+          setInviteLoading(false);
+        }
+      } else {
+        const origin =
+          typeof window !== "undefined" ? window.location.origin : "";
+        text = `${origin}/?ref=${profile.address}&invite=${inviteCode}`;
+      }
+    }
     await navigator.clipboard.writeText(text);
     setCopied(kind);
     setTimeout(() => setCopied(null), 2000);
@@ -51,54 +79,34 @@ export function PathReceipt({
         </p>
       )}
 
-      <p className="font-display text-3xl leading-tight tracking-tight">
-        I completed my G$ Path
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-dim">
+        Path receipt · Celo mainnet
       </p>
-      <p className="mt-2 text-sm text-muted">
-        Sybil-resistant and slightly smug.{" "}
+      <p className="font-display mt-2 text-3xl leading-tight tracking-tight text-balance">
+        My G$ run
+      </p>
+      <p className="mt-2 text-sm text-pretty text-muted">
+        Celo mainnet proofs ·{" "}
         <span className="font-mono text-foreground">
           {profile.address.slice(0, 6)}…{profile.address.slice(-4)}
         </span>
+        {profile.league?.points != null ? (
+          <>
+            {" "}
+            · <span className="font-semibold text-foreground">{profile.league.points}</span>{" "}
+            league pts
+          </>
+        ) : null}
       </p>
 
-      <dl className="mt-6 grid grid-cols-2 gap-3 border-y border-border py-4">
-        <div>
-          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-dim">
-            Streak
-          </dt>
-          <dd className="font-mono text-lg font-semibold">
-            {profile.streak} day{profile.streak === 1 ? "" : "s"}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-dim">
-            This week
-          </dt>
-          <dd className="font-mono text-lg font-semibold">
-            {profile.league?.rank != null
-              ? `#${profile.league.rank}`
-              : "—"}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-dim">
-            Fastest path
-          </dt>
-          <dd className="font-mono text-lg font-semibold">
-            {profile.personalBests?.fastestPathSeconds
-              ? formatPathDuration(profile.personalBests.fastestPathSeconds)
-              : "—"}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-dim">
-            League pts
-          </dt>
-          <dd className="font-mono text-lg font-semibold">
-            {profile.league?.points ?? 0}
-          </dd>
-        </div>
-      </dl>
+      <ReceiptScorecard profile={profile} />
+
+      <p className="mt-3 text-center font-mono text-sm text-muted">
+        {profile.streak} day streak
+        {profile.league?.rank != null
+          ? ` · #${profile.league.rank} global this week`
+          : ""}
+      </p>
 
       <ul className="receipt-sticker-grid mt-5">
         {QUESTS.map((q, index) => {
@@ -151,7 +159,16 @@ export function PathReceipt({
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => copy("referral")}
+            onClick={() => void copy("invite")}
+            disabled={inviteLoading}
+            className="receipt-footer-share text-[10px] font-semibold"
+            title="Copy share invite link"
+          >
+            {inviteLoading ? "…" : copied === "invite" ? "✓" : "Invite"}
+          </button>
+          <button
+            type="button"
+            onClick={() => void copy("referral")}
             className="receipt-footer-share text-[10px] font-semibold"
             title="Copy referral link"
           >

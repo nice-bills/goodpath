@@ -39,7 +39,7 @@ function WalletSetupPanel({
         ? "Still working — Privy can take up to 90s the first time."
         : phase === "failed"
           ? "Wallet setup stalled."
-          : "Linking wallet to G$ Path…";
+          : "Linking wallet to GoodPath…";
 
   const showMetaMaskEscape =
     phase === "slow" || phase === "failed" || phase === "creating" || phase === "linking";

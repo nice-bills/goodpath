@@ -1,10 +1,24 @@
 import type { contractEnv } from "@goodsdks/citizen-sdk";
 
-/** Use `/goodpath-api` when tunneling (single ngrok URL proxies to :3001). */
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL !== undefined
-    ? process.env.NEXT_PUBLIC_API_URL
-    : "http://localhost:3001";
+function defaultApiUrl(): string {
+  if (process.env.NEXT_PUBLIC_API_URL !== undefined) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  if (
+    process.env.VERCEL_URL &&
+    (process.env.NEXT_PUBLIC_GOODPATH_USE_HONO_API === "1" ||
+      process.env.GOODPATH_USE_HONO_API === "1")
+  ) {
+    return `https://${process.env.VERCEL_URL}/goodpath-api`;
+  }
+  return "http://localhost:3001";
+}
+
+/** Legacy Hono mount (deprecated for app state — use Convex). */
+export const API_URL = defaultApiUrl();
+
+/** Convex deployment URL from `npx convex dev` or Vercel env. */
+export const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL ?? "";
 
 export const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "";
 export const SDK_ENV = (process.env.NEXT_PUBLIC_GOODDOLLAR_ENV ?? "development") as contractEnv;
@@ -27,6 +41,10 @@ export const MIN_STREAM_G_PER_MONTH =
 
 /** LAN / tunnel URL for phone QR and FV callbacks (see `pnpm dev:lan`). */
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "";
+
+/** GoodPathReceipt UUPS proxy on Celo mainnet (2.0). */
+export const RECEIPT_CONTRACT_ADDRESS = process.env
+  .NEXT_PUBLIC_GOODPATH_RECEIPT_ADDRESS as `0x${string}` | undefined;
 
 /** Show demo mode toggle + seeded profile (judging / screenshots). */
 export const DEMO_MODE =

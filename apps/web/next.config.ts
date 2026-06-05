@@ -3,6 +3,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const webRoot = dirname(fileURLToPath(import.meta.url));
+/** Trace server deps from monorepo root (pnpm hoists @goodsdks/*, better-sqlite3, etc.). */
+const monorepoRoot = join(webRoot, "../..");
 /** Webpack needs absolute paths; Turbopack needs relative (see experimental.turbo). */
 const stubAbs = join(webRoot, "src/lib/empty-module.ts");
 const stubRel = "./src/lib/empty-module.ts";
@@ -23,7 +25,16 @@ const turboOptionalDepAliases = {
 const useApiProxy = process.env.USE_API_PROXY === "true";
 
 const nextConfig: NextConfig = {
+  outputFileTracingRoot: monorepoRoot,
+  outputFileTracingIncludes: {
+    "/goodpath-api/[[...path]]": [
+      "node_modules/.pnpm/better-sqlite3@11.10.0/node_modules/better-sqlite3/**",
+      "node_modules/.pnpm/@goodsdks+citizen-sdk@*/node_modules/@goodsdks/citizen-sdk/**",
+    ],
+  },
+  serverExternalPackages: ["better-sqlite3"],
   transpilePackages: [
+    "@goodpath/api",
     "@goodpath/shared",
     "@goodsdks/citizen-sdk",
     "@goodsdks/react-hooks",
@@ -36,15 +47,24 @@ const nextConfig: NextConfig = {
     return [{ source: "/goodpath-api/:path*", destination: `${target}/:path*` }];
   },
   webpack: (config) => {
+    config.resolve.extensionAlias = {
+      ...config.resolve.extensionAlias,
+      ".js": [".ts", ".tsx", ".js"],
+    };
     config.resolve.alias = {
       ...config.resolve.alias,
       ...webpackOptionalDepAliases,
+      /** Bundle API from TS source so server traces include @goodsdks/citizen-sdk. */
+      "@goodpath/api/app": join(monorepoRoot, "services/api/src/app.ts"),
     };
     return config;
   },
   experimental: {
     turbo: {
-      resolveAlias: turboOptionalDepAliases,
+      resolveAlias: {
+        ...turboOptionalDepAliases,
+        "@goodpath/api/app": join(monorepoRoot, "services/api/src/app.ts"),
+      },
     },
   },
 };

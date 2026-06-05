@@ -9,7 +9,7 @@ import { isLocalOnlyOrigin, phoneAccessHint } from "@/lib/app-origin";
 import { fvCallbackUrl } from "@/lib/fv-callback";
 import { isMobileBrowser } from "@/lib/mobile-wallet";
 import { useGoodIdentitySDK } from "@/hooks/use-good-sdks";
-import { usePrivyWalletAddress } from "@/hooks/use-sync-privy-wagmi";
+import { useWalletSession } from "@/hooks/use-wallet-session";
 
 const POLL_MS = 4000;
 
@@ -22,9 +22,9 @@ export function useFvVerification({
   onVerified?: () => void;
   returnPath?: string;
 }) {
-  const { address: wagmiAddress, chainId, isConnected } = useAccount();
-  const privyAddress = usePrivyWalletAddress();
-  const address = wagmiAddress ?? privyAddress;
+  const { address, status } = useWalletSession();
+  const { chainId, isConnected } = useAccount();
+  const hasAddress = status === "ready" && Boolean(address);
   const { switchChain, isPending: isSwitching } = useSwitchChain();
   const { sdk: identitySDK, loading: sdkLoading, error: sdkError } = useGoodIdentitySDK(SDK_ENV);
 
@@ -36,7 +36,8 @@ export function useFvVerification({
   const [pollError, setPollError] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const onWrongChain = isConnected && chainId !== undefined && chainId !== celo.id;
+  const onWrongChain =
+    hasAddress && isConnected && chainId !== undefined && chainId !== celo.id;
   const mobile = isMobileBrowser();
   const showPhoneQrOption = !mobile;
   const qrBlocked = isLocalOnlyOrigin();
@@ -66,7 +67,10 @@ export function useFvVerification({
 
   useEffect(() => {
     if (!enabled || !identitySDK || !address) return;
-    void syncComplete();
+    const id = requestAnimationFrame(() => {
+      void syncComplete();
+    });
+    return () => cancelAnimationFrame(id);
   }, [enabled, identitySDK, address, syncComplete]);
 
   useEffect(() => {

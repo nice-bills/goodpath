@@ -22,9 +22,26 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "G$ Path",
-  description: "Your guided path into the GoodDollar ecosystem.",
-  icons: { icon: "/icon.svg" },
+  title: "GoodPath",
+  description: "Mark your progress — weekly runs on the GoodDollar path.",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/site.webmanifest",
+  openGraph: {
+    title: "GoodPath",
+    description: "Mark your progress — weekly runs on the GoodDollar path.",
+    siteName: "GoodPath",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "GoodPath",
+    description: "Mark your progress — weekly runs on the GoodDollar path.",
+  },
 };
 
 export default function RootLayout({

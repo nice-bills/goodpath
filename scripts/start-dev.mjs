@@ -5,6 +5,15 @@ import { fileURLToPath } from "node:url";
 import { execSync } from "node:child_process";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const convexTmp = join(root, ".convex-tmp");
+const useLegacyApi = process.env.GOODPATH_USE_HONO_API === "1";
+
+/** Avoid EXDEV when /tmp and the repo are on different filesystems (e.g. btrfs + tmpfs). */
+const devEnv = {
+  ...process.env,
+  CONVEX_TMPDIR: process.env.CONVEX_TMPDIR ?? convexTmp,
+  TMPDIR: process.env.TMPDIR ?? convexTmp,
+};
 
 async function devAlreadyRunning() {
   if (process.env.GOODPATH_DEV_FORCE === "1") return false;
@@ -31,9 +40,14 @@ if (await devAlreadyRunning()) {
   process.exit(0);
 }
 
-execSync("node scripts/kill-dev.mjs", { cwd: root, stdio: "inherit" });
+execSync("node scripts/kill-dev.mjs", { cwd: root, stdio: "inherit", env: devEnv });
 
-console.log("[goodpath] starting web + API …\n");
+const backendLabel = useLegacyApi ? "api" : "convex";
+const backendCmd = useLegacyApi
+  ? "pnpm --filter @goodpath/api dev"
+  : "npx convex dev";
+
+console.log(`[goodpath] starting web + ${backendLabel} …\n`);
 
 const child = spawn(
   "pnpm",
@@ -42,11 +56,11 @@ const child = spawn(
     "concurrently",
     "-k",
     "-n",
-    "web,api",
+    `web,${backendLabel}`,
     "pnpm --filter @goodpath/web dev",
-    "pnpm --filter @goodpath/api dev",
+    backendCmd,
   ],
-  { cwd: root, stdio: "inherit", env: process.env },
+  { cwd: root, stdio: "inherit", env: devEnv },
 );
 
 child.on("exit", (code) => process.exit(code ?? 0));

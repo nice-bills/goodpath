@@ -5,6 +5,7 @@ import { useWalletSession } from "@/hooks/use-wallet-session";
 import { useFvVerification } from "@/hooks/use-fv-verification";
 import type { QuestStatus } from "@/lib/api";
 import { QuestPanel } from "../quest-panel";
+import { GoodWalletConnectHint } from "@/components/goodwallet-connect-hint";
 import { FvVerificationOptions } from "../fv-verification-options";
 
 export function VerifyAction({
@@ -48,7 +49,12 @@ export function VerifyAction({
       {flow.whitelisted ? (
         <p className="mt-3 text-sm font-medium text-win">Verified, syncing…</p>
       ) : (
-        <FvVerificationOptions flow={flow} />
+        <>
+          <GoodWalletConnectHint className="mt-3" />
+          <div className="mt-3">
+            <FvVerificationOptions flow={flow} />
+          </div>
+        </>
       )}
     </QuestPanel>
   );

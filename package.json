@@ -10,15 +10,27 @@
     "dev:tunnel:app": "node scripts/dev-tunnel.mjs --only",
     "dev:web": "pnpm --filter @goodpath/web dev",
     "dev:api": "pnpm --filter @goodpath/api dev",
+    "dev:convex": "npx convex dev",
     "dev:reset": "pnpm --filter @goodpath/web dev:reset",
     "dev:smoke": "pnpm --filter @goodpath/web smoke",
     "build": "pnpm -r build",
-    "lint": "pnpm -r lint"
+    "lint": "pnpm -r lint",
+    "lint:convex": "eslint -c convex/eslint.config.mjs convex",
+    "contracts:test": "cd packages/contracts && forge test",
+    "contracts:build": "cd packages/contracts && forge build"
   },
   "devDependencies": {
+    "@convex-dev/eslint-plugin": "^2.0.0",
     "concurrently": "^9.1.2",
+    "convex": "^1.40.0",
+    "typescript-eslint": "^8.59.4",
     "react-doctor": "^0.2.15",
     "typescript": "^5.8.2"
   },
-  "packageManager": "pnpm@9.15.4"
+  "packageManager": "pnpm@9.15.4",
+  "dependencies": {
+    "@goodpath/shared": "workspace:^",
+    "@goodsdks/citizen-sdk": "^1.2.5",
+    "viem": "^2.23.5"
+  }
 }

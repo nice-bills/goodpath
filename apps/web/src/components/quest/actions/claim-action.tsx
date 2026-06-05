@@ -25,6 +25,8 @@ import { GasSponsorBanner } from "@/components/gas-sponsor-banner";
 import { FvVerificationOptions } from "../fv-verification-options";
 import { QuestErrorAlert } from "../quest-error-alert";
 import { QuestPanel } from "../quest-panel";
+import { FlexShareButton } from "@/components/flex-share-button";
+import { useProfile } from "@/hooks/use-profile";
 
 export function ClaimAction({
   quest,
@@ -36,6 +38,7 @@ export function ClaimAction({
   variant?: "standalone" | "embedded";
 }) {
   const { address, status } = useWalletSession();
+  const { data: profile } = useProfile(address);
   const chainId = useChainId();
   const markComplete = useMarkQuestComplete();
   const { sdk: claimSDK, loading, error: sdkError } = useGoodClaimSDK(SDK_ENV);
@@ -144,6 +147,15 @@ export function ClaimAction({
             View claim tx
           </a>
         )}
+        {profile ? (
+          <div className="mt-4">
+            <FlexShareButton
+              profile={profile}
+              label="Flex this claim"
+              className="btn-primary w-full"
+            />
+          </div>
+        ) : null}
       </QuestPanel>
     );
   }

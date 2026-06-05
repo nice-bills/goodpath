@@ -10,7 +10,7 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("[G$ Path]", error);
+    console.error("[GoodPath]", error);
   }, [error]);
 
   const isWagmi = error.message.includes("WagmiProvider");
