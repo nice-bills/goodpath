@@ -5,15 +5,8 @@ import { useChainId } from "wagmi";
 import { useWalletSession } from "@/hooks/use-wallet-session";
 import { isSupportedChain, chainConfigs } from "@goodsdks/citizen-sdk";
 import { SDK_ENV } from "@/lib/env";
-import {
-  CELO_FAUCET_URL,
-  formatCeloAmount,
-  getCeloBalance,
-  hasEnoughCeloForTx,
-  MIN_CELO_FOR_TX,
-} from "@/lib/gooddollar-gas";
+import { formatCeloAmount, MIN_CELO_FOR_TX } from "@/lib/gooddollar-gas";
 import { useCeloBalance } from "@/hooks/use-celo-balance";
-import { useEnsureGoodDollarGas } from "@/hooks/use-ensure-gas";
 import { useClaimEntitlement } from "@/hooks/use-claim-entitlement";
 import { useGoodClaimSDK } from "@/hooks/use-good-sdks";
 import { useMarkQuestComplete } from "@/hooks/use-quest-actions";
@@ -21,7 +14,6 @@ import { celo } from "wagmi/chains";
 import type { QuestStatus } from "@/lib/api";
 import { formatClaimError, formatEntitlementError } from "@/lib/quest-errors";
 import { useFvVerification } from "@/hooks/use-fv-verification";
-import { GasSponsorBanner } from "@/components/gas-sponsor-banner";
 import { FvVerificationOptions } from "../fv-verification-options";
 import { QuestErrorAlert } from "../quest-error-alert";
 import { QuestPanel } from "../quest-panel";
@@ -50,13 +42,6 @@ export function ClaimAction({
     walletOnCelo,
     refetch: refetchCelo,
   } = useCeloBalance();
-  const {
-    ensureGas,
-    phase: gasPhase,
-    message: gasMessage,
-    lastResult: gasResult,
-    isEnsuring,
-  } = useEnsureGoodDollarGas();
   const entitlement = useClaimEntitlement(claimSDK, chainId, quest.unlocked && !loading);
   const claimAmount = entitlement.data ?? null;
   const [isClaiming, setIsClaiming] = useState(false);
@@ -84,28 +69,6 @@ export function ClaimAction({
     setIsClaiming(true);
     setClaimError(null);
     try {
-      const gas = await ensureGas();
-      if (!gas.ok) {
-        setClaimError({
-          tone: "error",
-          title: "Gas not ready",
-          message: gas.error,
-          hint: "GoodDollar usually funds CELO within ~60 seconds. Try again or use the Celo faucet.",
-        });
-        return;
-      }
-
-      const liveCelo = await getCeloBalance(address);
-      if (!hasEnoughCeloForTx(liveCelo)) {
-        setClaimError({
-          tone: "error",
-          title: "Not enough CELO on Celo",
-          message: `This wallet has ${formatCeloAmount(liveCelo)} CELO on Celo. MetaMask needs about ${MIN_CELO_FOR_TX}+ to sign.`,
-          hint: "Use the Celo faucet or wait for GoodDollar gas, then try again.",
-        });
-        return;
-      }
-
       const tx = await claimSDK.claim();
       if (tx?.transactionHash) {
         setTxHash(tx.transactionHash);
@@ -127,7 +90,7 @@ export function ClaimAction({
       setIsClaiming(false);
       await refetchCelo();
     }
-  }, [claimSDK, address, markComplete, onUpdated, ensureGas, refetchCelo, fvFlow.syncComplete]);
+  }, [claimSDK, address, markComplete, onUpdated, refetchCelo, fvFlow.syncComplete]);
 
   const explorer =
     chainId && isSupportedChain(chainId)
@@ -168,7 +131,7 @@ export function ClaimAction({
     );
   }
 
-  const busy = isClaiming || isEnsuring;
+  const busy = isClaiming;
 
   if (needsFv && !fvFlow.whitelisted) {
     return (
@@ -211,7 +174,7 @@ export function ClaimAction({
           >
             {formatCeloAmount(celoAmount)}
           </span>
-          {lowCelo && ". Below minimum; we’ll request GoodDollar gas when you claim."}
+          {lowCelo && `. Below ~${MIN_CELO_FOR_TX} CELO; MetaMask may reject the claim.`}
           {borderlineCelo &&
             !lowCelo &&
             ". Can still be tight; MetaMask uses its own fee estimate."}
@@ -219,16 +182,11 @@ export function ClaimAction({
         </p>
       )}
 
-      <GasSponsorBanner
-        phase={gasPhase}
-        message={gasMessage}
-        caution={gasResult?.ok === true && gasResult.borderline}
-      />
-
       {claimAmount !== null && claimAmount > 0 && (
         <p className="mt-3 text-xs leading-relaxed text-muted">
-          One tap: GoodDollar covers CELO if needed, then you claim{" "}
-          <strong className="font-medium text-foreground">{claimAmount} G$</strong> on Celo.
+          Claim{" "}
+          <strong className="font-medium text-foreground">{claimAmount} G$</strong> on Celo. Your
+          wallet will ask you to approve the transaction.
         </p>
       )}
 
@@ -249,25 +207,12 @@ export function ClaimAction({
       >
         {loading || entitlement.isLoading
           ? "Checking…"
-          : isEnsuring
-            ? "Preparing gas…"
-            : isClaiming
-              ? "Claiming…"
-              : claimAmount && claimAmount > 0
-                ? `Claim ${claimAmount} G$`
-                : "Come back tomorrow"}
+          : isClaiming
+            ? "Claiming…"
+            : claimAmount && claimAmount > 0
+              ? `Claim ${claimAmount} G$`
+              : "Come back tomorrow"}
       </button>
-
-      {gasPhase === "failed" && (
-        <a
-          href={CELO_FAUCET_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="btn-secondary mt-2 flex w-full items-center justify-center text-xs"
-        >
-          Get CELO from Celo faucet (fallback)
-        </a>
-      )}
 
       {txHash && (
         <a
@@ -303,9 +248,8 @@ export function ClaimAction({
       )}
 
       <p className="mt-3 text-[11px] leading-relaxed text-muted">
-        Claims need about {MIN_CELO_FOR_TX}+ CELO on Celo for network fees. The app reads your
-        on-chain balance; MetaMask shows its own estimate when you sign. GoodDollar can fund gas
-        automatically, same as GoodWallet.
+        Claims need about {MIN_CELO_FOR_TX}+ CELO on Celo for network fees. MetaMask uses its own
+        estimate when you sign.
       </p>
     </QuestPanel>
   );

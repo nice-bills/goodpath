@@ -44,10 +44,10 @@ export function HomeTab() {
         <HomeSkeleton />
       ) : showPath && profile ? (
         <div className="vibe-home-page">
-          <header className="vibe-top-bar">
-            <LogoLockup size="nav" />
+          <header className="vibe-top-bar vibe-top-bar-connected">
+            <LogoLockup size="nav" className="vibe-top-bar-brand" />
             <span className="flex-1" aria-hidden />
-            {hasWallet ? <ConnectButton /> : null}
+            {hasWallet ? <ConnectButton variant="pill" /> : null}
           </header>
           {showClaimHint ? (
             <div className="vibe-claim-hint" role="status">

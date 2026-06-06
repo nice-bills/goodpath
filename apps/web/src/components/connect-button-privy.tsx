@@ -14,6 +14,12 @@ export function ConnectButtonPrivy({ variant = "compact" }: { variant?: "compact
   const [modalOpen, setModalOpen] = useState(false);
   const [opening, setOpening] = useState(false);
 
+  const openModal = () => {
+    setOpening(true);
+    setModalOpen(true);
+    queueMicrotask(() => setOpening(false));
+  };
+
   const handleDisconnect = () => {
     disconnect();
     if (authenticated) void logout();
@@ -45,17 +51,13 @@ export function ConnectButtonPrivy({ variant = "compact" }: { variant?: "compact
     <>
       <button
         type="button"
-        onClick={() => {
-          setOpening(true);
-          setModalOpen(true);
-          queueMicrotask(() => setOpening(false));
-        }}
+        onClick={openModal}
         className={
           variant === "pill"
             ? "btn-primary connect-wallet-trigger"
             : "btn-secondary connect-wallet-trigger text-xs px-3 py-2"
         }
-        aria-busy={opening}
+        aria-busy={opening || (!ready && modalOpen)}
         data-pressed={opening || modalOpen ? "true" : undefined}
       >
         {opening

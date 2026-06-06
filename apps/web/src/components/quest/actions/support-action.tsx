@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { SUPPORT_ACK_META, isConfiguredEthAddress } from "@goodpath/shared";
 import { CELO_FAUCET_URL } from "@/lib/gooddollar-gas";
+import { useAutoEnsureGasWhenLow } from "@/hooks/use-ensure-gas";
 import { MIN_SUPPORT_G, SUPPORT_RECIPIENT } from "@/lib/env";
 import { useGTransferQuest } from "@/hooks/use-g-transfer-quest";
 import { useMarkQuestComplete } from "@/hooks/use-quest-actions";
@@ -39,6 +40,8 @@ export function SupportAction({
     completed: quest.completed,
     onUpdated,
   });
+
+  useAutoEnsureGasWhenLow(quest.unlocked && !quest.completed);
 
   const openCollective = () => {
     window.open(

@@ -76,8 +76,12 @@ export function formatRelativeTime(iso: string): string {
   return `${days}d ago`;
 }
 
-/** Hours until next GoodDollar daily claim (12:00 UTC). */
-export function hoursUntilClaimReset(): { hours: number; minutes: number } {
+/** Time until next GoodDollar daily claim reset (12:00 UTC). */
+export function hoursUntilClaimReset(): {
+  hours: number;
+  minutes: number;
+  seconds: number;
+} {
   const now = new Date();
   const next = new Date(now);
   next.setUTCHours(12, 0, 0, 0);
@@ -88,5 +92,6 @@ export function hoursUntilClaimReset(): { hours: number; minutes: number } {
   return {
     hours: Math.floor(diff / 3_600_000),
     minutes: Math.floor((diff % 3_600_000) / 60_000),
+    seconds: Math.floor((diff % 60_000) / 1_000),
   };
 }
