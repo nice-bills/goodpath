@@ -10,6 +10,7 @@ import { ConvexClientProvider } from "@/components/convex-client-provider";
 import { useEnsureConvexProfile } from "@/hooks/use-ensure-convex-profile";
 import { useMounted } from "@/hooks/use-mounted";
 import { useWalletSession } from "@/hooks/use-wallet-session";
+import { ChunkErrorHandler } from "@/components/chunk-error-handler";
 import { clearWalletConnectStorage, isMetaMaskInAppBrowser } from "@/lib/mobile-wallet";
 
 function ConvexWalletBootstrap() {
@@ -59,7 +60,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }
 
   const shell = (
-    <div className="app-shell flex min-h-dvh flex-col">{children}</div>
+    <div className="app-shell flex min-h-dvh flex-col">
+      <ChunkErrorHandler />
+      {children}
+    </div>
   );
 
   if (isPrivyEnabled) {
