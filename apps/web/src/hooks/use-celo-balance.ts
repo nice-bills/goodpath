@@ -4,18 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useWalletSession } from "@/hooks/use-wallet-session";
 import { useAccount } from "wagmi";
 import { celo } from "wagmi/chains";
-import { createPublicClient, formatEther, http } from "viem";
+import { formatEther } from "viem";
+import { celoPublicClient } from "@/lib/celo-public-client";
 import {
   MIN_CELO_FOR_TX,
   CELO_CAUTION_BELOW,
   hasEnoughCeloForTx,
   isBorderlineCeloForTx,
 } from "@/lib/gooddollar-gas";
-
-const publicClient = createPublicClient({
-  chain: celo,
-  transport: http(celo.rpcUrls.default.http[0]),
-});
 
 export { MIN_CELO_FOR_TX, CELO_CAUTION_BELOW };
 
@@ -30,7 +26,7 @@ export function useCeloBalance() {
     queryKey: ["celo-balance", address],
     enabled: status === "ready" && Boolean(address),
     queryFn: async () => {
-      const wei = await publicClient.getBalance({ address: address! });
+      const wei = await celoPublicClient.getBalance({ address: address! });
       const formatted = formatEther(wei);
       const amount = Number(formatted);
       return {
@@ -42,7 +38,8 @@ export function useCeloBalance() {
         enough: hasEnoughCeloForTx(amount),
       };
     },
-    refetchInterval: 12_000,
+    refetchInterval: (query) =>
+      query.state.data?.low ? 4_000 : 12_000,
   });
 
   return {

@@ -13,7 +13,7 @@ import {
   MIN_CELO_FOR_TX,
 } from "@/lib/gooddollar-gas";
 import { useCeloBalance } from "@/hooks/use-celo-balance";
-import { useEnsureGoodDollarGas } from "@/hooks/use-ensure-gas";
+import { useAutoEnsureGasWhenLow, useEnsureGoodDollarGas } from "@/hooks/use-ensure-gas";
 import { useClaimEntitlement } from "@/hooks/use-claim-entitlement";
 import { useGoodClaimSDK } from "@/hooks/use-good-sdks";
 import { useMarkQuestComplete } from "@/hooks/use-quest-actions";
@@ -79,12 +79,16 @@ export function ClaimAction({
   const needsFv =
     forceFv || fvFlow.needsVerification || (fvFlow.whitelisted === null && fvFlow.checking);
 
+  useAutoEnsureGasWhenLow(quest.unlocked && !quest.completed && !needsFv);
+
   const handleClaim = useCallback(async () => {
     if (!claimSDK || !address) return;
     setIsClaiming(true);
     setClaimError(null);
     try {
-      const gas = await ensureGas();
+      const gas = await ensureGas(
+        celoAmount !== undefined ? { knownBalance: celoAmount } : undefined,
+      );
       if (!gas.ok) {
         setClaimError({
           tone: "error",
@@ -127,7 +131,16 @@ export function ClaimAction({
       setIsClaiming(false);
       await refetchCelo();
     }
-  }, [claimSDK, address, markComplete, onUpdated, ensureGas, refetchCelo, fvFlow.syncComplete]);
+  }, [
+    claimSDK,
+    address,
+    markComplete,
+    onUpdated,
+    ensureGas,
+    celoAmount,
+    refetchCelo,
+    fvFlow.syncComplete,
+  ]);
 
   const explorer =
     chainId && isSupportedChain(chainId)

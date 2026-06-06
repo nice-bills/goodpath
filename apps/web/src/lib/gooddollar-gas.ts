@@ -1,5 +1,6 @@
 import { celo } from "wagmi/chains";
-import { createPublicClient, formatEther, http } from "viem";
+import { formatEther } from "viem";
+import { celoPublicClient } from "@/lib/celo-public-client";
 import { SDK_ENV } from "@/lib/env";
 
 /**
@@ -17,14 +18,10 @@ const BACKENDS: Record<string, string> = {
   development: "https://good-server.herokuapp.com",
 };
 
-const publicClient = createPublicClient({
-  chain: celo,
-  transport: http(celo.rpcUrls.default.http[0]),
-});
-
 export const CELO_FAUCET_URL = "https://faucet.celo.org/";
 
-const GAS_POLL_MS = 3_000;
+/** First polls are faster — GoodDollar often funds within a few seconds. */
+const GAS_POLL_SCHEDULE_MS = [800, 1_200, 2_000, 3_000] as const;
 const GAS_MAX_WAIT_MS = 60_000;
 
 function backendUrl(): string {
@@ -45,7 +42,7 @@ export async function requestGoodDollarGasTopUp(account: `0x${string}`): Promise
 }
 
 export async function getCeloBalance(account: `0x${string}`): Promise<number> {
-  const wei = await publicClient.getBalance({ address: account });
+  const wei = await celoPublicClient.getBalance({ address: account });
   return Number(formatEther(wei));
 }
 
@@ -73,12 +70,14 @@ export type EnsureGasResult =
  */
 export async function ensureGoodDollarGas(
   account: `0x${string}`,
-  options?: { maxWaitMs?: number; pollMs?: number },
+  options?: { maxWaitMs?: number; knownBalance?: number },
 ): Promise<EnsureGasResult> {
   const maxWaitMs = options?.maxWaitMs ?? GAS_MAX_WAIT_MS;
-  const pollMs = options?.pollMs ?? GAS_POLL_MS;
 
-  let balance = await getCeloBalance(account);
+  let balance =
+    options?.knownBalance !== undefined
+      ? options.knownBalance
+      : await getCeloBalance(account);
   if (hasEnoughCeloForTx(balance)) {
     return {
       ok: true,
@@ -90,9 +89,22 @@ export async function ensureGoodDollarGas(
 
   await requestGoodDollarGasTopUp(account);
 
+  balance = await getCeloBalance(account);
+  if (hasEnoughCeloForTx(balance)) {
+    return {
+      ok: true,
+      balance,
+      sponsored: true,
+      borderline: isBorderlineCeloForTx(balance),
+    };
+  }
+
   const deadline = Date.now() + maxWaitMs;
+  let pollIndex = 0;
   while (Date.now() < deadline) {
-    await new Promise((r) => setTimeout(r, pollMs));
+    const waitMs = GAS_POLL_SCHEDULE_MS[Math.min(pollIndex, GAS_POLL_SCHEDULE_MS.length - 1)];
+    pollIndex += 1;
+    await new Promise((r) => setTimeout(r, waitMs));
     balance = await getCeloBalance(account);
     if (hasEnoughCeloForTx(balance)) {
       return {
@@ -109,4 +121,22 @@ export async function ensureGoodDollarGas(
     balance,
     error: `Need at least ${MIN_CELO_FOR_TX} CELO on Celo (you have ${formatCeloAmount(balance)}). GoodDollar gas can take up to a minute. Wait and retry, or use the Celo faucet.`,
   };
+}
+
+const gasInflight = new Map<string, Promise<EnsureGasResult>>();
+
+/** One sponsorship flow per wallet — shared across claim, tip, and prefetch hooks. */
+export function ensureGoodDollarGasShared(
+  account: `0x${string}`,
+  options?: { maxWaitMs?: number; knownBalance?: number },
+): Promise<EnsureGasResult> {
+  const key = account.toLowerCase();
+  const existing = gasInflight.get(key);
+  if (existing) return existing;
+
+  const run = ensureGoodDollarGas(account, options).finally(() => {
+    gasInflight.delete(key);
+  });
+  gasInflight.set(key, run);
+  return run;
 }

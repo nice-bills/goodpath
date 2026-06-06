@@ -66,36 +66,40 @@ function WalletSetupPanel({
   );
 }
 
-function PrivySignInLoading() {
+/** Email / Google row while Privy SDK waits on embedded-wallet iframe ready. */
+export function PrivySocialSkeleton() {
   const [slow, setSlow] = useState(false);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setSlow(true), 6000);
+    const timer = window.setTimeout(() => setSlow(true), 5000);
     return () => window.clearTimeout(timer);
   }, []);
 
-  if (!slow) {
-    return <p className="text-xs text-muted">Loading sign-in…</p>;
-  }
-
   return (
-    <div className="wallet-connect-actions">
-      <p className="text-sm font-medium text-foreground">Sign-in is taking longer than usual</p>
-      <p className="text-xs leading-relaxed text-muted">
-        Check that{" "}
-        <code className="rounded bg-surface-muted px-1">NEXT_PUBLIC_PRIVY_APP_ID</code> is set,
-        http://localhost:3000 is in your Privy app allowed origins, and ad blockers are off for
-        this site.
+    <div className="wallet-connect-skeleton" aria-busy="true" aria-live="polite">
+      <div className="wallet-skeleton-btn wallet-skeleton-btn-google" />
+      <div className="wallet-skeleton-btn wallet-skeleton-btn-email" />
+      <p className="wallet-connect-boot-status">
+        <span className="wallet-connect-boot-dot" aria-hidden />
+        {slow
+          ? "Email & Google need Privy — check ad blockers or reload."
+          : "Waking up email & Google sign-in…"}
       </p>
-      <button
-        type="button"
-        className="btn-secondary mt-2 w-full text-xs"
-        onClick={() => window.location.reload()}
-      >
-        Retry
-      </button>
+      {slow ? (
+        <button
+          type="button"
+          className="btn-secondary mt-2 w-full text-xs"
+          onClick={() => window.location.reload()}
+        >
+          Retry
+        </button>
+      ) : null}
     </div>
   );
+}
+
+function PrivySignInLoading() {
+  return <PrivySocialSkeleton />;
 }
 
 function PrivyLoginOptionsReady({

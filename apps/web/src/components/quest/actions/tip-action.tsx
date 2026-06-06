@@ -1,6 +1,7 @@
 "use client";
 
 import { CELO_FAUCET_URL } from "@/lib/gooddollar-gas";
+import { useAutoEnsureGasWhenLow } from "@/hooks/use-ensure-gas";
 import { MIN_TIP_G, TIP_RECIPIENT } from "@/lib/env";
 import { useGTransferQuest } from "@/hooks/use-g-transfer-quest";
 import { useWalletSession } from "@/hooks/use-wallet-session";
@@ -28,6 +29,8 @@ export function TipAction({
     completed: quest.completed,
     onUpdated,
   });
+
+  useAutoEnsureGasWhenLow(quest.unlocked && !quest.completed);
 
   const displayHash = transfer.txHash ?? quest.txHash;
 

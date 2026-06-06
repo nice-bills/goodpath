@@ -95,10 +95,10 @@ export function ExploreTab() {
   return (
     <main className="explore-page">
       <header className="explore-head">
-        <div className="vibe-top-bar">
-          <LogoLockup size="nav" />
+        <div className="vibe-top-bar vibe-top-bar-connected">
+          <LogoLockup size="nav" className="vibe-top-bar-brand" />
           <span className="flex-1" aria-hidden />
-          {hasWallet ? <ConnectButton /> : null}
+          {hasWallet ? <ConnectButton variant="pill" /> : null}
         </div>
         <div className="explore-hero">
           <span className="explore-hero-badge">

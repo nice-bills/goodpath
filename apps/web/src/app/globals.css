@@ -666,33 +666,245 @@ body {
 }
 
 .vibe-countdown-strip {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  padding: 14px 14px 14px 12px;
+  border-radius: 18px;
+  border: 2px solid var(--foreground);
+  background: var(--vibe-pop);
+  color: var(--vibe-pop-ink);
+  box-shadow: 4px 4px 0 rgba(17, 17, 17, 0.14);
+  overflow: hidden;
+  animation: countdown-breathe 2.8s ease-in-out infinite;
+}
+
+.vibe-countdown-glow {
+  position: absolute;
+  inset: -40% -20%;
+  background: radial-gradient(
+    ellipse at 30% 50%,
+    rgba(255, 255, 255, 0.55) 0%,
+    transparent 55%
+  );
+  pointer-events: none;
+  animation: countdown-shimmer 4s ease-in-out infinite;
+}
+
+.vibe-countdown-icon {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  align-self: center;
+  border-radius: 14px;
+  border: 2px solid var(--foreground);
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: 2px 2px 0 rgba(17, 17, 17, 0.1);
+}
+
+.vibe-countdown-main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vibe-countdown-top {
   display: flex;
   align-items: center;
+  gap: 8px;
+}
+
+.vibe-countdown-kicker {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.vibe-countdown-badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1.5px solid var(--foreground);
+  background: rgba(255, 255, 255, 0.35);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vibe-countdown-badge-live {
+  background: var(--accent);
+  color: var(--surface);
+  border-color: var(--accent);
+  animation: countdown-badge-pulse 1.2s ease-in-out infinite;
+}
+
+.vibe-countdown-row {
+  display: flex;
+  align-items: baseline;
   gap: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.vibe-countdown-digits {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1;
+}
+
+.vibe-countdown-cell {
+  min-width: 2.1ch;
+  padding: 4px 6px;
+  border-radius: 8px;
+  border: 1.5px solid var(--foreground);
   background: var(--surface);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--foreground);
+  box-shadow: 2px 2px 0 rgba(17, 17, 17, 0.08);
+}
+
+.vibe-countdown-sep {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--vibe-pop-ink);
+  animation: countdown-blink 1s step-end infinite;
+}
+
+.vibe-countdown-copy {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.vibe-countdown-hook {
   font-size: 12px;
-  font-weight: 600;
-  color: var(--muted);
+  font-weight: 700;
+  line-height: 1.35;
+  max-width: 28ch;
 }
 
 .vibe-countdown-strip-hot {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent-text);
+  background: linear-gradient(135deg, var(--vibe-pop) 0%, #ffe082 100%);
+  animation: countdown-breathe-hot 1.6s ease-in-out infinite;
+}
+
+.vibe-countdown-strip-hot .vibe-countdown-icon {
+  background: var(--accent);
+  color: var(--surface);
+  border-color: var(--foreground);
+}
+
+.vibe-countdown-strip-urgent:not(.vibe-countdown-strip-hot) {
+  animation: countdown-breathe-urgent 1.4s ease-in-out infinite;
 }
 
 .vibe-countdown-strip-cta {
-  margin-left: auto;
+  position: relative;
+  z-index: 1;
+  align-self: center;
   flex-shrink: 0;
-  padding: 6px 12px;
+  padding: 10px 14px;
   border-radius: 999px;
+  border: 2px solid var(--foreground);
   background: var(--foreground);
   color: var(--surface);
   font-size: 11px;
   font-weight: 800;
+  letter-spacing: 0.02em;
+  box-shadow: 2px 2px 0 rgba(17, 17, 17, 0.2);
+  transition: transform 0.15s var(--ease-out);
+}
+
+.vibe-countdown-strip-cta:hover {
+  transform: translate(-1px, -1px);
+}
+
+.vibe-countdown-strip-cta-ghost {
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+@keyframes countdown-breathe {
+  0%,
+  100% {
+    box-shadow: 4px 4px 0 rgba(17, 17, 17, 0.14);
+  }
+  50% {
+    box-shadow: 5px 5px 0 rgba(17, 17, 17, 0.2), 0 0 0 3px color-mix(in srgb, var(--vibe-pop) 50%, transparent);
+  }
+}
+
+@keyframes countdown-breathe-hot {
+  0%,
+  100% {
+    box-shadow: 4px 4px 0 rgba(17, 17, 17, 0.16);
+  }
+  50% {
+    box-shadow: 6px 6px 0 rgba(17, 17, 17, 0.22), 0 0 0 4px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+}
+
+@keyframes countdown-breathe-urgent {
+  0%,
+  100% {
+    box-shadow: 4px 4px 0 rgba(17, 17, 17, 0.14);
+  }
+  50% {
+    box-shadow: 5px 5px 0 rgba(17, 17, 17, 0.2), 0 0 0 3px color-mix(in srgb, var(--loss) 25%, transparent);
+  }
+}
+
+@keyframes countdown-shimmer {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(4%);
+  }
+}
+
+@keyframes countdown-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes countdown-badge-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vibe-countdown-strip,
+  .vibe-countdown-glow,
+  .vibe-countdown-sep,
+  .vibe-countdown-badge-live {
+    animation: none;
+  }
 }
 
 .explore-page {
@@ -1909,35 +2121,48 @@ button,
     width: 100%;
     max-width: none;
     margin: 0;
-    padding: calc(24px + var(--safe-top)) clamp(24px, 4vw, 48px) 32px;
+    padding: 0;
+    min-height: 100dvh;
   }
 
   .app-shell:has(.start-passport) {
-    padding-bottom: calc(28px + var(--safe-bottom));
+    padding-bottom: 0;
   }
 
   .app-layout {
     flex-direction: row;
-    align-items: flex-start;
-    gap: 32px;
+    align-items: stretch;
+    gap: 0;
     width: 100%;
-    max-width: 1280px;
-    margin-inline: auto;
+    max-width: none;
+    margin: 0;
+    min-height: 100dvh;
   }
 
   .app-shell:has(.main-start) .app-layout {
     align-items: stretch;
-    min-height: calc(100dvh - 56px - var(--safe-top) - var(--safe-bottom));
+    min-height: 100dvh;
+  }
+
+  .app-shell:has(.main-start) .app-layout-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-inline: clamp(24px, 5vw, 80px);
   }
 
   .desktop-nav {
     display: flex;
     flex-direction: column;
-    width: 200px;
+    width: 220px;
     flex-shrink: 0;
     position: sticky;
-    top: calc(16px + var(--safe-top));
-    align-self: flex-start;
+    top: 0;
+    align-self: stretch;
+    min-height: 100dvh;
+    padding: calc(20px + var(--safe-top)) 20px 24px;
+    border-right: 1px solid var(--border);
+    background: var(--background);
   }
 
   .mobile-nav {
@@ -2032,15 +2257,100 @@ button,
     grid-area: pulse;
     margin-bottom: 0;
   }
+
+  /* —— Desktop shell polish (sidebar + main) —— */
+  .app-layout-main {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    padding: calc(20px + var(--safe-top)) clamp(20px, 3vw, 48px) 32px;
+  }
+
+  .vibe-top-bar-connected {
+    justify-content: flex-end;
+    margin-bottom: 4px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .vibe-top-bar-brand {
+    display: none;
+  }
+
+  .vibe-top-bar-connected .connect-wallet-trigger {
+    width: auto;
+    min-width: 0;
+  }
+
+  .vibe-home-page {
+    gap: 24px;
+    width: 100%;
+  }
+
+  .vibe-up-next {
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .vibe-up-next-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .vibe-feed-track {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  .vibe-story-card {
+    flex: none;
+    width: auto;
+    min-width: 0;
+  }
+
+  .explore-page {
+    padding-bottom: 24px;
+    width: 100%;
+  }
+
+  .explore-head .vibe-top-bar-connected {
+    margin-bottom: 8px;
+  }
+
+  .explore-flex-track {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  .explore-flex-card {
+    flex: none;
+    width: auto;
+    min-width: 0;
+  }
+
+  .desktop-nav-links {
+    flex: 1;
+  }
 }
 
 @media (min-width: 1024px) {
-  .app-layout {
-    max-width: 1320px;
+  .desktop-nav {
+    width: 240px;
+    padding-inline: 24px;
   }
 
-  .desktop-nav {
-    width: 220px;
+  .app-layout-main {
+    padding-inline: clamp(28px, 4vw, 64px);
   }
 
   .home-dashboard {
@@ -2048,6 +2358,52 @@ button,
     gap: 24px 36px;
   }
 
+  .vibe-home {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+    gap: 24px 32px;
+    align-items: start;
+  }
+
+  .vibe-home > :not(.vibe-you-card):not(.run-rival-card) {
+    grid-column: 1;
+  }
+
+  .vibe-home > .vibe-you-card {
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    top: calc(20px + var(--safe-top));
+  }
+
+  .vibe-home > .run-rival-card {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .vibe-feed-track {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+  }
+
+  .vibe-up-next-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1440px) {
+  .app-layout-main {
+    padding-inline: clamp(40px, 5vw, 80px);
+  }
+
+  .vibe-feed-track {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  .vibe-home {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+    gap: 28px 40px;
+  }
 }
 
 .bottom-nav {
@@ -2329,8 +2685,9 @@ button,
 .quest-page-sticker {
   position: relative;
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 14px;
@@ -3969,6 +4326,95 @@ body {
   font-size: 12px;
   line-height: 1.4;
   color: var(--loss);
+}
+
+.wallet-connect-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wallet-skeleton-btn {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 14px;
+  border: 2px solid var(--border-strong);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 250, 240, 0.9) 0%,
+    rgba(255, 255, 255, 0.95) 45%,
+    rgba(255, 250, 240, 0.9) 90%
+  );
+  background-size: 200% 100%;
+  animation: wallet-skeleton-shimmer 1.4s ease-in-out infinite;
+  box-shadow: 3px 3px 0 rgba(53, 33, 13, 0.08);
+}
+
+.wallet-skeleton-btn-wallet {
+  min-height: 52px;
+  background-color: #ffe566;
+}
+
+.wallet-skeleton-btn-google {
+  background-color: #ffe566;
+}
+
+.wallet-skeleton-btn-email {
+  background-color: #caf6dd;
+  border-style: dashed;
+}
+
+.wallet-skeleton-note {
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+.wallet-connect-boot-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.wallet-connect-boot-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  animation: wallet-boot-pulse 1s ease-in-out infinite;
+}
+
+@keyframes wallet-skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes wallet-boot-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wallet-skeleton-btn,
+  .wallet-connect-boot-dot {
+    animation: none;
+  }
 }
 
 .gas-passport-note {

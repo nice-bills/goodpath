@@ -4,11 +4,13 @@ import { Gift } from "@phosphor-icons/react";
 import type { ProfileResponse } from "@/lib/api";
 import { TabLink } from "@/components/tab-link";
 import { hoursUntilClaimReset } from "@/lib/format";
+import { useAutoEnsureGasWhenLow } from "@/hooks/use-ensure-gas";
 
 /** Primary home CTA when daily claim is unlocked and pending. */
 export function ClaimDueBanner({ profile }: { profile: ProfileResponse }) {
   const claimQuest = profile.quests.find((q) => q.id === "claim");
-  const claimDue = claimQuest?.unlocked && !claimQuest.completed;
+  const claimDue = Boolean(claimQuest?.unlocked && !claimQuest.completed);
+  useAutoEnsureGasWhenLow(claimDue);
   if (!claimDue) return null;
 
   const { hours, minutes } = hoursUntilClaimReset();

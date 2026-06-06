@@ -18,6 +18,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { useAccount } from "wagmi";
 import {
   PrivyLoginOptions,
+  PrivySocialSkeleton,
   PrivyWalletLoginButton,
 } from "@/components/privy-login-options";
 
@@ -38,6 +39,104 @@ function friendlyConnectError(message: string): string {
     return "Could not reach MetaMask. Try Open in MetaMask browser below.";
   }
   return message;
+}
+
+/** Wagmi connect — works before Privy `ready` (no embedded-wallet iframe). */
+function WagmiWalletConnectActions({ onClose }: { onClose: () => void }) {
+  const connectors = useConnectors();
+  const { connect, isPending, error } = useConnect();
+  const chainId = useChainId();
+  const { switchChain, isPending: isSwitching } = useSwitchChain();
+
+  const mobile = isMobileBrowser();
+  const inMetaMaskBrowser = isMetaMaskInAppBrowser();
+  const browserWallet = hasBrowserWallet();
+  const injected = connectors.find((c) => c.id === "injected" || c.type === "injected");
+  const walletConnectConnector = connectors.find((c) => c.id === "walletConnect");
+  const canWalletConnect = Boolean(walletConnectConnector && WC_PROJECT_ID && shouldOfferWalletConnect());
+
+  const afterConnect = () => {
+    if (chainId !== celo.id) {
+      switchChain({ chainId: celo.id }, { onError: () => onClose() });
+    }
+    onClose();
+  };
+
+  const connectInjected = () => {
+    if (!injected) return;
+    connect({ connector: injected }, { onSuccess: afterConnect });
+  };
+
+  const connectMobile = () => {
+    if (!walletConnectConnector) return;
+    connect({ connector: walletConnectConnector }, { onSuccess: afterConnect });
+  };
+
+  const showInjected = Boolean(browserWallet && injected);
+  const showMetaMaskBrowserLink = mobile && !inMetaMaskBrowser;
+  const showWalletConnect = canWalletConnect;
+  const showDesktopWallet = !showMetaMaskBrowserLink;
+
+  return (
+    <div className="wallet-connect-actions">
+      {showMetaMaskBrowserLink && (
+        <a
+          href={metamaskDappBrowserUrl()}
+          className="wallet-connect-btn wallet-connect-wallet flex items-center justify-center gap-2"
+        >
+          Open in MetaMask browser
+          <ArrowSquareOut className="size-4" weight="bold" aria-hidden />
+        </a>
+      )}
+
+      {showDesktopWallet && (
+        <button
+          type="button"
+          disabled={isPending || isSwitching}
+          onClick={() => {
+            if (showInjected) {
+              connectInjected();
+              return;
+            }
+            window.open("https://metamask.io/download/", "_blank", "noopener,noreferrer");
+          }}
+          className="wallet-connect-btn wallet-connect-wallet"
+        >
+          {isPending
+            ? "Connecting…"
+            : showInjected
+              ? inMetaMaskBrowser
+                ? "Connect MetaMask / Wallet"
+                : `Connect ${walletLabel()} / Wallet`
+              : "Connect MetaMask / Wallet"}
+        </button>
+      )}
+
+      {showWalletConnect && (
+        <button
+          type="button"
+          disabled={isPending || isSwitching}
+          onClick={connectMobile}
+          className="wallet-connect-btn wallet-connect-email"
+        >
+          {isPending ? (
+            "Connecting…"
+          ) : (
+            <span className="inline-flex items-center justify-center gap-2">
+              <DeviceMobile className="size-4" weight="bold" aria-hidden />
+              Connect via WalletConnect
+            </span>
+          )}
+        </button>
+      )}
+
+      {error && (
+        <p className="wallet-connect-error" role="alert">
+          {friendlyConnectError(error.message)}
+        </p>
+      )}
+    </div>
+  );
 }
 
 function LegacyWalletOptions({ onClose }: { onClose: () => void }) {
@@ -160,31 +259,27 @@ function LegacyWalletOptions({ onClose }: { onClose: () => void }) {
 function PrivyModalSignIn({ onClose }: { onClose: () => void }) {
   const { ready } = usePrivy();
 
-  if (!ready) {
-    return (
-      <p className="mt-4 text-xs text-muted" role="status">
-        Preparing sign-in…
-      </p>
-    );
-  }
-
   return (
     <>
       <p className="wallet-connect-fast-label">Recommended on desktop, usually under 10s</p>
-      <PrivyWalletLoginButton onClose={onClose} disabled={false} />
+      {ready ? (
+        <PrivyWalletLoginButton onClose={onClose} disabled={false} />
+      ) : (
+        <WagmiWalletConnectActions onClose={onClose} />
+      )}
       <p className="wallet-connect-divider">or sign in with email / Google</p>
       <p className="wallet-connect-slow-hint text-xs text-muted">
         Email creates a Privy wallet (first time can take 30–90s). Use MetaMask above if
         you&apos;re in a hurry.
       </p>
-      <PrivyLoginOptions onClose={onClose} />
+      {ready ? <PrivyLoginOptions onClose={onClose} /> : <PrivySocialSkeleton />}
       <div className="wallet-sheet-note">
         <strong>GoodDollar covers gas</strong>
         <span className="wallet-sheet-note-detail">
           WHEN YOU CLAIM: SAME AS GOODWALLET. NO CELO NEEDED TO START.
         </span>
       </div>
-      <PrivyResetSignIn />
+      {ready ? <PrivyResetSignIn /> : null}
     </>
   );
 }

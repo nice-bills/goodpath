@@ -51,6 +51,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="dns-prefetch" href="https://auth.privy.io" />
+        <link rel="preconnect" href="https://auth.privy.io" crossOrigin="anonymous" />
+      </head>
       <body
         className={`${jakarta.variable} ${instrument.variable} ${plexMono.variable} antialiased`}
         suppressHydrationWarning
