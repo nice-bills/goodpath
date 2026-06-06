@@ -23,7 +23,30 @@ cd /path/to/goodpath/apps/web
 npx vercel@latest domains add goodpath-app.vercel.app
 ```
 
-## CLI deploy
+## Continuous deployment (GitHub Actions)
+
+Every push to **`main`** runs [`.github/workflows/deploy-production.yml`](../.github/workflows/deploy-production.yml):
+
+1. **`npx convex deploy`** → production Convex (`original-cod-804.convex.cloud`)
+2. **`npx vercel deploy --prod`** → Vercel `goodpath` project
+3. Re-aliases **`goodpath-app.vercel.app`** to the new deployment
+
+### One-time: GitHub secrets
+
+In **GitHub → nice-bills/goodpath → Settings → Secrets and variables → Actions**, add:
+
+| Secret | Where to get it |
+|--------|-----------------|
+| `CONVEX_DEPLOY_KEY` | [Convex dashboard](https://dashboard.convex.dev) → **goodpath-de170** → Settings → **Deploy keys** → **Generate Production Deploy Key** |
+| `VERCEL_TOKEN` | [vercel.com/account/tokens](https://vercel.com/account/tokens) → Create token (scope: deploy) |
+| `VERCEL_ORG_ID` | Vercel → Team settings → **team_SZu6NDEvr72dzqVTJL8ILliE** (or copy from `.vercel/project.json` after `vercel link`) |
+| `VERCEL_PROJECT_ID` | Vercel → **goodpath** project → Settings → **prj_gXx0Oxxtvwsqa5mbrN4JdNLnShPC** |
+
+After secrets are set, merge to `main` — no manual `vercel deploy` or `convex deploy` needed.
+
+Workflow runs: **Actions** tab on GitHub. Failed deploys do not roll back the previous live site.
+
+## CLI deploy (manual)
 
 Link once from repo root (`npx vercel@latest link`). The Vercel project must use **Root Directory** `apps/web` (Dashboard → Settings, or API `rootDirectory` + `sourceFilesOutsideRootDirectory: true`).
 

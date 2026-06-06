@@ -1,0 +1,72 @@
+# Deploy Convex + Vercel production when changes land on main.
+#
+# Required GitHub repo secrets (Settings → Secrets and variables → Actions):
+#   CONVEX_DEPLOY_KEY   — Convex dashboard → Project → Settings → Deploy keys → Production
+#   VERCEL_TOKEN        — https://vercel.com/account/tokens
+#   VERCEL_ORG_ID       — team id (Vercel project settings)
+#   VERCEL_PROJECT_ID   — project id for `goodpath`
+#
+# See docs/VERCEL_DEPLOY.md § Continuous deployment
+
+name: Deploy production
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy-convex:
+    name: Convex production
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Deploy Convex functions
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+        run: npx convex deploy --yes
+
+  deploy-vercel:
+    name: Vercel production
+    runs-on: ubuntu-latest
+    needs: deploy-convex
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel and update alias
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+          OUTPUT="$(npx vercel@54.9.1 deploy --prod --yes --token "${{ secrets.VERCEL_TOKEN }}" 2>&1)"
+          echo "$OUTPUT"
+          DEPLOY_URL="$(echo "$OUTPUT" | grep -oE 'https://[a-z0-9-]+-[a-z0-9-]+\.vercel\.app' | tail -1)"
+          if [ -z "$DEPLOY_URL" ]; then
+            echo "Could not parse deployment URL from Vercel CLI output"
+            exit 1
+          fi
+          npx vercel@54.9.1 alias set "$DEPLOY_URL" goodpath-app.vercel.app --token "${{ secrets.VERCEL_TOKEN }}"
