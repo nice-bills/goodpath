@@ -68,11 +68,13 @@ export function TipAction({
         disabled={transfer.busy || status !== "ready" || !transfer.walletReady}
         className="btn-primary mt-4 w-full disabled:opacity-50"
       >
-        {transfer.busy && transfer.gasPhase !== "idle"
-          ? "Preparing gas…"
-          : transfer.busy
-            ? "Sending…"
-            : `Tip ${MIN_TIP_G} G$`}
+        {transfer.busy && transfer.confirming
+          ? "Confirming on Celo…"
+          : transfer.busy && transfer.gasPhase !== "idle"
+            ? "Preparing gas…"
+            : transfer.busy
+              ? "Sending…"
+              : `Tip ${MIN_TIP_G} G$`}
       </button>
       {transfer.gasPhase === "failed" && (
         <a
@@ -93,6 +95,16 @@ export function TipAction({
         >
           View transaction
         </a>
+      )}
+      {transfer.error && displayHash && (
+        <button
+          type="button"
+          onClick={() => void transfer.retryProof()}
+          disabled={transfer.busy}
+          className="btn-secondary mt-3 w-full text-xs disabled:opacity-50"
+        >
+          {transfer.confirming ? "Confirming on Celo…" : "Confirm tip (retry without sending)"}
+        </button>
       )}
       {transfer.error && <QuestErrorAlert error={transfer.error} />}
     </QuestPanel>

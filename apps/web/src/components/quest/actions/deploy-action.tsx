@@ -10,6 +10,7 @@ import {
   isConfiguredEthAddress,
 } from "@goodpath/shared";
 import { CELO_FAUCET_URL } from "@/lib/gooddollar-gas";
+import { waitForCeloTxReceipt } from "@/lib/celo-public-client";
 import { gDollarAddress } from "@/lib/gd-contracts";
 import {
   MIN_DEPLOY_G,
@@ -141,6 +142,10 @@ export function DeployAction({
           setTxHash(hash);
           if (quest.completed) return;
           try {
+            const receipt = await waitForCeloTxReceipt(hash);
+            if (receipt.status !== "success") {
+              throw new Error("Transaction failed on Celo");
+            }
             await markComplete(address, "deploy", {
               txHash: hash,
               meta: DEPLOY_STREAM_META,

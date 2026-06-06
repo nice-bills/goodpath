@@ -112,11 +112,13 @@ export function SupportAction({
         disabled={transfer.busy || !walletReady || !recipientConfigured}
         className="btn-primary mt-4 w-full disabled:opacity-50"
       >
-        {transfer.busy && transfer.gasPhase !== "idle"
-          ? "Preparing gas…"
-          : transfer.busy
-            ? "Sending…"
-            : `Send ${MIN_SUPPORT_G} G$ support`}
+        {transfer.busy && transfer.confirming
+          ? "Confirming on Celo…"
+          : transfer.busy && transfer.gasPhase !== "idle"
+            ? "Preparing gas…"
+            : transfer.busy
+              ? "Sending…"
+              : `Send ${MIN_SUPPORT_G} G$ support`}
       </button>
       {transfer.gasPhase === "failed" && (
         <a
@@ -150,6 +152,16 @@ export function SupportAction({
         >
           View transaction
         </a>
+      )}
+      {transfer.error && displayHash && (
+        <button
+          type="button"
+          onClick={() => void transfer.retryProof()}
+          disabled={transfer.busy}
+          className="btn-secondary mt-3 w-full text-xs disabled:opacity-50"
+        >
+          {transfer.confirming ? "Confirming on Celo…" : "Confirm support (retry without sending)"}
+        </button>
       )}
       {(transfer.error || ackError) && (
         <QuestErrorAlert error={transfer.error ?? ackError!} />

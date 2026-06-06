@@ -113,6 +113,21 @@ export function formatTipError(raw: string): QuestErrorDisplay {
     };
   }
 
+  if (
+    lower.includes("invalid g$ tip") ||
+    lower.includes("server error") ||
+    lower.includes("transaction receipt") ||
+    lower.includes("rejected transfer proof")
+  ) {
+    return {
+      tone: "error",
+      title: "Tip sent, proof pending",
+      message:
+        "Your G$ may already be on Celo. We tried to verify before the transaction finished mining.",
+      hint: 'Tap "Confirm tip" below to retry without sending again.',
+    };
+  }
+
   return {
     tone: "error",
     title: "Tip didn't go through",
