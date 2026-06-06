@@ -52,7 +52,10 @@ jobs:
       - name: Deploy Convex functions
         env:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
-        run: npx convex deploy --yes
+        run: |
+          # Avoid local .env CONVEX_DEPLOYMENT overriding the deploy key target in CI.
+          unset CONVEX_DEPLOYMENT
+          npx convex deploy --yes --verbose
 
   deploy-vercel:
     name: Vercel production
