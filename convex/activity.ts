@@ -1,5 +1,6 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
+import { benchmarkHandle, seededLabelByAddress } from "./lib/seeded";
 
 const runEvent = v.object({
   id: v.string(),
@@ -8,6 +9,7 @@ const runEvent = v.object({
   questId: v.string(),
   completedAt: v.string(),
   hasProof: v.boolean(),
+  isSeeded: v.boolean(),
 });
 
 const QUEST_VERBS: Record<string, string> = {
@@ -47,13 +49,15 @@ export const recentRuns = query({
     for (const row of rows) {
       if (row.completedAt >= cutoff) last24hCount += 1;
       if (events.length >= limit) continue;
+      const benchLabel = seededLabelByAddress(row.address);
       events.push({
         id: row._id,
-        handle: shortAddress(row.address),
+        handle: benchLabel ? benchmarkHandle(benchLabel) : shortAddress(row.address),
         verb: QUEST_VERBS[row.questId] ?? "moved on the path",
         questId: row.questId,
         completedAt: row.completedAt,
         hasProof: Boolean(row.txHash),
+        isSeeded: Boolean(benchLabel),
       });
     }
 

@@ -58,5 +58,5 @@ SMOKE_URL=https://your-app pnpm --filter @goodpath/web smoke
 
 ## Docs
 
-- [`docs/PATH_A_B_CLOSEOUT.md`](PATH_A_B_CLOSEOUT.md) — what’s done vs what you must run on mainnet  
-- [`docs/DEPLOY.md`](DEPLOY.md) · [`docs/E2E_PRODUCTION.md`](E2E_PRODUCTION.md) · [`docs/AGENT_HANDOFF.md`](AGENT_HANDOFF.md)
+- [`PATH_A_B_CLOSEOUT.md`](PATH_A_B_CLOSEOUT.md) — what’s done vs what you must run on mainnet  
+- [`../DEPLOY.md`](../DEPLOY.md) · [`E2E_PRODUCTION.md`](E2E_PRODUCTION.md) · [`AGENT_HANDOFF.md`](AGENT_HANDOFF.md)

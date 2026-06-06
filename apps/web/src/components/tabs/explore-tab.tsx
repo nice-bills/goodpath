@@ -17,22 +17,29 @@ function FlexCard({
   kind,
   when,
   hasProof,
+  isSeeded = false,
 }: {
   handle: string;
   headline: string;
   kind: string;
   when: string;
   hasProof: boolean;
+  isSeeded?: boolean;
 }) {
   return (
     <li className="explore-flex-card">
       <div className="explore-flex-top">
         <span className="explore-flex-avatar font-mono">{handle.slice(0, 2)}</span>
-        {kind === "path_complete" ? (
-          <span className="explore-flex-badge explore-flex-badge-gold">Path flex</span>
-        ) : (
-          <span className="explore-flex-badge">Flex</span>
-        )}
+        <div className="explore-flex-badges">
+          {kind === "path_complete" ? (
+            <span className="explore-flex-badge explore-flex-badge-gold">Path flex</span>
+          ) : (
+            <span className="explore-flex-badge">Flex</span>
+          )}
+          {isSeeded ? (
+            <span className="explore-flex-badge explore-flex-badge-bench">Bench</span>
+          ) : null}
+        </div>
       </div>
       <p className="explore-flex-handle font-mono">{handle}</p>
       <p className="explore-flex-headline">{headline}</p>
@@ -61,14 +68,14 @@ function LeaderboardRow({
   isSeeded: boolean;
   isViewer: boolean;
 }) {
-  const name = displayLabel ?? handle;
+  const name = isSeeded ? handle : (displayLabel ?? handle);
   return (
     <li className={`explore-leader-row ${isViewer ? "explore-leader-row-you" : ""}`}>
       <span className="explore-leader-rank font-mono">#{rank}</span>
       <div className="explore-leader-main min-w-0">
         <p className="explore-leader-name">
           {isViewer ? "You" : name}
-          {isSeeded ? <span className="explore-leader-seed"> benchmark</span> : null}
+          {isSeeded ? <span className="explore-leader-seed"> · bench</span> : null}
         </p>
         <p className="explore-leader-meta">{divisionLabel}</p>
       </div>
@@ -140,6 +147,7 @@ export function ExploreTab() {
                 kind={f.kind}
                 when={f.completedAt}
                 hasProof={f.hasProof}
+                isSeeded={f.isSeeded}
               />
             ))}
           </ul>

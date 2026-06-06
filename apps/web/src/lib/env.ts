@@ -50,3 +50,8 @@ export const RECEIPT_CONTRACT_ADDRESS = process.env
 export const DEMO_MODE =
   process.env.NEXT_PUBLIC_DEMO_MODE === "true" ||
   process.env.NEXT_PUBLIC_DEMO_MODE === "1";
+
+/** Judge presentation: land on Explore, expect `seed:judgeDemo` data. */
+export const JUDGE_DEMO =
+  process.env.NEXT_PUBLIC_JUDGE_DEMO === "true" ||
+  process.env.NEXT_PUBLIC_JUDGE_DEMO === "1";

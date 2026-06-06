@@ -1,6 +1,7 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
 import { divisionLabel, type LeagueDivision } from "@goodpath/shared";
+import { benchmarkHandle, seededLabelByAddress } from "./lib/seeded";
 
 const leaderRow = v.object({
   id: v.string(),
@@ -21,6 +22,7 @@ const flexItem = v.object({
   headline: v.string(),
   completedAt: v.string(),
   hasProof: v.boolean(),
+  isSeeded: v.boolean(),
 });
 
 function shortAddress(address: string): string {
@@ -75,7 +77,9 @@ export const weeklyLeaderboard = query({
       return {
         id: row._id,
         rank: index + 1,
-        handle: shortAddress(row.address),
+        handle: row.isSeeded
+          ? benchmarkHandle(row.label)
+          : shortAddress(row.address),
         address: row.address,
         points: row.points,
         division: row.division,
@@ -105,31 +109,36 @@ export const recentFlexes = query({
       headline: string;
       completedAt: string;
       hasProof: boolean;
+      isSeeded: boolean;
     }> = [];
 
     const profiles = await ctx.db.query("profiles").order("desc").take(40);
     for (const profile of profiles) {
       if (!profile.pathCompletedAt) continue;
+      const benchLabel = seededLabelByAddress(profile.address);
       flexes.push({
         id: `path-${profile._id}`,
-        handle: shortAddress(profile.address),
+        handle: benchLabel ? benchmarkHandle(benchLabel) : shortAddress(profile.address),
         kind: "path_complete",
         headline: FLEX_HEADLINES.path_complete!,
         completedAt: profile.pathCompletedAt,
         hasProof: true,
+        isSeeded: Boolean(benchLabel),
       });
     }
 
     const quests = await ctx.db.query("questCompletions").order("desc").take(60);
     for (const row of quests) {
       if (!["deploy", "tip", "claim", "support"].includes(row.questId)) continue;
+      const benchLabel = seededLabelByAddress(row.address);
       flexes.push({
         id: row._id,
-        handle: shortAddress(row.address),
+        handle: benchLabel ? benchmarkHandle(benchLabel) : shortAddress(row.address),
         kind: row.questId,
         headline: FLEX_HEADLINES[row.questId] ?? "moved on the path",
         completedAt: row.completedAt,
         hasProof: Boolean(row.txHash),
+        isSeeded: Boolean(benchLabel),
       });
     }
 

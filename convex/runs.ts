@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { parseWalletAddress } from "./lib/address";
+import { benchmarkHandle, seededLabelByAddress } from "./lib/seeded";
 
 const MAX_TITLE = 80;
 const MIN_TITLE = 3;
@@ -157,13 +158,16 @@ export const listRecentPublicRuns = query({
 
     return {
       periodId,
-      runs: rows.map((row) => ({
-        id: row._id,
-        handle: shortAddress(row.address),
-        title: row.title,
-        periodId: row.periodId,
-        createdAt: row.createdAt,
-      })),
+      runs: rows.map((row) => {
+        const benchLabel = seededLabelByAddress(row.address);
+        return {
+          id: row._id,
+          handle: benchLabel ? benchmarkHandle(benchLabel) : shortAddress(row.address),
+          title: row.title,
+          periodId: row.periodId,
+          createdAt: row.createdAt,
+        };
+      }),
     };
   },
 });

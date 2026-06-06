@@ -20,6 +20,7 @@ import type * as lib_proofType from "../lib/proofType.js";
 import type * as lib_questComplete from "../lib/questComplete.js";
 import type * as lib_referrals from "../lib/referrals.js";
 import type * as lib_returns from "../lib/returns.js";
+import type * as lib_seeded from "../lib/seeded.js";
 import type * as profiles from "../profiles.js";
 import type * as questApply from "../questApply.js";
 import type * as quests from "../quests.js";
@@ -56,6 +57,7 @@ declare const fullApi: ApiFromModules<{
   "lib/questComplete": typeof lib_questComplete;
   "lib/referrals": typeof lib_referrals;
   "lib/returns": typeof lib_returns;
+  "lib/seeded": typeof lib_seeded;
   profiles: typeof profiles;
   questApply: typeof questApply;
   quests: typeof quests;

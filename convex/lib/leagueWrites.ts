@@ -14,16 +14,7 @@ import {
   loadCompletions,
 } from "./leagueLogic";
 import { countReferralsCompletedThisWeek } from "./referrals";
-
-/** Deterministic pseudo-address for seeded cohort rows (Convex has no Node `Buffer`). */
-function seededIdToAddress(id: string): string {
-  const bytes = new TextEncoder().encode(id);
-  let hex = "";
-  for (const byte of bytes) {
-    hex += byte.toString(16).padStart(2, "0");
-  }
-  return `0x${hex.padEnd(40, "0").slice(0, 40)}`.toLowerCase();
-}
+import { seededIdToAddress } from "./seeded";
 
 export async function ensureSeason(
   ctx: MutationCtx,

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  /* GoodPath — editorial utilitarian (brand.md) */
+  /* GoodPath — editorial utilitarian (design.md) */
   --color-paper: #ffffff;
   --color-ink: #111111;
   --color-rule: #e3e2de;
@@ -806,6 +806,13 @@ body {
   gap: 8px;
 }
 
+.explore-flex-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
 .explore-flex-avatar {
   display: grid;
   place-items: center;
@@ -831,6 +838,22 @@ body {
 .explore-flex-badge-gold {
   background: var(--vibe-pop);
   color: var(--vibe-pop-ink);
+}
+
+.explore-flex-badge-bench {
+  background: var(--surface-muted);
+  color: var(--muted);
+}
+
+.vibe-story-bench {
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .explore-flex-handle {
