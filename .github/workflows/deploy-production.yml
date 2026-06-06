@@ -46,6 +46,9 @@ jobs:
         env:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
         run: |
+          # GitHub secret paste often adds a trailing newline, which breaks Convex auth.
+          CONVEX_DEPLOY_KEY="$(printf '%s' "$CONVEX_DEPLOY_KEY" | tr -d '\n\r')"
+          export CONVEX_DEPLOY_KEY
           if [ -z "$CONVEX_DEPLOY_KEY" ]; then
             echo "::error::CONVEX_DEPLOY_KEY secret is missing. Create a Production deploy key in the Convex dashboard."
             exit 1
@@ -73,6 +76,8 @@ jobs:
         run: |
           # Avoid local .env CONVEX_DEPLOYMENT overriding the deploy key target in CI.
           unset CONVEX_DEPLOYMENT
+          CONVEX_DEPLOY_KEY="$(printf '%s' "$CONVEX_DEPLOY_KEY" | tr -d '\n\r')"
+          export CONVEX_DEPLOY_KEY
           npx convex deploy --yes --verbose
 
   deploy-vercel:
