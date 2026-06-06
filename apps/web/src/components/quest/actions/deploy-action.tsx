@@ -189,7 +189,7 @@ export function DeployAction({
     return (
       <QuestPanel quest={quest} variant={variant}>
         <p className="mt-3 text-xs text-muted">
-          Finish the 5-step path first, then put idle G$ to work.
+          Verify your identity first, then put idle G$ to work.
         </p>
       </QuestPanel>
     );

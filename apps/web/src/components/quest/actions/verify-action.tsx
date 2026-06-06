@@ -39,7 +39,7 @@ export function VerifyAction({
   if (!quest.unlocked) {
     return (
       <QuestPanel quest={quest} variant={variant}>
-        <p className="mt-3 text-xs text-muted">Complete prior quests first.</p>
+        <p className="mt-3 text-xs text-muted">Connect your wallet first.</p>
       </QuestPanel>
     );
   }

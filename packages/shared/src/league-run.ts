@@ -145,7 +145,7 @@ export function nextMoveHint(input: {
   }
   switch (next.id) {
     case "verify":
-      return "Verify on Celo to unlock claim and league points.";
+      return "Verify on Celo to unlock the rest of your path.";
     case "claim":
       return "Claim daily G$. Entry to the run, not the finish line.";
     case "tip":

@@ -8,19 +8,14 @@ export function completionsFromIds(completedIds: string[]): CompletionMap {
   return map;
 }
 
-function coreCompletions(completions: CompletionMap): CompletionMap {
-  const map: CompletionMap = {};
-  for (const id of CORE_PATH_QUEST_IDS) {
-    if (completions[id]) map[id] = true;
-  }
-  return map;
-}
-
 export function isCorePathComplete(completions: CompletionMap): boolean {
   return CORE_PATH_QUEST_IDS.every((id) => Boolean(completions[id]));
 }
 
-/** Prior quests by `order` must be completed before this one. */
+/**
+ * Connect → verify, then every remaining quest is open (any order).
+ * Deploy still counts as post-path for progress %, but is not gated behind tip/support.
+ */
 export function prerequisitesMet(
   questId: QuestId,
   completions: CompletionMap,
@@ -28,23 +23,18 @@ export function prerequisitesMet(
   const quest = QUESTS.find((q) => q.id === questId);
   if (!quest) return { ok: false, missing: "connect" };
 
-  if (quest.postPath) {
-    if (!isCorePathComplete(completions)) {
-      const missing =
-        CORE_PATH_QUEST_IDS.find((id) => !completions[id]) ?? "support";
-      return { ok: false, missing };
-    }
-    return { ok: true };
+  if (questId === "connect") return { ok: true };
+
+  if (!completions.connect) {
+    return { ok: false, missing: "connect" };
   }
 
-  const core = coreCompletions(completions);
-  for (const prior of QUESTS) {
-    if (prior.postPath) break;
-    if (prior.order >= quest.order) break;
-    if (!core[prior.id]) {
-      return { ok: false, missing: prior.id };
-    }
+  if (questId === "verify") return { ok: true };
+
+  if (!completions.verify) {
+    return { ok: false, missing: "verify" };
   }
+
   return { ok: true };
 }
 

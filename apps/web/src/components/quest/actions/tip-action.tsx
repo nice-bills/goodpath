@@ -54,7 +54,7 @@ export function TipAction({
   if (!quest.unlocked) {
     return (
       <QuestPanel quest={quest} variant={variant}>
-        <p className="mt-3 text-xs text-muted">Claim daily G$ first.</p>
+        <p className="mt-3 text-xs text-muted">Verify your identity first.</p>
       </QuestPanel>
     );
   }

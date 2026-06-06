@@ -2727,6 +2727,10 @@ button,
   color: #fffaf0;
 }
 
+.quest-sticker-icon.is-open {
+  background: var(--surface);
+}
+
 .quest-sticker-icon.is-active {
   background: var(--streak-soft);
 }

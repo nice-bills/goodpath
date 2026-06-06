@@ -26,7 +26,7 @@ export interface QuestDefinition {
   /** Min G$ for transfer quests (human units) */
   minAmount?: string;
   externalUrl?: string;
-  /** Post-path only — unlocked after core path is complete */
+  /** Optional post-path quest — excluded from core 100% progress, open after verify */
   postPath?: boolean;
 }
 
