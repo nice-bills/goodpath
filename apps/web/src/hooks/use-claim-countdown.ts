@@ -6,6 +6,7 @@ import { hoursUntilClaimReset } from "@/lib/format";
 export type ClaimCountdown = {
   hours: number;
   minutes: number;
+  seconds: number;
   label: string;
   shortLabel: string;
 };
@@ -15,12 +16,18 @@ function pad2(n: number): string {
 }
 
 function toCountdown(): ClaimCountdown {
-  const { hours, minutes } = hoursUntilClaimReset();
+  const { hours, minutes, seconds } = hoursUntilClaimReset();
   return {
     hours,
     minutes,
-    label: `${hours}h ${pad2(minutes)}m`,
-    shortLabel: hours > 0 ? `${hours}h` : `${minutes}m`,
+    seconds,
+    label: `${hours}h ${pad2(minutes)}m ${pad2(seconds)}s`,
+    shortLabel:
+      hours > 0
+        ? `${hours}h ${pad2(minutes)}m`
+        : minutes > 0
+          ? `${minutes}m ${pad2(seconds)}s`
+          : `${seconds}s`,
   };
 }
 

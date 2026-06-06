@@ -5,14 +5,25 @@ import { useClaimCountdown } from "@/hooks/use-claim-countdown";
 import { TabLink } from "@/components/tab-link";
 import type { ProfileResponse } from "@/lib/api";
 
-function CountdownDigits({ hours, minutes }: { hours: number; minutes: number }) {
+function CountdownDigits({
+  hours,
+  minutes,
+  seconds,
+}: {
+  hours: number;
+  minutes: number;
+  seconds: number;
+}) {
   const h = String(hours).padStart(2, "0");
   const m = String(minutes).padStart(2, "0");
+  const s = String(seconds).padStart(2, "0");
   return (
     <div className="vibe-countdown-digits font-mono" aria-hidden>
       <span className="vibe-countdown-cell">{h}</span>
       <span className="vibe-countdown-sep">:</span>
       <span className="vibe-countdown-cell">{m}</span>
+      <span className="vibe-countdown-sep">:</span>
+      <span className="vibe-countdown-cell">{s}</span>
     </div>
   );
 }
@@ -50,7 +61,11 @@ export function ClaimCountdownStrip({ profile }: { profile?: ProfileResponse }) 
           )}
         </div>
         <div className="vibe-countdown-row">
-          <CountdownDigits hours={countdown.hours} minutes={countdown.minutes} />
+          <CountdownDigits
+            hours={countdown.hours}
+            minutes={countdown.minutes}
+            seconds={countdown.seconds}
+          />
           <span className="sr-only">{countdown.label} until claim window</span>
           {claimDue ? (
             <p className="vibe-countdown-copy">until reset</p>

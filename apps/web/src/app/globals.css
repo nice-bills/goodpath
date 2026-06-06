@@ -763,11 +763,11 @@ body {
 
 .vibe-countdown-cell {
   min-width: 2.1ch;
-  padding: 4px 6px;
+  padding: 4px 5px;
   border-radius: 8px;
   border: 1.5px solid var(--foreground);
   background: var(--surface);
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 800;
   letter-spacing: -0.04em;
   color: var(--foreground);
@@ -775,7 +775,7 @@ body {
 }
 
 .vibe-countdown-sep {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--vibe-pop-ink);
   animation: countdown-blink 1s step-end infinite;
