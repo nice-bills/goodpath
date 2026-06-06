@@ -37,7 +37,7 @@ In **GitHub → nice-bills/goodpath → Settings → Secrets and variables → A
 
 | Secret | Where to get it |
 |--------|-----------------|
-| `CONVEX_DEPLOY_KEY` | [Convex dashboard](https://dashboard.convex.dev) → **goodpath-de170** → Settings → **Deploy keys** → **Generate Production Deploy Key** |
+| `CONVEX_DEPLOY_KEY` | [Convex dashboard](https://dashboard.convex.dev) → **goodpath-de170** → Settings → **Deploy keys** → **Generate Production Deploy Key** (not Preview; paste the full key with no extra spaces) |
 | `VERCEL_TOKEN` | [vercel.com/account/tokens](https://vercel.com/account/tokens) → Create token (scope: deploy) |
 | `VERCEL_ORG_ID` | Vercel → Team settings → **team_SZu6NDEvr72dzqVTJL8ILliE** (or copy from `.vercel/project.json` after `vercel link`) |
 | `VERCEL_PROJECT_ID` | Vercel → **goodpath** project → Settings → **prj_gXx0Oxxtvwsqa5mbrN4JdNLnShPC** |
