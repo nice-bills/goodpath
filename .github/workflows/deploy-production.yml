@@ -14,6 +14,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 concurrency:
   group: production-deploy
@@ -47,18 +48,24 @@ jobs:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
         run: |
           unset CONVEX_DEPLOYMENT
-          # GitHub secret paste often adds a trailing newline, which breaks Convex auth.
-          CONVEX_DEPLOY_KEY="$(printf '%s' "$CONVEX_DEPLOY_KEY" | tr -d '[:space:]')"
+          # Strip BOM, newlines, and other invisible paste artifacts from GitHub secrets.
+          CONVEX_DEPLOY_KEY="$(python3 -c "import os; print(os.environ['CONVEX_DEPLOY_KEY'].strip().replace('\ufeff',''), end='')")"
           export CONVEX_DEPLOY_KEY
+          KEY_LEN="${#CONVEX_DEPLOY_KEY}"
+          KEY_PREFIX="${CONVEX_DEPLOY_KEY%%|*}"
+          echo "Convex deploy key: prefix=${KEY_PREFIX} length=${KEY_LEN}"
           if [ -z "$CONVEX_DEPLOY_KEY" ]; then
             echo "::error::CONVEX_DEPLOY_KEY secret is missing."
             exit 1
           fi
-          if [[ "$CONVEX_DEPLOY_KEY" != prod:* ]]; then
-            echo "::error::CONVEX_DEPLOY_KEY must be a prod:… key from original-cod-804 (length ${#CONVEX_DEPLOY_KEY})."
+          if [[ "$KEY_PREFIX" != "prod:original-cod-804" ]]; then
+            echo "::error::CONVEX_DEPLOY_KEY must be the Production key from original-cod-804 (got prefix '${KEY_PREFIX}', length ${KEY_LEN})."
             exit 1
           fi
-          echo "Convex deploy key length: ${#CONVEX_DEPLOY_KEY}"
+          if [[ "$KEY_LEN" -ne 78 ]]; then
+            echo "::error::CONVEX_DEPLOY_KEY length is ${KEY_LEN}; expected 78. Delete the GitHub secret and paste the full key with no extra spaces or quotes."
+            exit 1
+          fi
           npx convex deploy --yes --verbose
 
   deploy-vercel:
