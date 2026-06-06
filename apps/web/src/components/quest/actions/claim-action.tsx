@@ -62,7 +62,7 @@ export function ClaimAction({
   const onWrongChain =
     status === "ready" && chainId !== undefined && chainId !== celo.id;
   const needsFv =
-    forceFv || fvFlow.needsVerification || (fvFlow.whitelisted === null && fvFlow.checking);
+    forceFv || fvFlow.needsVerification || fvFlow.whitelisted === null;
 
   const handleClaim = useCallback(async () => {
     if (!claimSDK || !address) return;
@@ -136,14 +136,10 @@ export function ClaimAction({
   if (needsFv && !fvFlow.whitelisted) {
     return (
       <QuestPanel quest={quest} variant={variant}>
-        {fvFlow.whitelisted === null && fvFlow.checking ? (
-          <p className="mt-3 text-xs text-muted">Checking identity on-chain…</p>
-        ) : (
-          <FvVerificationOptions
-            flow={fvFlow}
-            intro="GoodDollar needs face verification before you can claim. Scan the QR to finish on your phone. Usually faster than this browser."
-          />
-        )}
+        <FvVerificationOptions
+          flow={fvFlow}
+          intro="GoodDollar needs face verification before you can claim. Scan the QR to finish on your phone. Usually faster than this browser."
+        />
       </QuestPanel>
     );
   }

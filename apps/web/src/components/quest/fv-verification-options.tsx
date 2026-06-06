@@ -46,13 +46,16 @@ export function FvVerificationOptions({
   return (
     <>
       <p className="mt-3 text-xs leading-relaxed text-muted">
-        {sdkLoading
-          ? "Loading your wallet and GoodDollar identity tools. Email sign-in can take 10–20 seconds the first time."
-          : intro ??
-            (showPhoneQrOption
-              ? "Face verification is required. On a laptop, scan the QR to finish on your phone. Often easier than this browser."
-              : "Face verification is required before you can continue.")}
+        {intro ??
+          (showPhoneQrOption
+            ? "Face verification is required. On a laptop, scan the QR to finish on your phone. Often easier than this browser."
+            : "Face verification is required before you can continue.")}
       </p>
+      {sdkLoading && (
+        <p className="mt-2 text-xs text-muted-dim">
+          Loading wallet and GoodDollar identity tools…
+        </p>
+      )}
       <div className="mt-3">
         <PlatformGuide variant="compact" />
       </div>

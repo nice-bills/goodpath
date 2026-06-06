@@ -35,6 +35,8 @@ export function useFvVerification({
   const [fvQrLink, setFvQrLink] = useState<string | null>(null);
   const [pollError, setPollError] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const onVerifiedRef = useRef(onVerified);
+  onVerifiedRef.current = onVerified;
 
   const onWrongChain =
     hasAddress && isConnected && chainId !== undefined && chainId !== celo.id;
@@ -42,28 +44,32 @@ export function useFvVerification({
   const showPhoneQrOption = !mobile;
   const qrBlocked = isLocalOnlyOrigin();
 
-  const syncComplete = useCallback(async (): Promise<boolean> => {
-    if (!enabled || !identitySDK || !address) return false;
-    setChecking(true);
-    setPollError(null);
-    try {
-      const { isWhitelisted } = await identitySDK.getWhitelistedRoot(address);
-      setWhitelisted(isWhitelisted);
-      if (isWhitelisted) {
-        setFvQrLink(null);
-        onVerified?.();
-        return true;
+  const syncComplete = useCallback(
+    async (opts?: { showChecking?: boolean }): Promise<boolean> => {
+      if (!enabled || !identitySDK || !address) return false;
+      const showChecking = opts?.showChecking ?? false;
+      if (showChecking) setChecking(true);
+      setPollError(null);
+      try {
+        const { isWhitelisted } = await identitySDK.getWhitelistedRoot(address);
+        setWhitelisted(isWhitelisted);
+        if (isWhitelisted) {
+          setFvQrLink(null);
+          onVerifiedRef.current?.();
+          return true;
+        }
+        return false;
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Verification check failed";
+        setPollError(msg);
+        if (showChecking) setError(msg);
+        return false;
+      } finally {
+        if (showChecking) setChecking(false);
       }
-      return false;
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "Verification check failed";
-      setPollError(msg);
-      setError(msg);
-      return false;
-    } finally {
-      setChecking(false);
-    }
-  }, [enabled, identitySDK, address, onVerified]);
+    },
+    [enabled, identitySDK, address],
+  );
 
   useEffect(() => {
     if (!enabled || !identitySDK || !address) return;
@@ -176,13 +182,7 @@ export function useFvVerification({
     );
   };
 
-  const signLabel = verifying
-    ? "Approve in wallet…"
-    : sdkLoading
-      ? "Connecting to GoodDollar…"
-      : checking
-        ? "Checking verification status…"
-        : null;
+  const signLabel = verifying ? "Approve in wallet…" : null;
 
   const needsVerification = enabled && whitelisted === false;
 
@@ -203,7 +203,7 @@ export function useFvVerification({
     signLabel,
     identitySDK,
     address,
-    syncComplete,
+    syncComplete: () => syncComplete({ showChecking: true }),
     handleVerifyThisDevice,
     handleVerifyOnPhone,
     handleSwitchChain,
