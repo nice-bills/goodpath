@@ -58,6 +58,14 @@ jobs:
             echo "::error::CONVEX_DEPLOY_KEY is a Preview key. Generate a Production deploy key from original-cod-804 instead."
             exit 1
           fi
+          if [[ "$CONVEX_DEPLOY_KEY" == dev:* ]]; then
+            echo "::error::CONVEX_DEPLOY_KEY is a Dev key (dev:…). Use a Production deploy key (prod:…) from original-cod-804."
+            exit 1
+          fi
+          if [[ "$CONVEX_DEPLOY_KEY" != prod:* ]]; then
+            echo "::error::CONVEX_DEPLOY_KEY must start with prod:. Generate it from the production deployment original-cod-804 settings."
+            exit 1
+          fi
 
       - name: Deploy Convex functions
         env:
