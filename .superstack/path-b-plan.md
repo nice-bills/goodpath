@@ -7,10 +7,10 @@
 - [x] Tab shell, auto gas, Privy createWallet flow
 - [x] `useWalletSession` (disconnected | linking | ready)
 - [x] `pnpm build` passes
-- [ ] One clean E2E on `GOODDOLLAR_ENV=production` (recorded) — [`docs/E2E_PRODUCTION.md`](../docs/E2E_PRODUCTION.md)
+- [ ] One clean E2E on `GOODDOLLAR_ENV=production` (recorded) — [`docs/archive/E2E_PRODUCTION.md`](../docs/archive/E2E_PRODUCTION.md)
 - [ ] Deployed web + API with CORS + Privy origins — [`docs/DEPLOY.md`](../docs/DEPLOY.md)
 
-**Closeout checklist:** [`docs/PATH_A_B_CLOSEOUT.md`](../docs/PATH_A_B_CLOSEOUT.md)
+**Closeout checklist:** [`docs/archive/PATH_A_B_CLOSEOUT.md`](../docs/archive/PATH_A_B_CLOSEOUT.md)
 
 ## Path B (build in order)
 

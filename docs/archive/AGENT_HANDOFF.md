@@ -6,7 +6,7 @@
 
 **Owner goal:** Production-ready for judge selection. Path A must be bulletproof; Path B must prove protocol depth (not “claim + tip + SQLite only”).
 
-**GoodPath 3.0:** See [`docs/architecture/GOODPATH_3.0_HANDOFF.md`](architecture/GOODPATH_3.0_HANDOFF.md) for domain/repository layer, seeded league, migrations, rivals/squads stubs, contract package, and judge demo (`scripts/judge-demo.md`).
+**GoodPath 3.0:** See [`GOODPATH_3.0_HANDOFF.md`](GOODPATH_3.0_HANDOFF.md) for domain/repository layer, seeded league, migrations, rivals/squads stubs, contract package, and judge demo (`scripts/judge-demo.md`).
 
 ---
 

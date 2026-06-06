@@ -1,6 +1,6 @@
 # G$ Path
 
-Gamified **GoodDollar onboarding + weekly G$ run league** for the GoodBuilders hackathon. **2.0:** `docs/GOODPATH_2.0.md` · contract: `packages/contracts` — verify identity, claim daily UBI, tip with G$, support GoodCollective, build a streak. Ends with a shareable **Path Receipt**.
+Gamified **GoodDollar onboarding + weekly G$ run league** for the GoodBuilders hackathon. **Design:** [`design.md`](design.md) · contract: `packages/contracts` — verify identity, claim daily UBI, tip with G$, support GoodCollective, build a streak. Ends with a shareable **Path Receipt**.
 
 ## Pitch (one line)
 
@@ -105,17 +105,14 @@ Tap **Try demo mode** on home — full path + receipt with sample data. Labelled
 pnpm build
 ```
 
-## Production
+## Docs
 
-- **Path A + B closeout:** [`docs/PATH_A_B_CLOSEOUT.md`](docs/PATH_A_B_CLOSEOUT.md)  
-- Deploy: [`docs/DEPLOY.md`](docs/DEPLOY.md)  
-- E2E template: [`docs/E2E_PRODUCTION.md`](docs/E2E_PRODUCTION.md)  
-- Submission copy: [`docs/SUBMISSION.md`](docs/SUBMISSION.md)
+**Index:** [`docs/README.md`](docs/README.md) — what to read vs ignore.
 
-## Agent handoff
-
-**Full context for another agent:** [`docs/AGENT_HANDOFF.md`](docs/AGENT_HANDOFF.md)  
-**Visual roadmap:** [`docs/artifacts/production-and-path-b.html`](docs/artifacts/production-and-path-b.html) (open in browser)
+- Local dev: [`docs/LOCAL_DEV.md`](docs/LOCAL_DEV.md)
+- Judge demo: [`scripts/judge-demo.md`](scripts/judge-demo.md)
+- Deploy (when ready): [`docs/DEPLOY.md`](docs/DEPLOY.md)
+- Archive (handoff / submission): [`docs/archive/`](docs/archive/)
 
 ## Links
 

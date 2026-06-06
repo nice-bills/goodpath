@@ -10,11 +10,13 @@ function LiveEventCard({
   verb,
   when,
   hasProof,
+  isSeeded = false,
 }: {
   handle: string;
   verb: string;
   when: string;
   hasProof: boolean;
+  isSeeded?: boolean;
 }) {
   return (
     <li className="vibe-story-card vibe-story-card-live">
@@ -22,6 +24,7 @@ function LiveEventCard({
         <span className="vibe-story-avatar font-mono text-[11px]" aria-hidden>
           {handle.slice(0, 2)}
         </span>
+        {isSeeded ? <span className="vibe-story-bench">Bench</span> : null}
         {hasProof ? <span className="vibe-story-proof">On-chain</span> : null}
       </div>
       <p className="vibe-story-name font-mono">{handle}</p>
@@ -102,6 +105,7 @@ export function RunPulseFeed({ subtitle }: { subtitle?: string }) {
               verb={e.verb}
               when={formatRelativeTime(e.completedAt)}
               hasProof={e.hasProof}
+              isSeeded={e.isSeeded}
             />
           ))}
         </ul>

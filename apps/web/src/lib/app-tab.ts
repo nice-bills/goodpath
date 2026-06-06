@@ -1,3 +1,5 @@
+import { JUDGE_DEMO } from "@/lib/env";
+
 export type AppTab = "home" | "explore" | "quests" | "celebrate";
 
 export const APP_TABS: AppTab[] = ["home", "explore", "quests", "celebrate"];
@@ -10,6 +12,7 @@ export function parseAppTab(pathname: string, tabParam: string | null): AppTab {
   if (pathname === "/celebrate") return "celebrate";
   if (tabParam === "explore") return "explore";
   if (tabParam === "quests" || tabParam === "celebrate") return tabParam;
+  if (pathname === "/" && JUDGE_DEMO) return "explore";
   return "home";
 }
 

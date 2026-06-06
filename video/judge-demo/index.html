@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@600;700&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --canvas: #f7f6f3;
+        --surface: #ffffff;
+        --ink: #111111;
+        --rule: #e3e2de;
+        --accent: #007a55;
+        --accent-soft: #e6f4ef;
+        --accent-text: #005c41;
+        --muted: #5c5c58;
+        --pop: #f2c94c;
+        --pop-ink: #3d3200;
+        --ease: cubic-bezier(0.32, 0.72, 0, 1);
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--canvas);
+        font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+        color: var(--ink);
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        visibility: hidden;
+      }
+      .display {
+        font-family: "Instrument Serif", Georgia, serif;
+        font-weight: 400;
+        letter-spacing: -0.03em;
+        line-height: 1.05;
+      }
+      .mono {
+        font-family: "IBM Plex Mono", monospace;
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* Beat 1 */
+      #beat-hook {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        text-align: center;
+        padding: 120px;
+      }
+      .logo-lockup {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      .logo-mark {
+        width: 88px;
+        height: 88px;
+        border-radius: 24px;
+        background: var(--accent);
+        display: grid;
+        place-items: center;
+      }
+      .logo-word {
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: 64px;
+        font-style: italic;
+      }
+      #hook-title {
+        font-size: 108px;
+        max-width: 14ch;
+      }
+      #hook-sub {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--muted);
+        max-width: 36ch;
+      }
+      .hook-chips {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .chip {
+        padding: 12px 22px;
+        border-radius: 999px;
+        border: 1.5px solid var(--ink);
+        background: var(--surface);
+        font-size: 20px;
+        font-weight: 800;
+        box-shadow: 3px 3px 0 var(--accent-soft);
+      }
+      .chip-pop {
+        background: var(--pop);
+        color: var(--pop-ink);
+      }
+
+      /* Beat 2 */
+      #beat-explore {
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        gap: 64px;
+        padding: 100px 96px;
+        align-items: center;
+      }
+      #explore-copy h2 {
+        font-size: 72px;
+        margin-bottom: 20px;
+      }
+      #explore-copy p {
+        font-size: 30px;
+        font-weight: 600;
+        color: var(--muted);
+        line-height: 1.45;
+        max-width: 28ch;
+      }
+      .explore-stat {
+        margin-top: 32px;
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--accent-text);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .phone {
+        width: 390px;
+        height: 780px;
+        border-radius: 36px;
+        border: 3px solid var(--ink);
+        background: var(--surface);
+        box-shadow: 6px 6px 0 rgba(17, 17, 17, 0.12);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .phone-top {
+        padding: 20px 18px 12px;
+        border-bottom: 1px solid var(--rule);
+      }
+      .phone-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--rule);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--accent-text);
+      }
+      .phone-title {
+        margin-top: 12px;
+        font-size: 28px;
+      }
+      .phone-body {
+        flex: 1;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        background: var(--canvas);
+      }
+      .leader-row {
+        display: grid;
+        grid-template-columns: 36px 1fr auto;
+        gap: 10px;
+        align-items: center;
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid var(--rule);
+        background: var(--surface);
+        font-size: 14px;
+        font-weight: 800;
+      }
+      .leader-row.top {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+      .leader-pts {
+        color: var(--accent-text);
+        font-size: 15px;
+      }
+      .bench {
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--muted);
+      }
+
+      /* Beat 3 */
+      #beat-live {
+        padding: 100px 96px;
+      }
+      #beat-live h2 {
+        font-size: 64px;
+        margin-bottom: 12px;
+      }
+      #beat-live .sub {
+        font-size: 28px;
+        color: var(--muted);
+        font-weight: 600;
+        margin-bottom: 36px;
+      }
+      .live-track {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 40px;
+      }
+      .live-card {
+        flex: 0 0 220px;
+        padding: 18px 16px;
+        border-radius: 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--surface);
+        box-shadow: 2px 2px 0 var(--accent-soft);
+      }
+      .live-top {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+      .live-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        display: grid;
+        place-items: center;
+        font-size: 14px;
+        font-weight: 800;
+      }
+      .live-bench {
+        font-size: 10px;
+        font-weight: 800;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: var(--rule);
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .live-name {
+        font-size: 18px;
+        font-weight: 800;
+        margin-bottom: 4px;
+      }
+      .live-verb {
+        font-size: 14px;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .live-when {
+        margin-top: 8px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--accent-text);
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+      .stat-box {
+        padding: 24px;
+        border-radius: 16px;
+        border: 1px solid var(--rule);
+        background: var(--surface);
+      }
+      .stat-box dt {
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .stat-box dd {
+        margin-top: 8px;
+        font-size: 48px;
+        font-weight: 700;
+        color: var(--accent-text);
+      }
+
+      /* Beat 4 */
+      #beat-path {
+        padding: 100px 96px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 48px;
+        align-items: center;
+      }
+      #beat-path h2 {
+        font-size: 64px;
+        margin-bottom: 16px;
+      }
+      #beat-path p {
+        font-size: 28px;
+        color: var(--muted);
+        font-weight: 600;
+        line-height: 1.45;
+      }
+      .quest-rail {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .quest-step {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 18px 22px;
+        border-radius: 16px;
+        border: 1.5px solid var(--rule);
+        background: var(--surface);
+        font-size: 24px;
+        font-weight: 800;
+      }
+      .quest-step.active {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+      .quest-step .pts {
+        margin-left: auto;
+        font-size: 18px;
+        color: var(--accent-text);
+      }
+      .proof-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 24px;
+      }
+      .proof-pill {
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: var(--ink);
+        color: var(--surface);
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      /* Beat 5 */
+      #beat-cta {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 32px;
+        padding: 100px;
+        text-align: center;
+      }
+      .receipt {
+        width: 520px;
+        padding: 32px;
+        border-radius: 24px;
+        border: 2px solid var(--ink);
+        background: var(--surface);
+        box-shadow: 5px 5px 0 var(--accent-soft);
+        text-align: left;
+      }
+      .receipt h3 {
+        font-size: 36px;
+        margin-bottom: 8px;
+      }
+      .receipt p {
+        font-size: 20px;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .receipt-rank {
+        margin-top: 20px;
+        font-size: 56px;
+        color: var(--accent-text);
+      }
+      #cta-title {
+        font-size: 72px;
+      }
+      #cta-url {
+        font-size: 28px;
+        color: var(--accent-text);
+        padding: 14px 28px;
+        border-radius: 999px;
+        border: 1.5px solid var(--accent);
+        background: var(--accent-soft);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="goodpath-judge"
+      data-start="0"
+      data-duration="65"
+      data-width="1920"
+      data-height="1080"
+    >
+      <section id="beat-hook" class="scene">
+        <div class="logo-lockup" id="hook-logo">
+          <div class="logo-mark">
+            <svg width="52" height="52" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+              <path
+                d="M16 46 C16 46 22 28 32 22 C42 16 48 24 48 24"
+                stroke="#f7f6f3"
+                stroke-width="3.5"
+                stroke-linecap="round"
+                fill="none"
+              />
+              <circle cx="48" cy="24" r="4" fill="#f7f6f3" />
+              <circle cx="32" cy="22" r="2.5" fill="#007a55" opacity="0.85" />
+            </svg>
+          </div>
+          <span class="logo-word">GoodPath</span>
+        </div>
+        <h1 id="hook-title" class="display">The run is heating up</h1>
+        <p id="hook-sub">Claim daily G$. Beat the board. Flex your rank. Real proofs on Celo.</p>
+        <div class="hook-chips" id="hook-chips">
+          <span class="chip chip-pop">Live board</span>
+          <span class="chip">On-chain G$</span>
+          <span class="chip">Weekly league</span>
+        </div>
+      </section>
+
+      <section id="beat-explore" class="scene">
+        <div id="explore-copy">
+          <h2 class="display">Who's heating up</h2>
+          <p>Explore works without a wallet. Division ranks, flexes, and public runs on one scroll.</p>
+          <p class="explore-stat mono">2026-W23 · 21 on the board</p>
+        </div>
+        <div class="phone" id="explore-phone">
+          <div class="phone-top">
+            <span class="phone-badge">Explore</span>
+            <h3 class="phone-title display">Division leaderboard</h3>
+          </div>
+          <div class="phone-body">
+            <div class="leader-row top leader-item">
+              <span class="mono">#1</span>
+              <span>Echo <span class="bench">· bench</span></span>
+              <span class="leader-pts mono">130</span>
+            </div>
+            <div class="leader-row leader-item">
+              <span class="mono">#2</span>
+              <span>Flux <span class="bench">· bench</span></span>
+              <span class="leader-pts mono">122</span>
+            </div>
+            <div class="leader-row leader-item">
+              <span class="mono">#3</span>
+              <span>Aria <span class="bench">· bench</span></span>
+              <span class="leader-pts mono">114</span>
+            </div>
+            <div class="leader-row leader-item">
+              <span class="mono">#4</span>
+              <span>Nova <span class="bench">· bench</span></span>
+              <span class="leader-pts mono">106</span>
+            </div>
+            <div class="leader-row leader-item">
+              <span class="mono">#5</span>
+              <span>Lyra <span class="bench">· bench</span></span>
+              <span class="leader-pts mono">98</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="beat-live" class="scene">
+        <h2 class="display">Live moves</h2>
+        <p class="sub">Benchmark activity from local seed. Real wallets replace benches in production.</p>
+        <div class="live-track">
+          <div class="live-card live-item">
+            <div class="live-top">
+              <span class="live-avatar mono">Ec</span>
+              <span class="live-bench">Bench</span>
+            </div>
+            <p class="live-name mono">Echo</p>
+            <p class="live-verb">claimed daily G$</p>
+            <p class="live-when mono">1h ago</p>
+          </div>
+          <div class="live-card live-item">
+            <div class="live-top">
+              <span class="live-avatar mono">Fl</span>
+              <span class="live-bench">Bench</span>
+            </div>
+            <p class="live-name mono">Flux</p>
+            <p class="live-verb">put G$ to work</p>
+            <p class="live-when mono">2h ago · on-chain</p>
+          </div>
+          <div class="live-card live-item">
+            <div class="live-top">
+              <span class="live-avatar mono">Ar</span>
+              <span class="live-bench">Bench</span>
+            </div>
+            <p class="live-name mono">Aria</p>
+            <p class="live-verb">backed a pool</p>
+            <p class="live-when mono">3h ago · on-chain</p>
+          </div>
+          <div class="live-card live-item">
+            <div class="live-top">
+              <span class="live-avatar mono">No</span>
+              <span class="live-bench">Bench</span>
+            </div>
+            <p class="live-name mono">Nova</p>
+            <p class="live-verb">claimed daily G$</p>
+            <p class="live-when mono">4h ago</p>
+          </div>
+        </div>
+        <dl class="stats">
+          <div class="stat-box">
+            <dt>Wallets on path</dt>
+            <dd class="mono" id="stat-wallets">3</dd>
+          </div>
+          <div class="stat-box">
+            <dt>Quest moves</dt>
+            <dd class="mono" id="stat-moves">12</dd>
+          </div>
+          <div class="stat-box">
+            <dt>On-chain proofs</dt>
+            <dd class="mono" id="stat-proofs">6</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section id="beat-path" class="scene">
+        <div>
+          <h2 class="display">The G$ path</h2>
+          <p>Verify, claim, tip, support, deploy. League points follow proof, not vibes alone.</p>
+          <div class="proof-row" id="proof-row">
+            <span class="proof-pill">Whitelist tx</span>
+            <span class="proof-pill">Claim tx</span>
+            <span class="proof-pill">Transfer tx</span>
+          </div>
+        </div>
+        <div class="quest-rail" id="quest-rail">
+          <div class="quest-step quest-item">Verify <span class="pts mono">+gate</span></div>
+          <div class="quest-step quest-item active">Claim <span class="pts mono">+8</span></div>
+          <div class="quest-step quest-item">Tip <span class="pts mono">+6</span></div>
+          <div class="quest-step quest-item">Support <span class="pts mono">+10</span></div>
+          <div class="quest-step quest-item">Deploy <span class="pts mono">+18</span></div>
+        </div>
+      </section>
+
+      <section id="beat-cta" class="scene">
+        <div class="receipt" id="cta-receipt">
+          <h3 class="display">Path receipt</h3>
+          <p>Proof mix + weekly league standing</p>
+          <p class="receipt-rank mono">#4 · 72 pts</p>
+        </div>
+        <h2 id="cta-title" class="display">Connect. Claim. Flex.</h2>
+        <p id="cta-url" class="mono">localhost:3000 · pnpm demo:judge-seed</p>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      const scenes = ["#beat-hook", "#beat-explore", "#beat-live", "#beat-path", "#beat-cta"];
+      const beats = [
+        { start: 0, end: 10 },
+        { start: 10, end: 26 },
+        { start: 26, end: 38 },
+        { start: 38, end: 52 },
+        { start: 52, end: 65 },
+      ];
+
+      beats.forEach((b, i) => {
+        tl.set(scenes[i], { visibility: "visible", opacity: 0 }, b.start);
+        tl.to(scenes[i], { opacity: 1, duration: 0.6, ease: "power2.out" }, b.start);
+        if (i < beats.length - 1) {
+          tl.to(scenes[i], { opacity: 0, duration: 0.5, ease: "power2.in" }, b.end - 0.5);
+          tl.set(scenes[i], { visibility: "hidden" }, b.end);
+        }
+      });
+
+      tl.from("#hook-logo", { scale: 0.92, opacity: 0, duration: 0.8, ease: "power2.out" }, 0.2);
+      tl.from("#hook-title", { y: 40, opacity: 0, duration: 0.8, ease: "power2.out" }, 0.5);
+      tl.from("#hook-sub", { y: 24, opacity: 0, duration: 0.7, ease: "power2.out" }, 0.9);
+      tl.from("#hook-chips .chip", { y: 16, opacity: 0, stagger: 0.08, duration: 0.5 }, 1.2);
+
+      tl.from("#explore-copy", { x: -40, opacity: 0, duration: 0.7 }, 10.3);
+      tl.from("#explore-phone", { x: 60, opacity: 0, duration: 0.8 }, 10.4);
+      tl.from(".leader-item", { y: 20, opacity: 0, stagger: 0.08, duration: 0.45 }, 11);
+
+      tl.from(".live-item", { x: 50, opacity: 0, stagger: 0.1, duration: 0.5 }, 26.5);
+      tl.from(".stat-box", { y: 24, opacity: 0, stagger: 0.1, duration: 0.45 }, 28);
+
+      tl.from(".quest-item", { x: 30, opacity: 0, stagger: 0.1, duration: 0.45 }, 39);
+      tl.from("#proof-row .proof-pill", { scale: 0.9, opacity: 0, stagger: 0.08, duration: 0.35 }, 40.5);
+
+      tl.from("#cta-receipt", { y: 40, opacity: 0, duration: 0.7 }, 52.5);
+      tl.from("#cta-title", { y: 24, opacity: 0, duration: 0.6 }, 53.2);
+      tl.from("#cta-url", { opacity: 0, duration: 0.5 }, 54);
+
+      window.__timelines["goodpath-judge"] = tl;
+    </script>
+  </body>
+</html>

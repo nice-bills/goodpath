@@ -2,7 +2,7 @@
   "scannedAt": "2026-06-03",
   "framework": "Next.js 15 (app router)",
   "fonts": "Plus Jakarta Sans, Instrument Serif, IBM Plex Mono (next/font)",
-  "palette": "brand.md + apps/web/src/app/globals.css :root",
+  "palette": "design.md + apps/web/src/app/globals.css :root",
   "motion": "framer-motion (hero-path)",
   "preserve": ["font stack", "brand accent #007a55", "tab shell routes"],
   "designMd": "design.md"
