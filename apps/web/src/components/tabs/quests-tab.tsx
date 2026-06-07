@@ -11,6 +11,7 @@ import { useDemoMode } from "@/hooks/use-demo-mode";
 import { useWalletSession } from "@/hooks/use-wallet-session";
 import { useAppTab } from "@/hooks/use-app-tab";
 import { isDailyClaimDue } from "@/lib/daily-claim";
+import { useClaimAvailability } from "@/hooks/use-claim-availability";
 import { TodaysRunCard } from "@/components/todays-run-card";
 import { QuestAction } from "@/components/quest/quest-action";
 import { TabLink } from "@/components/tab-link";
@@ -34,15 +35,18 @@ export function QuestsTab() {
   const claimFocus = questNavFocus === "claim";
   const claimQuest = profile?.quests.find((q) => q.id === "claim");
   const claimReclaimDue = Boolean(profile && isDailyClaimDue(profile));
+  const { canClaimNow, claimBlocked } = useClaimAvailability(profile);
 
   return (
     <main className="flex flex-1 flex-col">
       <PageHeader
         eyebrow={
           claimFocus
-            ? claimReclaimDue
+            ? canClaimNow
               ? "Reclaim due"
-              : "Daily run"
+              : claimBlocked
+                ? "On-chain done"
+                : "Daily run"
             : pathDone
               ? "Path done"
               : `${progress}%`

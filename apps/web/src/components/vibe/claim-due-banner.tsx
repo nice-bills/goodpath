@@ -4,12 +4,12 @@ import { Gift } from "@phosphor-icons/react";
 import type { ProfileResponse } from "@/lib/api";
 import { TabLink } from "@/components/tab-link";
 import { hoursUntilClaimReset } from "@/lib/format";
-import { isDailyClaimDue } from "@/lib/daily-claim";
+import { useClaimAvailability } from "@/hooks/use-claim-availability";
 
-/** Primary home CTA when daily claim is unlocked and pending. */
+/** Primary home CTA when daily claim is unlocked and GoodDollar shows G$ ready. */
 export function ClaimDueBanner({ profile }: { profile: ProfileResponse }) {
-  const claimDue = isDailyClaimDue(profile);
-  if (!claimDue) return null;
+  const { canClaimNow } = useClaimAvailability(profile);
+  if (!canClaimNow) return null;
 
   const { hours, minutes } = hoursUntilClaimReset();
   const streak = profile.streak ?? 0;

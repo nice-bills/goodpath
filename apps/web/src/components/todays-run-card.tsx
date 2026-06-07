@@ -15,8 +15,18 @@ import { TabLink } from "@/components/tab-link";
 import { GDollarChooser } from "@/components/g-dollar-chooser";
 import { DailyCommitLock } from "@/components/daily-commit-lock";
 import { DailyCommitLocked } from "@/components/daily-commit-locked";
+import {
+  useClaimAvailability,
+  type ClaimAvailability,
+} from "@/hooks/use-claim-availability";
 
-function ClaimStatus({ daily }: { daily: ReturnType<typeof deriveDailyRun> }) {
+function ClaimStatus({
+  daily,
+  claim,
+}: {
+  daily: ReturnType<typeof deriveDailyRun>;
+  claim: ClaimAvailability;
+}) {
   return (
     <div className="todays-run-stat">
       <span className="todays-run-stat-label">Claim</span>
@@ -27,6 +37,16 @@ function ClaimStatus({ daily }: { daily: ReturnType<typeof deriveDailyRun> }) {
           <>
             <CheckCircle className="h-3.5 w-3.5" weight="fill" aria-hidden />
             Claimed today
+          </>
+        ) : claim.checking ? (
+          <>
+            <Gift className="h-3.5 w-3.5" weight="bold" aria-hidden />
+            Checking…
+          </>
+        ) : claim.claimBlocked ? (
+          <>
+            <CheckCircle className="h-3.5 w-3.5" weight="fill" aria-hidden />
+            On-chain done
           </>
         ) : (
           <>
@@ -134,9 +154,11 @@ function RivalStatus({ daily }: { daily: ReturnType<typeof deriveDailyRun> }) {
 function BestNextMove({
   daily,
   verified,
+  claim,
 }: {
   daily: ReturnType<typeof deriveDailyRun>;
   verified: boolean;
+  claim: ClaimAvailability;
 }) {
   if (!verified) {
     return (
@@ -147,13 +169,31 @@ function BestNextMove({
   }
 
   if (!daily.claimedToday) {
+    if (claim.checking) {
+      return (
+        <p className="todays-run-move">Checking today&apos;s G$ with GoodDollar…</p>
+      );
+    }
+    if (claim.claimBlocked) {
+      return (
+        <p className="todays-run-move todays-run-move-done">
+          Today&apos;s claim looks done on-chain. Lock your bet from Claim when Convex syncs, or
+          refresh in a minute.
+        </p>
+      );
+    }
+    if (claim.canClaimNow) {
+      return (
+        <>
+          <p className="todays-run-move">Claim today&apos;s G$ to start the run.</p>
+          <TabLink tab="quests" hash="claim" className="vibe-cta-pill group">
+            Claim G$ now
+          </TabLink>
+        </>
+      );
+    }
     return (
-      <>
-        <p className="todays-run-move">Claim today&apos;s G$ to start the run.</p>
-        <TabLink tab="quests" hash="claim" className="vibe-cta-pill group">
-          Claim G$ now
-        </TabLink>
-      </>
+      <p className="todays-run-move">Today&apos;s claim window isn&apos;t open yet. Check back soon.</p>
     );
   }
 
@@ -189,6 +229,7 @@ function BestNextMove({
 }
 
 export function TodaysRunCard({ profile }: { profile: ProfileResponse }) {
+  const claim = useClaimAvailability(profile);
   const daily =
     profile.dailyRun ??
     deriveDailyRun({
@@ -212,14 +253,14 @@ export function TodaysRunCard({ profile }: { profile: ProfileResponse }) {
       </div>
 
       <div className="todays-run-stats">
-        <ClaimStatus daily={daily} />
+        <ClaimStatus daily={daily} claim={claim} />
         <BetStatus daily={daily} />
         <FuelStatus daily={daily} />
         <StreakStatus daily={daily} streak={streak} />
         <RivalStatus daily={daily} />
       </div>
 
-      <BestNextMove daily={daily} verified={verified} />
+      <BestNextMove daily={daily} verified={verified} claim={claim} />
 
       <p className="todays-run-tomorrow">{daily.tomorrowHook}</p>
     </section>

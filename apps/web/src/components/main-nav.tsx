@@ -8,7 +8,7 @@ import { useDemoMode } from "@/hooks/use-demo-mode";
 import { useClaimCountdown } from "@/hooks/use-claim-countdown";
 import { LogoLockup } from "@/components/brand/logo-mark";
 import type { NavItem } from "@/lib/app-tab";
-import { isDailyClaimDue } from "@/lib/daily-claim";
+import { useClaimAvailability } from "@/hooks/use-claim-availability";
 
 const navItems: (NavItem & { icon: typeof House })[] = [
   { id: "run", tab: "home", label: "Run", icon: House },
@@ -66,7 +66,8 @@ function NavLinks({ layout }: { layout: "bottom" | "side" }) {
   const { address } = useWalletSession();
   const { active: demoActive } = useDemoMode();
   const { data: profile } = useProfile(address);
-  const claimHot = Boolean(profile && isDailyClaimDue(profile)) && !demoActive;
+  const { canClaimNow } = useClaimAvailability(profile);
+  const claimHot = canClaimNow && !demoActive;
   const countdown = useClaimCountdown();
 
   const activeNavId =

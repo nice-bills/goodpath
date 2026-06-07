@@ -4,7 +4,7 @@ import { Clock, Lightning } from "@phosphor-icons/react";
 import { useClaimCountdown } from "@/hooks/use-claim-countdown";
 import { TabLink } from "@/components/tab-link";
 import type { ProfileResponse } from "@/lib/api";
-import { isDailyClaimDue } from "@/lib/daily-claim";
+import { useClaimAvailability } from "@/hooks/use-claim-availability";
 
 function CountdownDigits({
   hours,
@@ -31,7 +31,8 @@ function CountdownDigits({
 
 export function ClaimCountdownStrip({ profile }: { profile?: ProfileResponse }) {
   const countdown = useClaimCountdown();
-  const claimDue = profile ? isDailyClaimDue(profile) : false;
+  const claim = useClaimAvailability(profile);
+  const claimDue = claim.canClaimNow;
   const urgent = countdown.hours < 2;
 
   return (
@@ -79,12 +80,12 @@ export function ClaimCountdownStrip({ profile }: { profile?: ProfileResponse }) 
               : "First claim of the day sets the tone on the live board."}
         </p>
       </div>
-      {claimDue && profile ? (
+      {claimDue ? (
         <TabLink tab="quests" hash="claim" className="vibe-countdown-strip-cta">
           Claim G$
         </TabLink>
       ) : (
-        <TabLink tab="quests" hash="claim" className="vibe-countdown-strip-cta vibe-countdown-strip-cta-ghost">
+        <TabLink tab="quests" className="vibe-countdown-strip-cta vibe-countdown-strip-cta-ghost">
           Path
         </TabLink>
       )}
