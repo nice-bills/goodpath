@@ -1,9 +1,10 @@
-export type QuestVisualState = "locked" | "open" | "active" | "done";
+export type QuestVisualState = "locked" | "open" | "active" | "due" | "done";
 
 const styles: Record<QuestVisualState, string> = {
   locked: "bg-surface-muted text-muted border-border",
   open: "bg-surface text-foreground border-border-strong",
   active: "bg-accent-soft text-accent-text border-accent/30",
+  due: "bg-accent-soft text-accent-text border-accent/40",
   done: "bg-win-soft text-win border-win/25",
 };
 
@@ -11,6 +12,7 @@ const labels: Record<QuestVisualState, string> = {
   locked: "Locked",
   open: "Open",
   active: "Active",
+  due: "Due today",
   done: "Done",
 };
 
@@ -29,8 +31,11 @@ export function questVisualState(
     completed: boolean;
     unlocked: boolean;
   },
-  options?: { selected?: boolean },
+  options?: { selected?: boolean; reclaimDue?: boolean },
 ): QuestVisualState {
+  if (quest.completed && options?.reclaimDue) {
+    return options.selected ? "active" : "due";
+  }
   if (quest.completed) return "done";
   if (!quest.unlocked) return "locked";
   if (options?.selected) return "active";

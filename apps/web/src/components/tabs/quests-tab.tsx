@@ -64,6 +64,7 @@ export function QuestsTab() {
           ) : null}
           <QuestStickerGrid
             quests={profile?.quests ?? []}
+            profile={profile}
             onUpdated={() => void refetch()}
           />
 

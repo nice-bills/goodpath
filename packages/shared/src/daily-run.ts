@@ -1,8 +1,4 @@
-import {
-  currentClaimPeriodDate,
-  isClaimedForPeriod,
-  isSameClaimPeriod,
-} from "./claim-period.js";
+import { currentClaimPeriodDate, isSameClaimPeriod } from "./claim-period.js";
 import {
   DEPLOY_SAVE_META,
   DEPLOY_STREAM_META,
@@ -119,11 +115,21 @@ export interface DailyRunState {
   rivalGap: { label: string; gap: number } | null;
 }
 
+/** True when a claim completion exists for the current GoodDollar claim window. */
+export function hasClaimedForPeriod(
+  completions: DailyRunInput["completions"],
+  period?: string,
+): boolean {
+  const claim = completions.claim;
+  if (!claim) return false;
+  return isSameClaimPeriod(claim.completedAt, period ?? currentClaimPeriodDate());
+}
+
 export function isDailyClaimDue(input: DailyRunInput): boolean {
   const claimQuest = input.quests.find((q) => q.id === "claim");
   if (!claimQuest?.unlocked) return false;
   const period = input.today ?? currentClaimPeriodDate();
-  return !isClaimedForPeriod(input.lastActiveDate, period);
+  return !hasClaimedForPeriod(input.completions, period);
 }
 
 export function deriveIdentityTitles(
@@ -228,7 +234,7 @@ function buildTomorrowHook(input: {
 
 export function deriveDailyRun(input: DailyRunInput): DailyRunState {
   const period = input.today ?? currentClaimPeriodDate();
-  const claimedToday = isClaimedForPeriod(input.lastActiveDate, period);
+  const claimedToday = hasClaimedForPeriod(input.completions, period);
 
   const usedGToday =
     (input.completions.tip &&

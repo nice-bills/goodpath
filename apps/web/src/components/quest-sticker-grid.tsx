@@ -12,10 +12,11 @@ import {
   Wallet,
 } from "@phosphor-icons/react";
 import type { QuestId } from "@goodpath/shared";
-import type { QuestStatus } from "@/lib/api";
+import type { ProfileResponse, QuestStatus } from "@/lib/api";
 import { QuestAction } from "@/components/quest/quest-action";
 import { QuestWhy } from "@/components/quest/quest-why";
 import { QuestStateBadge, questVisualState } from "@/components/quest-state-badge";
+import { isDailyClaimDue } from "@/lib/daily-claim";
 
 const questIcons = {
   connect: Wallet,
@@ -33,24 +34,36 @@ function questIdFromHash(hash: string): QuestId | null {
   return id in questIcons ? (id as QuestId) : null;
 }
 
+function isQuestActionable(
+  quest: QuestStatus,
+  claimReclaimDue: boolean,
+): boolean {
+  if (!quest.unlocked) return false;
+  if (!quest.completed) return true;
+  return quest.id === "claim" && claimReclaimDue;
+}
+
 export function QuestStickerGrid({
   quests,
+  profile,
   onUpdated,
 }: {
   quests: QuestStatus[];
+  profile?: ProfileResponse | null;
   onUpdated: () => void;
 }) {
-  const firstOpen = quests.find((q) => !q.completed && q.unlocked);
+  const claimReclaimDue = Boolean(profile && isDailyClaimDue(profile));
+  const firstOpen = quests.find((q) => isQuestActionable(q, claimReclaimDue));
   const [selectedId, setSelectedId] = useState<QuestId | null>(null);
 
   const syncFromHash = useCallback(() => {
     const fromHash = questIdFromHash(window.location.hash);
     if (!fromHash) return;
     const quest = quests.find((q) => q.id === fromHash);
-    if (quest?.unlocked && !quest.completed) {
+    if (quest && isQuestActionable(quest, claimReclaimDue)) {
       setSelectedId(fromHash);
     }
-  }, [quests]);
+  }, [quests, claimReclaimDue]);
 
   useEffect(() => {
     syncFromHash();
@@ -59,14 +72,16 @@ export function QuestStickerGrid({
   }, [syncFromHash]);
 
   const focusedQuest =
-    quests.find((q) => q.id === selectedId && q.unlocked && !q.completed) ??
+    quests.find(
+      (q) => q.id === selectedId && isQuestActionable(q, claimReclaimDue),
+    ) ??
     firstOpen ??
     null;
 
-  const hasOpenQuests = quests.some((q) => !q.completed && q.unlocked);
+  const hasOpenQuests = quests.some((q) => isQuestActionable(q, claimReclaimDue));
 
   const selectQuest = (quest: QuestStatus) => {
-    if (!quest.unlocked || quest.completed) return;
+    if (!isQuestActionable(quest, claimReclaimDue)) return;
     setSelectedId(quest.id);
     const url = new URL(window.location.href);
     url.hash = `quest-${quest.id}`;
@@ -80,7 +95,8 @@ export function QuestStickerGrid({
       <div className="quest-sticker-grid" aria-label="Path quests">
         {quests.map((quest, i) => {
           const selected = quest.id === focusedQuest?.id;
-          const state = questVisualState(quest, { selected });
+          const reclaimDue = quest.id === "claim" && claimReclaimDue;
+          const state = questVisualState(quest, { selected, reclaimDue });
           const locked = state === "locked";
           const Icon = questIcons[quest.id];
           const wide = i === quests.length - 1;
@@ -105,10 +121,12 @@ export function QuestStickerGrid({
             >
               <div className="quest-grid-sticker-top">
                 <div
-                  className={`quest-sticker-icon ${state === "done" ? "is-done" : state === "active" ? "is-active" : state === "open" ? "is-open" : ""}`}
+                  className={`quest-sticker-icon ${state === "done" ? "is-done" : state === "active" || state === "due" ? "is-active" : state === "open" ? "is-open" : ""}`}
                 >
                   {state === "done" ? (
                     <Check className="h-4 w-4" weight="bold" aria-hidden />
+                  ) : state === "due" ? (
+                    <Gift className="h-4 w-4" weight="bold" aria-hidden />
                   ) : locked ? (
                     <Lock className="h-3.5 w-3.5" weight="bold" aria-hidden />
                   ) : (
