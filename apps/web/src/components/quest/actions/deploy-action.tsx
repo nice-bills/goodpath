@@ -28,7 +28,7 @@ import { useMarkQuestComplete } from "@/hooks/use-quest-actions";
 import { useWalletSession } from "@/hooks/use-wallet-session";
 import { useGoodSavingsSDK } from "@/hooks/use-good-savings";
 import type { QuestStatus } from "@/lib/api";
-import { formatTipError } from "@/lib/quest-errors";
+import { formatDeployError } from "@/lib/quest-errors";
 import { GasSponsorBanner } from "@/components/gas-sponsor-banner";
 import { ActionImpactFeedback } from "@/components/action-impact-feedback";
 import { useProfile } from "@/hooks/use-profile";
@@ -56,7 +56,7 @@ export function DeployAction({
 
   const [mode, setMode] = useState<DeployMode>("save");
   const [deployError, setDeployError] = useState<ReturnType<
-    typeof formatTipError
+    typeof formatDeployError
   > | null>(null);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -68,7 +68,7 @@ export function DeployAction({
     if (!address || !sdk) return;
     if (SDK_ENV !== "production") {
       setDeployError(
-        formatTipError(
+        formatDeployError(
           "Save + stream are verified on Celo mainnet. Set NEXT_PUBLIC_GOODDOLLAR_ENV=production.",
         ),
       );
@@ -79,7 +79,7 @@ export function DeployAction({
     try {
       const ready = await prepare();
       if (!ready.ok) {
-        setDeployError(formatTipError(ready.error));
+        setDeployError(formatDeployError(ready.error));
         return;
       }
       const decimals = CHAIN_DECIMALS[SupportedChains.CELO];
@@ -99,7 +99,7 @@ export function DeployAction({
       }
     } catch (e) {
       setDeployError(
-        formatTipError(e instanceof Error ? e.message : "Stake failed"),
+        formatDeployError(e instanceof Error ? e.message : "Stake failed"),
       );
     } finally {
       setBusy(false);
@@ -109,18 +109,18 @@ export function DeployAction({
   const startStream = async () => {
     if (!address) return;
     if (!token) {
-      setDeployError(formatTipError("G$ contract not configured"));
+      setDeployError(formatDeployError("G$ contract not configured"));
       return;
     }
     if (!streamReady) {
       setDeployError(
-        formatTipError("Set NEXT_PUBLIC_STREAM_RECIPIENT (or TIP_RECIPIENT)"),
+        formatDeployError("Set NEXT_PUBLIC_STREAM_RECIPIENT (or TIP_RECIPIENT)"),
       );
       return;
     }
     if (SDK_ENV !== "production") {
       setDeployError(
-        formatTipError(
+        formatDeployError(
           "Superfluid G$ streams are on Celo mainnet (production env).",
         ),
       );
@@ -129,7 +129,7 @@ export function DeployAction({
     setDeployError(null);
     const ready = await prepare();
     if (!ready.ok) {
-      setDeployError(formatTipError(ready.error));
+      setDeployError(formatDeployError(ready.error));
       return;
     }
     const flowRate = gPerMonthToFlowRate(MIN_STREAM_G_PER_MONTH);
@@ -156,13 +156,13 @@ export function DeployAction({
             onUpdated();
           } catch (e) {
             setDeployError(
-              formatTipError(
+              formatDeployError(
                 e instanceof Error ? e.message : "Server rejected stream proof",
               ),
             );
           }
         },
-        onError: (e) => setDeployError(formatTipError(e.message)),
+        onError: (e) => setDeployError(formatDeployError(e.message)),
       },
     );
   };
@@ -291,7 +291,7 @@ export function DeployAction({
         </a>
       )}
       {(deployError || sdkError) && (
-        <QuestErrorAlert error={deployError ?? formatTipError(sdkError ?? "")} />
+        <QuestErrorAlert error={deployError ?? formatDeployError(sdkError ?? "")} />
       )}
     </QuestPanel>
   );

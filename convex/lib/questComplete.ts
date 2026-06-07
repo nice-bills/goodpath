@@ -116,7 +116,7 @@ export async function completeQuestRecord(
     createdAt: now,
   });
 
-  if (gAmountWei && ["tip", "support", "deploy"].includes(questId)) {
+  if (gAmountWei && gAmountWei !== "0" && ["tip", "support", "deploy"].includes(questId)) {
     await updateGMovedCache(ctx, lower, gAmountWei);
   }
 

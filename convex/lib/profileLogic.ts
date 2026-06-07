@@ -173,18 +173,25 @@ function resolveGMovedWei(
   completions: Record<string, { gAmountWei?: string } & { completedAt: string }>,
   weekStart: string,
 ): string {
-  if (profile.gMovedWeiWeekStart === weekStart && profile.gMovedWeiTotal) {
-    return profile.gMovedWeiTotal;
-  }
   let total = 0n;
   for (const [questId, row] of Object.entries(completions)) {
     if (!["tip", "support", "deploy"].includes(questId)) continue;
     if (row.completedAt.slice(0, 10) < weekStart) continue;
     const rowWithWei = row as { gAmountWei?: string };
-    if (rowWithWei.gAmountWei) {
+    if (rowWithWei.gAmountWei && rowWithWei.gAmountWei !== "0") {
       total += BigInt(rowWithWei.gAmountWei);
     }
   }
+
+  if (profile.gMovedWeiWeekStart === weekStart && profile.gMovedWeiTotal) {
+    try {
+      const cached = BigInt(profile.gMovedWeiTotal);
+      if (cached > total) return profile.gMovedWeiTotal;
+    } catch {
+      /* fall through */
+    }
+  }
+
   return total.toString();
 }
 
