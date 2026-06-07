@@ -5,8 +5,10 @@ import { useAutoEnsureGasWhenLow } from "@/hooks/use-ensure-gas";
 import { MIN_TIP_G, TIP_RECIPIENT } from "@/lib/env";
 import { useGTransferQuest } from "@/hooks/use-g-transfer-quest";
 import { useWalletSession } from "@/hooks/use-wallet-session";
+import { useProfile } from "@/hooks/use-profile";
 import type { QuestStatus } from "@/lib/api";
 import { GasSponsorBanner } from "@/components/gas-sponsor-banner";
+import { ActionImpactFeedback } from "@/components/action-impact-feedback";
 import { QuestErrorAlert } from "../quest-error-alert";
 import { QuestPanel } from "../quest-panel";
 
@@ -19,7 +21,8 @@ export function TipAction({
   onUpdated: () => void;
   variant?: "standalone" | "embedded";
 }) {
-  const { status } = useWalletSession();
+  const { status, address } = useWalletSession();
+  const { data: profile } = useProfile(address);
   const transfer = useGTransferQuest({
     questId: "tip",
     recipient: TIP_RECIPIENT,
@@ -37,6 +40,13 @@ export function TipAction({
   if (quest.completed) {
     return (
       <QuestPanel quest={quest} variant={variant}>
+        {profile ? (
+          <ActionImpactFeedback
+            profile={profile}
+            questId="tip"
+            hasTx={Boolean(displayHash)}
+          />
+        ) : null}
         {displayHash && (
           <a
             href={`https://celoscan.io/tx/${displayHash}`}
@@ -74,7 +84,7 @@ export function TipAction({
             ? "Preparing gas…"
             : transfer.busy
               ? "Sending…"
-              : `Tip ${MIN_TIP_G} G$`}
+              : `Spend ${MIN_TIP_G} G$`}
       </button>
       {transfer.gasPhase === "failed" && (
         <a

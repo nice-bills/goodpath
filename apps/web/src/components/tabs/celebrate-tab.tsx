@@ -10,6 +10,7 @@ import { useWalletSession } from "@/hooks/use-wallet-session";
 import { ProgressRing } from "@/components/progress-ring";
 import { TodaysHabit } from "@/components/todays-habit";
 import { FlexShareButton } from "@/components/flex-share-button";
+import { TesterFeedbackBanner } from "@/components/tester-feedback-banner";
 import { appTabHref } from "@/lib/app-tab";
 import { fadeUp } from "@/lib/motion";
 
@@ -93,7 +94,8 @@ export function CelebrateTab() {
             <>
               <FlexShareButton profile={profile} className="btn-primary mx-auto w-full max-w-[320px]" />
               <PathReceipt profile={profile} demo={demoActive} />
-              <TodaysHabit streak={profile.streak} />
+              <TodaysHabit profile={profile} streak={profile.streak} />
+              <TesterFeedbackBanner surface="celebrate" />
             </>
           ) : profile?.league?.promoted ? (
             <>

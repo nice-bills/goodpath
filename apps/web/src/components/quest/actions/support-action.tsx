@@ -11,6 +11,8 @@ import { useWalletSession } from "@/hooks/use-wallet-session";
 import type { QuestStatus } from "@/lib/api";
 import { formatTipError } from "@/lib/quest-errors";
 import { GasSponsorBanner } from "@/components/gas-sponsor-banner";
+import { ActionImpactFeedback } from "@/components/action-impact-feedback";
+import { useProfile } from "@/hooks/use-profile";
 import { QuestErrorAlert } from "../quest-error-alert";
 import { QuestPanel } from "../quest-panel";
 
@@ -24,6 +26,7 @@ export function SupportAction({
   variant?: "standalone" | "embedded";
 }) {
   const { status, address } = useWalletSession();
+  const { data: profile } = useProfile(address);
   const markComplete = useMarkQuestComplete();
   const [opened, setOpened] = useState(false);
   const [ackSubmitting, setAckSubmitting] = useState(false);
@@ -73,8 +76,17 @@ export function SupportAction({
   const recipientConfigured = isConfiguredEthAddress(SUPPORT_RECIPIENT);
 
   if (quest.completed) {
+    const supportMeta = profile?.completions.support?.meta;
     return (
       <QuestPanel quest={quest} variant={variant}>
+        {profile ? (
+          <ActionImpactFeedback
+            profile={profile}
+            questId="support"
+            meta={supportMeta}
+            hasTx={Boolean(displayHash)}
+          />
+        ) : null}
         {displayHash ? (
           <a
             href={`https://celoscan.io/tx/${displayHash}`}
@@ -85,7 +97,7 @@ export function SupportAction({
             View support tx on Celoscan
           </a>
         ) : (
-          <p className="mt-3 text-sm font-medium text-win">Community support recorded</p>
+          <p className="mt-3 text-sm font-medium text-win">Backed with G$</p>
         )}
       </QuestPanel>
     );
@@ -118,7 +130,7 @@ export function SupportAction({
             ? "Preparing gas…"
             : transfer.busy
               ? "Sending…"
-              : `Send ${MIN_SUPPORT_G} G$ support`}
+              : `Back with ${MIN_SUPPORT_G} G$`}
       </button>
       {transfer.gasPhase === "failed" && (
         <a

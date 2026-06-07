@@ -7,6 +7,7 @@ import {
   computeProgress,
   completionsFromIds,
   isQuestUnlocked,
+  deriveDailyRun,
 } from "@goodpath/shared";
 import { sumGsMovedWeiThisWeek } from "../chain/g-moved.js";
 import { getRepositories } from "../repository/provider.js";
@@ -73,6 +74,24 @@ export async function buildProfilePayload(address: string) {
   const verifiedHuman = Boolean(completions.verify);
   const proofMix = chainProofs.map((p) => p.proofType);
 
+  const dailyRun = deriveDailyRun({
+    lastActiveDate: row.last_active_date,
+    streak: row.streak,
+    quests: quests.map((q) => ({
+      id: q.id,
+      completed: q.completed,
+      unlocked: q.unlocked,
+      completedAt: q.completedAt,
+    })),
+    completions,
+    league: {
+      points: league.points,
+      divisionLabel: league.divisionLabel,
+      personAbove: league.personAbove ?? null,
+      gMovedWei,
+    },
+  });
+
   return {
     address: row.address,
     streak: row.streak,
@@ -102,5 +121,6 @@ export async function buildProfilePayload(address: string) {
     },
     recentProofs,
     squads: getRepositories().social.listSquadMemberships(lower),
+    dailyRun,
   };
 }

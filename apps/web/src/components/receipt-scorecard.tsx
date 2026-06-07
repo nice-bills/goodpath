@@ -1,15 +1,27 @@
 "use client";
 
 import type { ProfileResponse } from "@/lib/api";
+import { deriveDailyRun } from "@goodpath/shared";
 import { formatGsMoved, formatPathDuration, formatPoints } from "@/lib/format";
 
 export function ReceiptScorecard({ profile }: { profile: ProfileResponse }) {
   const proofCount = profile.chainProofs?.length ?? 0;
   const gMoved = formatGsMoved(profile.league?.gMovedWei);
+  const daily =
+    profile.dailyRun ??
+    deriveDailyRun({
+      lastActiveDate: profile.lastActiveDate,
+      streak: profile.streak,
+      quests: profile.quests,
+      completions: profile.completions,
+      league: profile.league,
+    });
   const proofMix =
-    profile.publicCard?.proofMix?.length
-      ? profile.publicCard.proofMix.join(", ")
-      : profile.chainProofs?.map((p) => p.proofType ?? p.questId).join(", ");
+    daily.identityTitles.length > 0
+      ? daily.identityTitles.join(" · ")
+      : profile.publicCard?.proofMix?.length
+        ? profile.publicCard.proofMix.join(", ")
+        : profile.chainProofs?.map((p) => p.proofType ?? p.questId).join(", ");
 
   return (
     <div className="mt-4">
@@ -67,11 +79,19 @@ export function ReceiptScorecard({ profile }: { profile: ProfileResponse }) {
         {proofMix ? (
           <div className="col-span-2">
             <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-dim">
-              Proof mix
+              Identity mix
             </dt>
             <dd className="mt-0.5 text-xs font-medium text-foreground">{proofMix}</dd>
           </div>
         ) : null}
+        <div className="col-span-2">
+          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-dim">
+            Receipt strength
+          </dt>
+          <dd className="font-mono text-base font-semibold tabular-nums">
+            {daily.receiptStrength}/5
+          </dd>
+        </div>
         {profile.league?.nextMove ? (
           <div className="col-span-2">
             <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-dim">

@@ -30,6 +30,8 @@ import { useGoodSavingsSDK } from "@/hooks/use-good-savings";
 import type { QuestStatus } from "@/lib/api";
 import { formatTipError } from "@/lib/quest-errors";
 import { GasSponsorBanner } from "@/components/gas-sponsor-banner";
+import { ActionImpactFeedback } from "@/components/action-impact-feedback";
+import { useProfile } from "@/hooks/use-profile";
 import { QuestErrorAlert } from "../quest-error-alert";
 import { QuestPanel } from "../quest-panel";
 
@@ -45,6 +47,7 @@ export function DeployAction({
   variant?: "standalone" | "embedded";
 }) {
   const { status, address } = useWalletSession();
+  const { data: profile } = useProfile(address);
   const { sdk, loading: sdkLoading, error: sdkError } = useGoodSavingsSDK();
   const markComplete = useMarkQuestComplete();
   const { prepare, phase: gasPhase, message: gasMessage, isEnsuring } =
@@ -169,8 +172,17 @@ export function DeployAction({
   const walletReady = status === "ready" && Boolean(address);
 
   if (quest.completed) {
+    const deployMeta = profile?.completions.deploy?.meta;
     return (
       <QuestPanel quest={quest} variant={variant}>
+        {profile ? (
+          <ActionImpactFeedback
+            profile={profile}
+            questId="deploy"
+            meta={deployMeta}
+            hasTx={Boolean(displayHash)}
+          />
+        ) : null}
         {displayHash && (
           <a
             href={`https://celoscan.io/tx/${displayHash}`}
@@ -198,7 +210,7 @@ export function DeployAction({
   return (
     <QuestPanel quest={quest} variant={variant} className="quest-active-panel">
       <p className="mt-2 text-xs text-muted">
-        Pick how to deploy idle G$. Both verify on Celoscan via our API.
+        Save your G$ or stream it — streaming is the highest-status move.
       </p>
       <div className="mt-3 flex gap-2">
         <button
@@ -210,7 +222,7 @@ export function DeployAction({
               : "border-border-strong bg-surface"
           }`}
         >
-          Save
+          Save your G$
         </button>
         <button
           type="button"
@@ -221,7 +233,7 @@ export function DeployAction({
               : "border-border-strong bg-surface"
           }`}
         >
-          Stream
+          Stream G$
         </button>
       </div>
       <GasSponsorBanner phase={gasPhase} message={gasMessage} />

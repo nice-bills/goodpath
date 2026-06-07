@@ -18,6 +18,8 @@ import { FvVerificationOptions } from "../fv-verification-options";
 import { QuestErrorAlert } from "../quest-error-alert";
 import { QuestPanel } from "../quest-panel";
 import { FlexShareButton } from "@/components/flex-share-button";
+import { GDollarChooser } from "@/components/g-dollar-chooser";
+import { ActionImpactFeedback } from "@/components/action-impact-feedback";
 import { useProfile } from "@/hooks/use-profile";
 
 export function ClaimAction({
@@ -100,6 +102,9 @@ export function ClaimAction({
   if (quest.completed) {
     return (
       <QuestPanel quest={quest} variant={variant}>
+        {profile ? (
+          <ActionImpactFeedback profile={profile} questId="claim" hasTx={Boolean(quest.txHash)} />
+        ) : null}
         {quest.txHash && (
           <a
             href={explorer(quest.txHash)}
@@ -110,12 +115,15 @@ export function ClaimAction({
             View claim tx
           </a>
         )}
+        <div className="mt-4">
+          <GDollarChooser />
+        </div>
         {profile ? (
           <div className="mt-4">
             <FlexShareButton
               profile={profile}
               label="Flex this claim"
-              className="btn-primary w-full"
+              className="btn-secondary w-full"
             />
           </div>
         ) : null}

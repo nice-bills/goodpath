@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Check, ShareNetwork } from "@phosphor-icons/react";
 import { useMemo } from "react";
-import { CORE_PATH_QUEST_IDS, QUESTS } from "@goodpath/shared";
+import { CORE_PATH_QUEST_IDS, QUESTS, deriveDailyRun } from "@goodpath/shared";
 import { useMutation as useConvexMutation } from "convex/react";
 import { api } from "@convex/api";
 import { referralUrl } from "@/lib/referral";
@@ -36,6 +36,16 @@ export function PathReceipt({
   const coreDone = CORE_PATH_QUEST_IDS.filter((id) =>
     Boolean(questById.get(id)?.completed),
   ).length;
+
+  const daily =
+    profile.dailyRun ??
+    deriveDailyRun({
+      lastActiveDate: profile.lastActiveDate,
+      streak: profile.streak,
+      quests: profile.quests,
+      completions: profile.completions,
+      league: profile.league,
+    });
 
   const copy = async (kind: "receipt" | "share" | "referral" | "invite") => {
     let text: string;
@@ -82,11 +92,14 @@ export function PathReceipt({
       <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-dim">
         Path receipt · Celo mainnet
       </p>
+      {daily.primaryIdentity ? (
+        <p className="receipt-identity-badge mt-2">{daily.primaryIdentity}</p>
+      ) : null}
       <p className="font-display mt-2 text-3xl leading-tight tracking-tight text-balance">
-        My G$ run
+        {daily.primaryIdentity ? `${daily.primaryIdentity} run` : "My G$ run"}
       </p>
       <p className="mt-2 text-sm text-pretty text-muted">
-        Celo mainnet proofs ·{" "}
+        I moved G$ on Celo today.{" "}
         <span className="font-mono text-foreground">
           {profile.address.slice(0, 6)}…{profile.address.slice(-4)}
         </span>
@@ -94,10 +107,18 @@ export function PathReceipt({
           <>
             {" "}
             · <span className="font-semibold text-foreground">{profile.league.points}</span>{" "}
-            league pts
+            league pts · receipt {daily.receiptStrength}/5
           </>
         ) : null}
       </p>
+
+      {daily.identityTitles.length > 0 ? (
+        <ul className="receipt-identity-tags mt-3" aria-label="Proof mix">
+          {daily.identityTitles.map((title) => (
+            <li key={title}>{title}</li>
+          ))}
+        </ul>
+      ) : null}
 
       <ReceiptScorecard profile={profile} />
 

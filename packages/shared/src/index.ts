@@ -6,3 +6,4 @@ export * from "./chain.js";
 export * from "./league-points.js";
 export * from "./league-run.js";
 export * from "./quest-proof.js";
+export * from "./daily-run.js";

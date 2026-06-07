@@ -147,13 +147,13 @@ export function nextMoveHint(input: {
     case "verify":
       return "Verify on Celo to unlock the rest of your path.";
     case "claim":
-      return "Claim daily G$. Entry to the run, not the finish line.";
+      return "Claim daily G$. Then put today's G$ to work.";
     case "tip":
-      return "Tip with G$ on Celo. Moves real G$ and adds league pts.";
+      return "Spend today's G$ — tip on Celo for league pts.";
     case "support":
-      return "Support a GoodCollective pool on-chain for +10 pts (vs visit ack).";
+      return "Back something with G$ on GoodCollective (+10 pts on-chain).";
     case "deploy":
-      return "Deploy G$: save (+12) or stream (+18) on Celo mainnet.";
+      return "Save your G$ (+12) or stream G$ (+18) — stream is highest status.";
     default:
       return "Continue your run on the quests tab.";
   }

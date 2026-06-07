@@ -1,4 +1,5 @@
 import type { QuestDefinition, QuestId } from "@goodpath/shared";
+import type { DailyRunState } from "@goodpath/shared";
 import { API_URL } from "./env";
 
 export interface QuestStatus extends QuestDefinition {
@@ -65,7 +66,10 @@ export interface ProfileResponse {
   pathCompletedAt: string | null;
   progress: number;
   chainProofs?: ChainProof[];
-  completions: Record<string, { completedAt: string; txHash: string | null }>;
+  completions: Record<
+    string,
+    { completedAt: string; txHash: string | null; meta?: string }
+  >;
   personalBests?: PersonalBests;
   league?: LeagueStanding;
   referredBy?: string | null;
@@ -79,6 +83,7 @@ export interface ProfileResponse {
     createdAt: string;
   }>;
   squads?: Array<{ squad_id: string; address: string; role: string; joined_at: string }>;
+  dailyRun?: DailyRunState;
 }
 
 export class ApiError extends Error {

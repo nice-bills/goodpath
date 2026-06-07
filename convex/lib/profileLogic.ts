@@ -6,6 +6,7 @@ import {
   completionsFromIds,
   isQuestUnlocked,
   nextMoveHint,
+  deriveDailyRun,
   type QuestId,
 } from "@goodpath/shared";
 import type { QueryCtx } from "../_generated/server";
@@ -108,6 +109,24 @@ export async function buildProfilePayload(
     .withIndex("by_address", (q) => q.eq("address", lower))
     .collect();
 
+  const dailyRun = deriveDailyRun({
+    lastActiveDate: profile.lastActiveDate ?? null,
+    streak: profile.streak,
+    quests: quests.map((q) => ({
+      id: q.id as QuestId,
+      completed: q.completed,
+      unlocked: q.unlocked,
+      completedAt: q.completedAt,
+    })),
+    completions,
+    league: {
+      points: league.points,
+      divisionLabel: league.divisionLabel,
+      personAbove: league.personAbove ?? null,
+      gMovedWei: league.gMovedWei,
+    },
+  });
+
   return {
     address: profile.address,
     streak: profile.streak,
@@ -142,6 +161,7 @@ export async function buildProfilePayload(
       role: s.role,
       joined_at: s.joinedAt,
     })),
+    dailyRun,
   };
 }
 
@@ -216,6 +236,24 @@ async function emptyProfilePayload(
     }),
   };
 
+  const dailyRun = deriveDailyRun({
+    lastActiveDate: null,
+    streak: 0,
+    quests: quests.map((q) => ({
+      id: q.id as QuestId,
+      completed: q.completed,
+      unlocked: q.unlocked,
+      completedAt: q.completedAt,
+    })),
+    completions,
+    league: {
+      points: league.points,
+      divisionLabel: league.divisionLabel,
+      personAbove: league.personAbove ?? null,
+      gMovedWei: league.gMovedWei,
+    },
+  });
+
   return {
     address: lower,
     streak: 0,
@@ -245,5 +283,6 @@ async function emptyProfilePayload(
     },
     recentProofs: [],
     squads: [],
+    dailyRun,
   };
 }

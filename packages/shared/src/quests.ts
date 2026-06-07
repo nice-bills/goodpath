@@ -65,37 +65,37 @@ export const QUESTS: QuestDefinition[] = [
   {
     id: "tip",
     order: 4,
-    title: "Send a G$ tip",
-    description: "Tip a friend or the demo jar with real G$ on Celo.",
+    title: "Spend today's G$",
+    description: "Tip with real G$ on Celo — the fastest way to put today's claim to work.",
     whyItMatters:
-      "G$ is real money on-chain. Tipping proves you can transact, not just claim.",
+      "G$ is real money on-chain. Spending proves you can transact, not just claim.",
     kind: "transfer",
-    rewardLabel: "Utility unlocked",
+    rewardLabel: "G$ moved",
     minAmount: "0.01",
   },
   {
     id: "support",
     order: 5,
-    title: "Support the community",
+    title: "Back something",
     description:
       "Send G$ to a GoodCollective pool (on-chain), or visit and confirm if you donated elsewhere.",
     whyItMatters:
-      "GoodCollective pools fund builders and causes. Onboarding ends in participation.",
+      "GoodCollective pools fund builders and causes. Backing turns your daily claim into impact.",
     kind: "external",
-    rewardLabel: "Community badge",
+    rewardLabel: "Impact proof",
     externalUrl: "https://goodcollective.vercel.app/",
     minAmount: "0.01",
   },
   {
     id: "deploy",
     order: 6,
-    title: "Put your G$ to work",
+    title: "Save or stream G$",
     description:
       "Save: stake G$ via savings-sdk. Stream: micro-flow G$/mo with Superfluid on Celo.",
     whyItMatters:
-      "Idle G$ should grow or flow. Official GoodDollar save + stream paths, provable on Celoscan.",
+      "Idle G$ should grow or flow. Streaming is the highest-status move — money moving every second.",
     kind: "deploy",
-    rewardLabel: "Grow unlocked",
+    rewardLabel: "Grow / stream",
     minAmount: "0.01",
     postPath: true,
   },

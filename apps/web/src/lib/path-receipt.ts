@@ -1,4 +1,4 @@
-import { QUESTS } from "@goodpath/shared";
+import { QUESTS, deriveDailyRun } from "@goodpath/shared";
 import type { ProfileResponse, QuestStatus } from "@/lib/api";
 import { formatGsMoved } from "@/lib/format";
 
@@ -50,13 +50,17 @@ export function receiptShareLine(profile: ProfileResponse): string {
   const time = profile.personalBests?.fastestPathSeconds
     ? ` Path time: ${Math.floor(profile.personalBests.fastestPathSeconds / 60)}m.`
     : "";
-  const deployMeta = profile.completions.deploy?.txHash;
-  const deployNote = deployMeta ? " + deployed G$ (save/stream)," : "";
-  const proofCount = profile.chainProofs?.length ?? 0;
-  const proofNote =
-    proofCount > 0 ? ` ${proofCount} Celoscan proof${proofCount === 1 ? "" : "s"},` : "";
   const gMoved = formatGsMoved(profile.league?.gMovedWei);
   const div = profile.league?.divisionLabel;
   const divNote = div ? ` ${div} division,` : "";
-  return `I ran G$ on Celo: ${gMoved} G$ moved this week,${divNote}${promoted} verified + claimed + tipped + supported${deployNote}${proofNote} on-chain.${time}${rank} ${profile.streak}-day streak. #GoodDollar #Celo`;
+  const daily =
+    profile.dailyRun ??
+    deriveDailyRun({
+      lastActiveDate: profile.lastActiveDate,
+      streak: profile.streak,
+      quests: profile.quests,
+      completions: profile.completions,
+      league: profile.league,
+    });
+  return `I moved G$ on Celo today. Beat my run: ${gMoved} G$ moved this week,${divNote}${promoted} ${profile.streak}-day streak, receipt ${daily.receiptStrength}/5.${time}${rank} #GoodDollar #Celo`;
 }
