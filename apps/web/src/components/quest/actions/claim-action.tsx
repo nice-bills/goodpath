@@ -205,6 +205,17 @@ export function ClaimAction({
         </p>
       )}
 
+      {needsDailyReclaim &&
+        !entitlement.isLoading &&
+        !loading &&
+        (claimAmount === 0 || claimAmount === null) && (
+          <p className="mt-3 text-xs leading-relaxed text-muted">
+            Today&apos;s reclaim is due, but GoodDollar shows 0 G$ right now — the window may still
+            be opening, or you already claimed on-chain today. Refresh in a minute or check
+            GoodWallet.
+          </p>
+        )}
+
       <button
         type="button"
         onClick={handleClaim}
@@ -226,7 +237,9 @@ export function ClaimAction({
             ? "Claiming…"
             : claimAmount && claimAmount > 0
               ? `Claim ${claimAmount} G$`
-              : "Come back tomorrow"}
+              : needsDailyReclaim
+                ? "No G$ ready yet"
+                : "Come back tomorrow"}
       </button>
 
       {txHash && (

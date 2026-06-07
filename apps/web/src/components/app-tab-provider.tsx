@@ -23,6 +23,13 @@ type SetTabOptions = { hash?: string };
 
 type QuestNavFocus = "claim" | "path";
 
+function readQuestNavFocusFromWindow(): QuestNavFocus {
+  if (typeof window === "undefined") return "path";
+  const raw = window.location.hash.replace(/^#/, "");
+  if (raw === "claim" || raw === "quest-claim") return "claim";
+  return "path";
+}
+
 type AppTabContextValue = {
   tab: AppTab;
   questNavFocus: QuestNavFocus;
@@ -56,7 +63,15 @@ function AppTabProviderInner({ children }: { children: ReactNode }) {
   const [tabOverride, setTabOverride] = useState<AppTab | null>(null);
   const tab = tabOverride ?? resolvedTab;
   const [tabGateMessage, setTabGateMessage] = useState<string | null>(null);
-  const [questNavFocus, setQuestNavFocus] = useState<QuestNavFocus>("path");
+  const [questNavFocus, setQuestNavFocus] = useState<QuestNavFocus>(() =>
+    urlTab === "quests" ? readQuestNavFocusFromWindow() : "path",
+  );
+
+  useEffect(() => {
+    if (urlTab === "quests") {
+      setQuestNavFocus(readQuestNavFocusFromWindow());
+    }
+  }, [urlTab, searchParams]);
 
   useEffect(() => {
     if (!gatedTabsAllowed && !PUBLIC_APP_TABS.includes(urlTab)) {
@@ -73,6 +88,9 @@ function AppTabProviderInner({ children }: { children: ReactNode }) {
         window.history.replaceState(window.history.state, "", appTabHref("home"));
       }
       setTabOverride(allowed);
+      if (allowed === "quests") {
+        setQuestNavFocus(readQuestNavFocusFromWindow());
+      }
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);

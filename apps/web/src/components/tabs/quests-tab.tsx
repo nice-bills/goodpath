@@ -9,6 +9,11 @@ import { FvReturnBanner } from "@/components/quest/fv-return-banner";
 import { useProfile } from "@/hooks/use-profile";
 import { useDemoMode } from "@/hooks/use-demo-mode";
 import { useWalletSession } from "@/hooks/use-wallet-session";
+import { useAppTab } from "@/hooks/use-app-tab";
+import { isDailyClaimDue } from "@/lib/daily-claim";
+import { TodaysRunCard } from "@/components/todays-run-card";
+import { QuestAction } from "@/components/quest/quest-action";
+import { TabLink } from "@/components/tab-link";
 
 const QuestStickerGrid = dynamic(
   () =>
@@ -19,22 +24,37 @@ const QuestStickerGrid = dynamic(
 );
 
 export function QuestsTab() {
+  const { questNavFocus } = useAppTab();
   const { status: walletStatus, address: walletAddress } = useWalletSession();
   const { active: demoActive } = useDemoMode();
   const { data: profile, refetch, isLoading, isFetching } = useProfile(walletAddress);
   const showPath = demoActive || walletStatus === "ready";
   const progress = profile?.progress ?? 0;
   const pathDone = Boolean(profile?.pathCompletedAt);
+  const claimFocus = questNavFocus === "claim";
+  const claimQuest = profile?.quests.find((q) => q.id === "claim");
+  const claimReclaimDue = Boolean(profile && isDailyClaimDue(profile));
 
   return (
     <main className="flex flex-1 flex-col">
       <PageHeader
-        eyebrow={pathDone ? "Path done" : `${progress}%`}
-        title="Your path"
-        subtitle="Tap a quest. Claim daily G$ before the board cools."
+        eyebrow={
+          claimFocus
+            ? claimReclaimDue
+              ? "Reclaim due"
+              : "Daily run"
+            : pathDone
+              ? "Path done"
+              : `${progress}%`
+        }
+        title={claimFocus ? "Claim & bet" : "Your path"}
+        subtitle={
+          claimFocus
+            ? "Claim today's G$, lock your move, then deliver it on-chain."
+            : "Tap a quest. Claim daily G$ before the board cools."
+        }
         showConnect
       />
-
 
       <Suspense fallback={null}>
         <FvReturnBanner />
@@ -55,6 +75,28 @@ export function QuestsTab() {
         </div>
       ) : isLoading && !profile ? (
         <HomeSkeleton />
+      ) : claimFocus && profile ? (
+        <>
+          {isFetching ? (
+            <p className="mb-2 text-center text-[10px] text-muted" aria-live="polite">
+              Syncing…
+            </p>
+          ) : null}
+          <div className="flex flex-col gap-4 px-4 pb-6">
+            <TodaysRunCard profile={profile} />
+            {claimQuest ? (
+              <div className="card p-4">
+                <QuestAction quest={claimQuest} onUpdated={() => void refetch()} />
+              </div>
+            ) : null}
+            <p className="text-center text-xs text-muted">
+              Full onboarding path?{" "}
+              <TabLink tab="quests" className="vibe-link-all">
+                Open path board
+              </TabLink>
+            </p>
+          </div>
+        </>
       ) : (
         <>
           {isFetching && profile ? (
