@@ -10,7 +10,6 @@ import { useProfile } from "@/hooks/use-profile";
 import { useDemoMode } from "@/hooks/use-demo-mode";
 import { useWalletSession } from "@/hooks/use-wallet-session";
 import { useAppTab } from "@/hooks/use-app-tab";
-import { isDailyClaimDue } from "@/lib/daily-claim";
 import { useClaimAvailability } from "@/hooks/use-claim-availability";
 import { TodaysRunCard } from "@/components/todays-run-card";
 import { QuestAction } from "@/components/quest/quest-action";
@@ -34,7 +33,6 @@ export function QuestsTab() {
   const pathDone = Boolean(profile?.pathCompletedAt);
   const claimFocus = questNavFocus === "claim";
   const claimQuest = profile?.quests.find((q) => q.id === "claim");
-  const claimReclaimDue = Boolean(profile && isDailyClaimDue(profile));
   const { canClaimNow, claimBlocked } = useClaimAvailability(profile);
 
   return (
