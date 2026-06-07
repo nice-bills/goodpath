@@ -21,6 +21,7 @@ import { FlexShareButton } from "@/components/flex-share-button";
 import { GDollarChooser } from "@/components/g-dollar-chooser";
 import { ActionImpactFeedback } from "@/components/action-impact-feedback";
 import { useProfile } from "@/hooks/use-profile";
+import { isDailyClaimDue } from "@/lib/daily-claim";
 
 export function ClaimAction({
   quest,
@@ -44,8 +45,13 @@ export function ClaimAction({
     walletOnCelo,
     refetch: refetchCelo,
   } = useCeloBalance();
-  const entitlement = useClaimEntitlement(claimSDK, chainId, quest.unlocked && !loading);
+  const entitlement = useClaimEntitlement(
+    claimSDK,
+    chainId,
+    quest.unlocked && !loading && (!quest.completed || Boolean(profile && isDailyClaimDue(profile))),
+  );
   const claimAmount = entitlement.data ?? null;
+  const needsDailyReclaim = Boolean(profile && quest.completed && isDailyClaimDue(profile));
   const [isClaiming, setIsClaiming] = useState(false);
   const [claimError, setClaimError] = useState<ReturnType<typeof formatClaimError> | null>(
     null,
@@ -54,7 +60,7 @@ export function ClaimAction({
   const [forceFv, setForceFv] = useState(false);
 
   const fvFlow = useFvVerification({
-    enabled: quest.unlocked && !quest.completed,
+    enabled: quest.unlocked && (!quest.completed || needsDailyReclaim),
     onVerified: () => {
       setForceFv(false);
       onUpdated();
@@ -99,7 +105,7 @@ export function ClaimAction({
       ? chainConfigs[chainId].explorer.tx
       : (h: string) => `https://celoscan.io/tx/${h}`;
 
-  if (quest.completed) {
+  if (quest.completed && !needsDailyReclaim) {
     return (
       <QuestPanel quest={quest} variant={variant}>
         {profile ? (
@@ -154,6 +160,11 @@ export function ClaimAction({
 
   return (
     <QuestPanel quest={quest} variant={variant}>
+      {needsDailyReclaim ? (
+        <p className="mt-3 text-sm font-semibold text-accent">
+          Daily reclaim — grab today&apos;s G$ to keep your streak and unlock the run.
+        </p>
+      ) : null}
       {onWrongChain && (
         <p className="mt-3 text-xs text-loss">
           Switch to <strong>Celo</strong> before claiming.

@@ -1,6 +1,11 @@
 "use client";
 
-import { deriveDailyRun, summarizeActionImpact, type QuestId } from "@goodpath/shared";
+import {
+  deriveDailyRun,
+  summarizeActionImpact,
+  SUPPORT_ACK_META,
+  type QuestId,
+} from "@goodpath/shared";
 import type { ProfileResponse } from "@/lib/api";
 import { formatGsMoved, formatPoints } from "@/lib/format";
 
@@ -34,7 +39,10 @@ export function ActionImpactFeedback({
     receiptStrength: daily.receiptStrength,
   });
 
-  const gMoved = formatGsMoved(profile.league?.gMovedWei);
+  const gMoved =
+    questId === "support" && meta === SUPPORT_ACK_META && !hasTx
+      ? "Ack only"
+      : formatGsMoved(profile.league?.gMovedWei);
 
   return (
     <div className="action-impact" role="status">

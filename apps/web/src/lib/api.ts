@@ -68,7 +68,12 @@ export interface ProfileResponse {
   chainProofs?: ChainProof[];
   completions: Record<
     string,
-    { completedAt: string; txHash: string | null; meta?: string }
+    {
+      completedAt: string;
+      txHash: string | null;
+      meta?: string;
+      gAmountWei?: string;
+    }
   >;
   personalBests?: PersonalBests;
   league?: LeagueStanding;

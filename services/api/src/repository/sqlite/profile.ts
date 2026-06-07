@@ -2,6 +2,8 @@ import {
   CORE_PATH_QUEST_IDS,
   completionsFromIds,
   prerequisitesMet,
+  currentClaimPeriodDate,
+  previousClaimPeriodDate,
   type QuestId,
 } from "@goodpath/shared";
 import { getDb } from "../../db/connection.js";
@@ -13,13 +15,11 @@ function normalizeAddress(address: string): string {
 }
 
 function todayUtc(): string {
-  return new Date().toISOString().slice(0, 10);
+  return currentClaimPeriodDate();
 }
 
 function yesterdayUtc(): string {
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() - 1);
-  return d.toISOString().slice(0, 10);
+  return previousClaimPeriodDate(currentClaimPeriodDate());
 }
 
 export class QuestPrerequisiteError extends Error {
@@ -167,22 +167,44 @@ export class SqliteProfileRepository implements ProfileRepository {
       const completionMap = this.getCompletionMap(lower);
 
       if (completionMap[questId]) {
-        return {
-          streak: (
-            getDb()
-              .prepare("SELECT streak FROM profiles WHERE address = ?")
-              .get(lower) as { streak: number }
-          ).streak,
-          pathComplete: Boolean(
-            (
+        if (questId !== "claim") {
+          return {
+            streak: (
               getDb()
-                .prepare(
-                  "SELECT path_completed_at FROM profiles WHERE address = ?",
-                )
-                .get(lower) as { path_completed_at: string | null }
-            ).path_completed_at,
-          ),
-        };
+                .prepare("SELECT streak FROM profiles WHERE address = ?")
+                .get(lower) as { streak: number }
+            ).streak,
+            pathComplete: Boolean(
+              (
+                getDb()
+                  .prepare(
+                    "SELECT path_completed_at FROM profiles WHERE address = ?",
+                  )
+                  .get(lower) as { path_completed_at: string | null }
+              ).path_completed_at,
+            ),
+          };
+        }
+
+        getDb()
+          .prepare(
+            `UPDATE quest_completions
+           SET completed_at = datetime('now'), tx_hash = COALESCE(?, tx_hash)
+           WHERE address = ? AND quest_id = 'claim'`,
+          )
+          .run(txHash ?? null, lower);
+
+        const streak = this.touchStreakLocked(lower);
+        const pathComplete = Boolean(
+          (
+            getDb()
+              .prepare(
+                "SELECT path_completed_at FROM profiles WHERE address = ?",
+              )
+              .get(lower) as { path_completed_at: string | null }
+          ).path_completed_at,
+        );
+        return { streak, pathComplete };
       }
 
       const prereq = prerequisitesMet(questId, completionMap);

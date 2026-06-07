@@ -1,11 +1,17 @@
 import {
+  currentClaimPeriodDate,
+  isClaimedForPeriod,
+  isSameClaimPeriod,
+} from "./claim-period.js";
+import {
   DEPLOY_SAVE_META,
   DEPLOY_STREAM_META,
+  SUPPORT_ACK_META,
   type QuestId,
 } from "./quests.js";
 import { leaguePointsForQuest } from "./league-points.js";
 
-export type GDollarUseId = "tip" | "support" | "save" | "stream";
+export type GDollarUseId = "tip" | "support" | "save" | "stream" | "flex";
 
 export type ProofIdentityTitle =
   | "Daily Claimer"
@@ -16,10 +22,13 @@ export type ProofIdentityTitle =
 
 export interface GDollarUsePath {
   id: GDollarUseId;
-  questId: QuestId;
+  questId?: QuestId;
   label: string;
   subtitle: string;
-  hash: string;
+  /** Quest deep-link hash on the Claim tab. */
+  hash?: string;
+  /** App tab when not a quest action (e.g. Flex). */
+  tab?: "celebrate";
   /** Stream is the highest-status daily move. */
   premium?: boolean;
   deployMeta?: typeof DEPLOY_SAVE_META | typeof DEPLOY_STREAM_META;
@@ -57,6 +66,12 @@ export const G_DOLLAR_USE_PATHS: GDollarUsePath[] = [
     premium: true,
     deployMeta: DEPLOY_STREAM_META,
   },
+  {
+    id: "flex",
+    label: "Flex your run",
+    subtitle: "Share receipt, rank, and proofs",
+    tab: "celebrate",
+  },
 ];
 
 export interface DailyRunInput {
@@ -70,7 +85,12 @@ export interface DailyRunInput {
   }[];
   completions: Record<
     string,
-    { completedAt: string; txHash?: string | null; meta?: string | null }
+    {
+      completedAt: string;
+      txHash?: string | null;
+      meta?: string | null;
+      gAmountWei?: string;
+    }
   >;
   league?: {
     points: number;
@@ -78,7 +98,7 @@ export interface DailyRunInput {
     personAbove?: { label: string; points: number; gap: number } | null;
     gMovedWei?: string;
   };
-  /** ISO date YYYY-MM-DD; defaults to UTC today. */
+  /** Claim period id YYYY-MM-DD; defaults to current GoodDollar window. */
   today?: string;
 }
 
@@ -94,14 +114,16 @@ export interface DailyRunState {
   primaryIdentity: ProofIdentityTitle | null;
   receiptStrength: number;
   runCompleteToday: boolean;
+  /** Wei from today's claim tx when recorded. */
+  fuelWei: string | null;
+  rivalGap: { label: string; gap: number } | null;
 }
 
-function todayUtc(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function isOnDate(completedAt: string, date: string): boolean {
-  return completedAt.slice(0, 10) === date;
+export function isDailyClaimDue(input: DailyRunInput): boolean {
+  const claimQuest = input.quests.find((q) => q.id === "claim");
+  if (!claimQuest?.unlocked) return false;
+  const period = input.today ?? currentClaimPeriodDate();
+  return !isClaimedForPeriod(input.lastActiveDate, period);
 }
 
 export function deriveIdentityTitles(
@@ -160,6 +182,7 @@ export function bestNextGUse(
   const order: GDollarUseId[] = ["stream", "support", "tip", "save"];
   for (const useId of order) {
     const path = G_DOLLAR_USE_PATHS.find((p) => p.id === useId)!;
+    if (!path.questId) continue;
     const quest = quests.find((q) => q.id === path.questId);
     if (!quest?.unlocked) continue;
 
@@ -204,18 +227,26 @@ function buildTomorrowHook(input: {
 }
 
 export function deriveDailyRun(input: DailyRunInput): DailyRunState {
-  const today = input.today ?? todayUtc();
-  const claimRow = input.completions.claim;
-  const claimedToday = claimRow
-    ? isOnDate(claimRow.completedAt, today)
-    : input.lastActiveDate === today;
+  const period = input.today ?? currentClaimPeriodDate();
+  const claimedToday = isClaimedForPeriod(input.lastActiveDate, period);
 
   const usedGToday =
-    (input.completions.tip && isOnDate(input.completions.tip.completedAt, today)) ||
+    (input.completions.tip &&
+      isSameClaimPeriod(input.completions.tip.completedAt, period)) ||
     (input.completions.support &&
-      isOnDate(input.completions.support.completedAt, today)) ||
+      isSameClaimPeriod(input.completions.support.completedAt, period)) ||
     (input.completions.deploy &&
-      isOnDate(input.completions.deploy.completedAt, today));
+      isSameClaimPeriod(input.completions.deploy.completedAt, period));
+
+  const claimRow = input.completions.claim;
+  const fuelWei =
+    claimedToday && claimRow?.gAmountWei && claimRow.gAmountWei !== "0"
+      ? claimRow.gAmountWei
+      : null;
+
+  const rival = input.league?.personAbove;
+  const rivalGap =
+    rival && rival.gap > 0 ? { label: rival.label, gap: rival.gap } : null;
 
   const bestNextUse = bestNextGUse(input.quests, input.completions);
   const bestPath = bestNextUse
@@ -249,6 +280,8 @@ export function deriveDailyRun(input: DailyRunInput): DailyRunState {
       streak: input.streak,
     }),
     runCompleteToday,
+    fuelWei,
+    rivalGap,
   };
 }
 
@@ -292,7 +325,10 @@ export function summarizeActionImpact(input: ActionImpactInput): ActionImpactSum
   const headlines: Partial<Record<QuestId, string>> = {
     claim: "Today's G$ is in your wallet.",
     tip: "You moved real G$ on Celo.",
-    support: "You backed something with G$.",
+    support:
+      input.meta === SUPPORT_ACK_META && !input.hasTx
+        ? "You backed something — impact logged."
+        : "You backed something with G$.",
     deploy:
       input.meta === DEPLOY_STREAM_META
         ? "Your G$ is streaming every second."

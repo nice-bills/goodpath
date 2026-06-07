@@ -1,16 +1,18 @@
 "use client";
 
-import { CheckCircle, Fire, Gift } from "@phosphor-icons/react";
 import {
-  deriveDailyRun,
-  G_DOLLAR_USE_PATHS,
-  type DailyRunState,
-} from "@goodpath/shared";
+  CheckCircle,
+  Fire,
+  Gift,
+  TrendUp,
+} from "@phosphor-icons/react";
+import { deriveDailyRun } from "@goodpath/shared";
 import type { ProfileResponse } from "@/lib/api";
+import { formatGsMoved } from "@/lib/format";
 import { TabLink } from "@/components/tab-link";
 import { GDollarChooser } from "@/components/g-dollar-chooser";
 
-function ClaimStatus({ daily }: { daily: DailyRunState }) {
+function ClaimStatus({ daily }: { daily: ReturnType<typeof deriveDailyRun> }) {
   return (
     <div className="todays-run-stat">
       <span className="todays-run-stat-label">Claim</span>
@@ -33,7 +35,31 @@ function ClaimStatus({ daily }: { daily: DailyRunState }) {
   );
 }
 
-function StreakStatus({ daily, streak }: { daily: DailyRunState; streak: number }) {
+function FuelStatus({ daily }: { daily: ReturnType<typeof deriveDailyRun> }) {
+  const fuelLabel = daily.fuelWei ? formatGsMoved(daily.fuelWei) : null;
+  return (
+    <div className="todays-run-stat">
+      <span className="todays-run-stat-label">Fuel</span>
+      <span
+        className={`todays-run-stat-value${daily.claimedToday ? " is-warm" : ""}`}
+      >
+        {daily.claimedToday
+          ? fuelLabel
+            ? `${fuelLabel} G$`
+            : "In wallet"
+          : "Claim first"}
+      </span>
+    </div>
+  );
+}
+
+function StreakStatus({
+  daily,
+  streak,
+}: {
+  daily: ReturnType<typeof deriveDailyRun>;
+  streak: number;
+}) {
   return (
     <div className="todays-run-stat">
       <span className="todays-run-stat-label">Streak</span>
@@ -47,11 +73,24 @@ function StreakStatus({ daily, streak }: { daily: DailyRunState; streak: number 
   );
 }
 
+function RivalStatus({ daily }: { daily: ReturnType<typeof deriveDailyRun> }) {
+  const gap = daily.rivalGap;
+  return (
+    <div className="todays-run-stat">
+      <span className="todays-run-stat-label">Rival gap</span>
+      <span className="todays-run-stat-value">
+        <TrendUp className="h-3.5 w-3.5" weight="bold" aria-hidden />
+        {gap ? `${gap.gap} pt${gap.gap === 1 ? "" : "s"} vs ${gap.label}` : "Clear"}
+      </span>
+    </div>
+  );
+}
+
 function BestNextMove({
   daily,
   verified,
 }: {
-  daily: DailyRunState;
+  daily: ReturnType<typeof deriveDailyRun>;
   verified: boolean;
 }) {
   if (!verified) {
@@ -75,21 +114,20 @@ function BestNextMove({
 
   if (daily.runCompleteToday) {
     return (
-      <p className="todays-run-move todays-run-move-done">
-        Today&apos;s run is locked in. Flex your receipt or come back tomorrow.
-      </p>
+      <>
+        <p className="todays-run-move todays-run-move-done">
+          Today&apos;s run is locked in. Flex your receipt or come back tomorrow.
+        </p>
+        <GDollarChooser compact title="Flex or keep moving" />
+      </>
     );
   }
-
-  const path = daily.bestNextUse
-    ? G_DOLLAR_USE_PATHS.find((p) => p.id === daily.bestNextUse)
-    : null;
 
   return (
     <>
       <p className="todays-run-move">
-        {path
-          ? `Best next move: ${path.label.toLowerCase()}.`
+        {daily.bestNextUseLabel
+          ? `Best next move: ${daily.bestNextUseLabel.toLowerCase()}.`
           : "Pick where today's G$ goes."}
       </p>
       <GDollarChooser compact />
@@ -122,7 +160,9 @@ export function TodaysRunCard({ profile }: { profile: ProfileResponse }) {
 
       <div className="todays-run-stats">
         <ClaimStatus daily={daily} />
+        <FuelStatus daily={daily} />
         <StreakStatus daily={daily} streak={streak} />
+        <RivalStatus daily={daily} />
       </div>
 
       <BestNextMove daily={daily} verified={verified} />

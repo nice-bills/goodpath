@@ -14,13 +14,13 @@ import { ReturnPulseBanner } from "@/components/vibe/return-pulse-banner";
 import { TodaysRunCard } from "@/components/todays-run-card";
 import { TesterFeedbackBanner } from "@/components/tester-feedback-banner";
 import { useReturnPulse } from "@/hooks/use-return-pulse";
+import { isDailyClaimDue } from "@/lib/daily-claim";
 
 export function HomeRunVibe({ profile }: { profile: ProfileResponse }) {
   const pathDone = Boolean(profile.pathCompletedAt);
   const verified = Boolean(profile.completions.verify);
 
-  const claimQuest = profile.quests.find((q) => q.id === "claim");
-  const claimDue = claimQuest?.unlocked && !claimQuest.completed;
+  const claimDue = isDailyClaimDue(profile);
   const { pulse, dismiss } = useReturnPulse(profile);
 
   return (

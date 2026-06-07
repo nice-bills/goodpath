@@ -4,6 +4,7 @@ import {
   Coins,
   HandHeart,
   Plant,
+  ShareNetwork,
   WaveSine,
 } from "@phosphor-icons/react";
 import { G_DOLLAR_USE_PATHS, type GDollarUsePath } from "@goodpath/shared";
@@ -14,17 +15,15 @@ const useIcons = {
   support: HandHeart,
   save: Plant,
   stream: WaveSine,
+  flex: ShareNetwork,
 } as const;
 
 function UseOption({ path }: { path: GDollarUsePath }) {
   const Icon = useIcons[path.id];
+  const className = `g-use-option${path.premium ? " g-use-option-premium" : ""}`;
 
-  return (
-    <TabLink
-      tab="quests"
-      hash={path.hash}
-      className={`g-use-option${path.premium ? " g-use-option-premium" : ""}`}
-    >
+  const inner = (
+    <>
       <span className="g-use-option-icon" aria-hidden>
         <Icon className="h-4 w-4" weight="bold" />
       </span>
@@ -35,6 +34,20 @@ function UseOption({ path }: { path: GDollarUsePath }) {
       {path.premium ? (
         <span className="g-use-option-badge">Top status</span>
       ) : null}
+    </>
+  );
+
+  if (path.tab === "celebrate") {
+    return (
+      <TabLink tab="celebrate" className={className}>
+        {inner}
+      </TabLink>
+    );
+  }
+
+  return (
+    <TabLink tab="quests" hash={path.hash} className={className}>
+      {inner}
     </TabLink>
   );
 }

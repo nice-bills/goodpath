@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { ProfileResponse } from "@/lib/api";
 import type { AppTab } from "@/lib/app-tab";
+import { isDailyClaimDue } from "@/lib/daily-claim";
 
 const HINT_KEY = "goodpath_claim_tab_hint";
 
@@ -19,7 +20,7 @@ export function useClaimTabHint(
       return;
     }
     const claim = profile.quests.find((q) => q.id === "claim");
-    if (!claim?.unlocked || claim.completed) {
+    if (!claim?.unlocked || !isDailyClaimDue(profile)) {
       setShow(false);
       return;
     }

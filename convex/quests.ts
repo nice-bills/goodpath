@@ -31,7 +31,7 @@ export const complete = action({
     let gAmountWei: string | undefined;
     if (
       args.txHash &&
-      ["tip", "support", "deploy"].includes(args.questId)
+      ["tip", "support", "deploy", "claim"].includes(args.questId)
     ) {
       gAmountWei = await ctx.runAction(internal.verify.sumGsOutflow, {
         address: lower,

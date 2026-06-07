@@ -4,6 +4,7 @@ import { Clock, Lightning } from "@phosphor-icons/react";
 import { useClaimCountdown } from "@/hooks/use-claim-countdown";
 import { TabLink } from "@/components/tab-link";
 import type { ProfileResponse } from "@/lib/api";
+import { isDailyClaimDue } from "@/lib/daily-claim";
 
 function CountdownDigits({
   hours,
@@ -30,8 +31,7 @@ function CountdownDigits({
 
 export function ClaimCountdownStrip({ profile }: { profile?: ProfileResponse }) {
   const countdown = useClaimCountdown();
-  const claimQuest = profile?.quests.find((q) => q.id === "claim");
-  const claimDue = claimQuest?.unlocked && !claimQuest.completed;
+  const claimDue = profile ? isDailyClaimDue(profile) : false;
   const urgent = countdown.hours < 2;
 
   return (

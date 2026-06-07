@@ -2,10 +2,12 @@ import {
   CORE_PATH_QUEST_IDS,
   completionsFromIds,
   prerequisitesMet,
+  currentClaimPeriodDate,
+  previousClaimPeriodDate,
   type QuestId,
 } from "@goodpath/shared";
 import type { MutationCtx } from "../_generated/server";
-import { todayUtc, yesterdayUtc, normalizeAddress, getWeekStartUtc } from "./dates";
+import { normalizeAddress, getWeekStartUtc } from "./dates";
 import { ensureProfile } from "./ensureProfile";
 import { proofTypeForQuest } from "./proofType";
 import { syncLeagueAfterQuest } from "./leagueWrites";
@@ -36,8 +38,48 @@ export async function completeQuestRecord(
     .first();
 
   if (existing) {
+    if (questId !== "claim") {
+      return {
+        streak: profile.streak,
+        pathComplete: Boolean(profile.pathCompletedAt),
+      };
+    }
+
+    const now = new Date().toISOString();
+    await ctx.db.patch(existing._id, {
+      completedAt: now,
+      ...(txHash ? { txHash } : {}),
+      ...(gAmountWei && gAmountWei !== "0" ? { gAmountWei } : {}),
+    });
+
+    const streak = await touchStreak(ctx, lower, profile);
+    const proofType = proofTypeForQuest(questId, meta, Boolean(txHash ?? existing.txHash));
+
+    await ctx.db.insert("proofEvents", {
+      address: lower,
+      questId,
+      proofType,
+      txHash: txHash ?? existing.txHash ?? undefined,
+      meta: meta ?? undefined,
+      createdAt: now,
+    });
+
+    await ctx.db.insert("receiptEvents", {
+      address: lower,
+      kind: "quest_complete",
+      payload: JSON.stringify({
+        questId,
+        proofType,
+        txHash: txHash ?? existing.txHash ?? null,
+        dailyReclaim: true,
+      }),
+      createdAt: now,
+    });
+
+    await syncLeagueAfterQuest(ctx, lower);
+
     return {
-      streak: profile.streak,
+      streak,
       pathComplete: Boolean(profile.pathCompletedAt),
     };
   }
@@ -116,7 +158,7 @@ export async function completeQuestRecord(
     createdAt: now,
   });
 
-  if (gAmountWei && gAmountWei !== "0" && ["tip", "support", "deploy"].includes(questId)) {
+  if (gAmountWei && gAmountWei !== "0" && ["tip", "support", "deploy", "claim"].includes(questId)) {
     await updateGMovedCache(ctx, lower, gAmountWei);
   }
 
@@ -130,13 +172,13 @@ async function touchStreak(
   lower: string,
   profile: { _id: import("../_generated/dataModel").Id<"profiles">; streak: number; lastActiveDate?: string; longestStreak: number },
 ): Promise<number> {
-  const today = todayUtc();
+  const period = currentClaimPeriodDate();
   let streak = profile.streak;
 
-  if (profile.lastActiveDate === today) {
+  if (profile.lastActiveDate === period) {
     return streak;
   }
-  if (profile.lastActiveDate === yesterdayUtc()) {
+  if (profile.lastActiveDate === previousClaimPeriodDate(period)) {
     streak += 1;
   } else {
     streak = 1;
@@ -145,7 +187,7 @@ async function touchStreak(
   const longest = Math.max(profile.longestStreak, streak);
   await ctx.db.patch("profiles", profile._id, {
     streak,
-    lastActiveDate: today,
+    lastActiveDate: period,
     longestStreak: longest,
   });
   return streak;
