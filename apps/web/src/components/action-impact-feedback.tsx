@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  COMMITMENT_BONUS_POINTS,
   deriveDailyRun,
+  questCompletionMatchesCommit,
   summarizeActionImpact,
   SUPPORT_ACK_META,
   type QuestId,
@@ -39,6 +41,13 @@ export function ActionImpactFeedback({
     receiptStrength: daily.receiptStrength,
   });
 
+  const commitmentBonus =
+    daily.commitmentFulfilled &&
+    daily.commitment &&
+    questCompletionMatchesCommit(daily.commitment.useId, questId, meta, hasTx)
+      ? COMMITMENT_BONUS_POINTS
+      : 0;
+
   const gMoved =
     questId === "support" && meta === SUPPORT_ACK_META && !hasTx
       ? "Ack only"
@@ -47,6 +56,11 @@ export function ActionImpactFeedback({
   return (
     <div className="action-impact" role="status">
       <p className="action-impact-headline">{impact.headline}</p>
+      {commitmentBonus > 0 ? (
+        <p className="action-impact-commit">
+          Bet delivered — +{commitmentBonus} league pts.
+        </p>
+      ) : null}
       <dl className="action-impact-grid">
         <div>
           <dt>League pts</dt>

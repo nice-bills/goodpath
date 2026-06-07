@@ -10,6 +10,7 @@ import type { MutationCtx } from "../_generated/server";
 import { normalizeAddress, getWeekStartUtc } from "./dates";
 import { ensureProfile } from "./ensureProfile";
 import { proofTypeForQuest } from "./proofType";
+import { tryFulfillCommitment } from "./commitmentLogic";
 import { syncLeagueAfterQuest } from "./leagueWrites";
 
 export class QuestPrerequisiteError extends Error {
@@ -160,6 +161,10 @@ export async function completeQuestRecord(
 
   if (gAmountWei && gAmountWei !== "0" && ["tip", "support", "deploy", "claim"].includes(questId)) {
     await updateGMovedCache(ctx, lower, gAmountWei);
+  }
+
+  if (questId === "tip" || questId === "support" || questId === "deploy") {
+    await tryFulfillCommitment(ctx, lower, questId, meta, Boolean(txHash));
   }
 
   await syncLeagueAfterQuest(ctx, lower);

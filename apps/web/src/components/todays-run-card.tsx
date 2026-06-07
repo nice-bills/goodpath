@@ -4,6 +4,8 @@ import {
   CheckCircle,
   Fire,
   Gift,
+  Lock,
+  Target,
   TrendUp,
 } from "@phosphor-icons/react";
 import { deriveDailyRun } from "@goodpath/shared";
@@ -11,6 +13,8 @@ import type { ProfileResponse } from "@/lib/api";
 import { formatGsMoved } from "@/lib/format";
 import { TabLink } from "@/components/tab-link";
 import { GDollarChooser } from "@/components/g-dollar-chooser";
+import { DailyCommitLock } from "@/components/daily-commit-lock";
+import { DailyCommitLocked } from "@/components/daily-commit-locked";
 
 function ClaimStatus({ daily }: { daily: ReturnType<typeof deriveDailyRun> }) {
   return (
@@ -28,6 +32,47 @@ function ClaimStatus({ daily }: { daily: ReturnType<typeof deriveDailyRun> }) {
           <>
             <Gift className="h-3.5 w-3.5" weight="bold" aria-hidden />
             Not yet
+          </>
+        )}
+      </span>
+    </div>
+  );
+}
+
+function BetStatus({ daily }: { daily: ReturnType<typeof deriveDailyRun> }) {
+  return (
+    <div className="todays-run-stat">
+      <span className="todays-run-stat-label">Bet</span>
+      <span
+        className={`todays-run-stat-value${
+          daily.commitmentFulfilled
+            ? " is-done"
+            : daily.commitDue
+              ? " is-due"
+              : daily.commitment
+                ? " is-warm"
+                : ""
+        }`}
+      >
+        {daily.commitmentFulfilled ? (
+          <>
+            <CheckCircle className="h-3.5 w-3.5" weight="fill" aria-hidden />
+            Delivered
+          </>
+        ) : daily.commitDue ? (
+          <>
+            <Target className="h-3.5 w-3.5" weight="bold" aria-hidden />
+            Open
+          </>
+        ) : daily.commitment ? (
+          <>
+            <Lock className="h-3.5 w-3.5" weight="bold" aria-hidden />
+            Locked
+          </>
+        ) : (
+          <>
+            <Target className="h-3.5 w-3.5" weight="bold" aria-hidden />
+            —
           </>
         )}
       </span>
@@ -112,6 +157,14 @@ function BestNextMove({
     );
   }
 
+  if (daily.commitDue) {
+    return <DailyCommitLock />;
+  }
+
+  if (daily.commitment && !daily.commitmentFulfilled) {
+    return <DailyCommitLocked commitment={daily.commitment} />;
+  }
+
   if (daily.runCompleteToday) {
     return (
       <>
@@ -160,6 +213,7 @@ export function TodaysRunCard({ profile }: { profile: ProfileResponse }) {
 
       <div className="todays-run-stats">
         <ClaimStatus daily={daily} />
+        <BetStatus daily={daily} />
         <FuelStatus daily={daily} />
         <StreakStatus daily={daily} streak={streak} />
         <RivalStatus daily={daily} />

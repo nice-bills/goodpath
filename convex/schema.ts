@@ -89,6 +89,22 @@ export default defineSchema({
     redeemedBy: v.optional(v.string()),
   }).index("by_code", ["code"]),
 
+  /** Daily G$ move lock — one bet per GoodDollar claim window. */
+  dailyCommitments: defineTable({
+    address: v.string(),
+    claimPeriod: v.string(),
+    useId: v.string(),
+    committedAt: v.string(),
+    fulfilledAt: v.optional(v.string()),
+    bonusGranted: v.optional(v.boolean()),
+    /** v2 on-chain escrow — unused in soft v1 */
+    escrowWei: v.optional(v.string()),
+    escrowTxHash: v.optional(v.string()),
+    potStatus: v.optional(v.string()),
+  })
+    .index("by_address_period", ["address", "claimPeriod"])
+    .index("by_address", ["address"]),
+
   /** User-declared weekly run goal — real wallets only, optional public feed. */
   weeklyGoals: defineTable({
     address: v.string(),

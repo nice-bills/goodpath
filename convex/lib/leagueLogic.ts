@@ -6,6 +6,7 @@ import {
   personAboveInDivision,
   seededDivisionRank,
   leaguePointsForQuest,
+  COMMITMENT_BONUS_POINTS,
   REFERRAL_PATH_BONUS,
   type QuestId,
 } from "@goodpath/shared";
@@ -56,6 +57,7 @@ export function computeWeeklyPoints(
   completions: Record<string, CompletionRecord>,
   referralBonus: number,
   weekStart: string,
+  commitmentBonus = 0,
 ): number {
   let points = 0;
   for (const [questId, row] of Object.entries(completions)) {
@@ -72,7 +74,28 @@ export function computeWeeklyPoints(
     points += 50;
   }
   points += referralBonus;
+  points += commitmentBonus;
   return points;
+}
+
+export async function countCommitmentBonusThisWeek(
+  ctx: DbCtx,
+  address: string,
+  weekStart: string,
+): Promise<number> {
+  const lower = normalizeAddress(address);
+  const rows = await ctx.db
+    .query("dailyCommitments")
+    .withIndex("by_address", (q) => q.eq("address", lower))
+    .collect();
+
+  let bonus = 0;
+  for (const row of rows) {
+    if (!row.bonusGranted || !row.fulfilledAt) continue;
+    if (row.fulfilledAt.slice(0, 10) < weekStart) continue;
+    bonus += COMMITMENT_BONUS_POINTS;
+  }
+  return bonus;
 }
 
 async function countReferralBonus(
@@ -105,12 +128,14 @@ export async function buildLeagueStanding(
   const lower = normalizeAddress(address);
   const { weekStart, periodId } = season;
   const referralBonus = await countReferralBonus(ctx, lower, weekStart);
+  const commitmentBonus = await countCommitmentBonusThisWeek(ctx, lower, weekStart);
   const myPoints = computeWeeklyPoints(
     streak,
     pathCompletedAt ?? null,
     completions,
     referralBonus,
     weekStart,
+    commitmentBonus,
   );
 
   const active = await loadWeeklyActiveStandings(

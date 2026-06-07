@@ -27,6 +27,9 @@ export const DEPLOY_SAVE_BONUS = 0;
 /** League pts credited to referrer when a referred wallet completes the path this week. */
 export const REFERRAL_PATH_BONUS = 15;
 
+/** Bonus when a daily G$ commitment is delivered on-chain. */
+export const COMMITMENT_BONUS_POINTS = 4;
+
 export function leaguePointsForQuest(
   questId: QuestId,
   meta?: string | null,

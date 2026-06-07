@@ -7,6 +7,8 @@ import {
   isQuestUnlocked,
   nextMoveHint,
   deriveDailyRun,
+  currentClaimPeriodDate,
+  isCommitmentUseId,
   type QuestId,
 } from "@goodpath/shared";
 import type { QueryCtx } from "../_generated/server";
@@ -15,6 +17,7 @@ import type { SeasonContext } from "./leagueLogic";
 import { proofTypeForQuest } from "./proofType";
 import { buildLeagueStanding, loadCompletions } from "./leagueLogic";
 import { countReferralsCompletedThisWeek } from "./referrals";
+import { getCommitmentForPeriod } from "./commitmentLogic";
 
 export async function buildProfilePayload(
   ctx: QueryCtx,
@@ -109,6 +112,9 @@ export async function buildProfilePayload(
     .withIndex("by_address", (q) => q.eq("address", lower))
     .collect();
 
+  const claimPeriod = currentClaimPeriodDate();
+  const commitmentRow = await getCommitmentForPeriod(ctx, lower, claimPeriod);
+
   const dailyRun = deriveDailyRun({
     lastActiveDate: profile.lastActiveDate ?? null,
     streak: profile.streak,
@@ -125,6 +131,16 @@ export async function buildProfilePayload(
       personAbove: league.personAbove ?? null,
       gMovedWei: league.gMovedWei,
     },
+    today: claimPeriod,
+    commitment:
+      commitmentRow && isCommitmentUseId(commitmentRow.useId)
+        ? {
+            useId: commitmentRow.useId,
+            committedAt: commitmentRow.committedAt,
+            fulfilled: Boolean(commitmentRow.fulfilledAt),
+            fulfilledAt: commitmentRow.fulfilledAt ?? null,
+          }
+        : null,
   });
 
   return {

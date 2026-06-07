@@ -9,8 +9,10 @@
  */
 
 import type * as activity from "../activity.js";
+import type * as commitments from "../commitments.js";
 import type * as explore from "../explore.js";
 import type * as lib_address from "../lib/address.js";
+import type * as lib_commitmentLogic from "../lib/commitmentLogic.js";
 import type * as lib_dates from "../lib/dates.js";
 import type * as lib_ensureProfile from "../lib/ensureProfile.js";
 import type * as lib_leagueLogic from "../lib/leagueLogic.js";
@@ -46,8 +48,10 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   activity: typeof activity;
+  commitments: typeof commitments;
   explore: typeof explore;
   "lib/address": typeof lib_address;
+  "lib/commitmentLogic": typeof lib_commitmentLogic;
   "lib/dates": typeof lib_dates;
   "lib/ensureProfile": typeof lib_ensureProfile;
   "lib/leagueLogic": typeof lib_leagueLogic;

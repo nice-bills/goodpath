@@ -5,7 +5,10 @@ import {
   SUPPORT_ACK_META,
   type QuestId,
 } from "./quests.js";
-import { leaguePointsForQuest } from "./league-points.js";
+import {
+  COMMITMENT_BONUS_POINTS,
+  leaguePointsForQuest,
+} from "./league-points.js";
 
 export type GDollarUseId = "tip" | "support" | "save" | "stream" | "flex";
 
@@ -96,6 +99,25 @@ export interface DailyRunInput {
   };
   /** Claim period id YYYY-MM-DD; defaults to current GoodDollar window. */
   today?: string;
+  /** Today's locked G$ move bet, if any. */
+  commitment?: DailyCommitmentInput | null;
+}
+
+export type CommitmentUseId = Exclude<GDollarUseId, "flex">;
+
+export interface DailyCommitmentInput {
+  useId: CommitmentUseId;
+  committedAt: string;
+  fulfilled: boolean;
+  fulfilledAt?: string | null;
+}
+
+export interface DailyCommitmentState {
+  useId: CommitmentUseId;
+  label: string;
+  committedAt: string;
+  fulfilled: boolean;
+  bonusPoints: number;
 }
 
 export interface DailyRunState {
@@ -103,6 +125,9 @@ export interface DailyRunState {
   streakAlive: boolean;
   streakAtRisk: boolean;
   usedGToday: boolean;
+  commitDue: boolean;
+  commitment: DailyCommitmentState | null;
+  commitmentFulfilled: boolean;
   bestNextUse: GDollarUseId | null;
   bestNextUseLabel: string | null;
   tomorrowHook: string;
@@ -113,6 +138,45 @@ export interface DailyRunState {
   /** Wei from today's claim tx when recorded. */
   fuelWei: string | null;
   rivalGap: { label: string; gap: number } | null;
+}
+
+export { COMMITMENT_BONUS_POINTS };
+
+const COMMITMENT_USE_IDS: CommitmentUseId[] = ["tip", "support", "save", "stream"];
+
+export function isCommitmentUseId(id: string): id is CommitmentUseId {
+  return (COMMITMENT_USE_IDS as string[]).includes(id);
+}
+
+/** True when a quest completion honors the locked daily move. */
+export function questCompletionMatchesCommit(
+  useId: CommitmentUseId,
+  questId: QuestId,
+  meta?: string | null,
+  hasTx?: boolean,
+): boolean {
+  const path = G_DOLLAR_USE_PATHS.find((p) => p.id === useId);
+  if (!path?.questId || path.questId !== questId) return false;
+  if (useId === "support" && !hasTx) return false;
+  if (path.deployMeta) return meta === path.deployMeta;
+  return true;
+}
+
+function commitmentLabel(useId: CommitmentUseId): string {
+  return G_DOLLAR_USE_PATHS.find((p) => p.id === useId)?.label ?? useId;
+}
+
+function buildCommitmentState(
+  row: DailyCommitmentInput | null | undefined,
+): DailyCommitmentState | null {
+  if (!row) return null;
+  return {
+    useId: row.useId,
+    label: commitmentLabel(row.useId),
+    committedAt: row.committedAt,
+    fulfilled: row.fulfilled,
+    bonusPoints: row.fulfilled ? COMMITMENT_BONUS_POINTS : 0,
+  };
 }
 
 /** True when a claim completion exists for the current GoodDollar claim window. */
@@ -208,6 +272,9 @@ export function bestNextGUse(
 function buildTomorrowHook(input: {
   claimedToday: boolean;
   usedGToday: boolean;
+  commitDue: boolean;
+  commitment: DailyCommitmentState | null;
+  commitmentFulfilled: boolean;
   streak: number;
   streakAtRisk: boolean;
   league?: DailyRunInput["league"];
@@ -218,6 +285,12 @@ function buildTomorrowHook(input: {
   }
   if (input.streakAtRisk) {
     return "Claim tomorrow or your streak cools off.";
+  }
+  if (input.commitDue) {
+    return "Lock your move or tomorrow starts cold.";
+  }
+  if (input.commitment && !input.commitmentFulfilled) {
+    return `You bet on ${input.commitment.label.toLowerCase()}. Deliver before the window closes.`;
   }
   if (input.claimedToday && !input.usedGToday) {
     return "Tomorrow's claim is waiting — put today's G$ to work first.";
@@ -262,18 +335,27 @@ export function deriveDailyRun(input: DailyRunInput): DailyRunState {
   const identityTitles = deriveIdentityTitles(input.completions);
   const streakAlive = input.streak > 0;
   const streakAtRisk = streakAlive && !claimedToday;
-  const runCompleteToday = claimedToday && usedGToday;
+  const commitment = buildCommitmentState(input.commitment);
+  const commitmentFulfilled = Boolean(commitment?.fulfilled);
+  const commitDue = claimedToday && !commitment;
+  const runCompleteToday = claimedToday && commitmentFulfilled;
 
   return {
     claimedToday,
     streakAlive,
     streakAtRisk,
     usedGToday,
+    commitDue,
+    commitment,
+    commitmentFulfilled,
     bestNextUse,
     bestNextUseLabel: bestPath?.label ?? null,
     tomorrowHook: buildTomorrowHook({
       claimedToday,
       usedGToday,
+      commitDue,
+      commitment,
+      commitmentFulfilled,
       streak: input.streak,
       streakAtRisk,
       league: input.league,

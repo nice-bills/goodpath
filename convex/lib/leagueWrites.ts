@@ -11,6 +11,7 @@ import { getPeriodId, getWeekStartUtc, normalizeAddress } from "./dates";
 import {
   SEEDED_RIVAL_ADDRESSES,
   computeWeeklyPoints,
+  countCommitmentBonusThisWeek,
   loadCompletions,
 } from "./leagueLogic";
 import { countReferralsCompletedThisWeek } from "./referrals";
@@ -94,12 +95,18 @@ export async function syncLeagueAfterQuest(
     lower,
     weekStart,
   );
+  const commitmentBonus = await countCommitmentBonusThisWeek(
+    ctx,
+    lower,
+    weekStart,
+  );
   const myPoints = computeWeeklyPoints(
     profile.streak,
     profile.pathCompletedAt,
     completions,
     referralCount * REFERRAL_PATH_BONUS,
     weekStart,
+    commitmentBonus,
   );
 
   const division = divisionForPoints(myPoints);
